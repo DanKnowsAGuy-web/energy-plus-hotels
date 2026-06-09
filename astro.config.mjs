@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config';
 
-// GitHub Pages project site: https://danknowsaguy-web.github.io/energy-plus-landing/
+// GitHub Pages project site: https://danknowsaguy-web.github.io/energy-plus-hotels/
 export default defineConfig({
   site: 'https://danknowsaguy-web.github.io',
-  base: '/energy-plus-landing',
+  base: '/energy-plus-hotels',
 });

@@ -1,9 +1,9 @@
-# Energy Plus — Hotel Landing Page
+# Energy Plus: Hotel Landing Page
 
 Conversion-focused landing page for Energy Plus, an Independent Energy Solutions
 Partner for hotels. Built with [Astro](https://astro.build).
 
-**Live:** https://danknowsaguy-web.github.io/energy-plus-landing/
+**Live:** https://danknowsaguy-web.github.io/energy-plus-hotels/
 
 ## Develop
 
@@ -31,7 +31,7 @@ configured to serve that branch at the root.
 Several values are intentional placeholders, marked in source with `PLACEHOLDER`
 comments and a `.ph` class in the markup. Replace before publishing for real:
 
-- Verified floor rate (`[X]%`) — held blank until the methodology is locked
+- Verified floor rate (`[X]%`), held blank until the methodology is locked
 - Calculator floor rate constant (`src/components/Calculator.astro`)
 - Case studies (`src/components/Proof.astro`)
 - The booking CTA link (currently an in-page anchor)
