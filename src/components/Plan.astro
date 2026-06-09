@@ -1,0 +1,105 @@
+---
+const steps = [
+  {
+    n: "01",
+    title: "Book a thirty-minute pilot conversation",
+    body: "We look at your portfolio and tell you whether a pilot makes sense.",
+  },
+  {
+    n: "02",
+    title: "We diagnose and verify, on our dime",
+    body: "Technicians capture the readings, Cliff's team designs the program, and we prove the floor at your service entrance.",
+  },
+  {
+    n: "03",
+    title: "You see the number. Then you decide",
+    body: "Nothing is installed and nothing is owed until the floor is proven at your building.",
+  },
+];
+---
+
+<section class="section plan" aria-labelledby="plan-title">
+  <div class="container">
+    <div class="plan__head reveal">
+      <p class="eyebrow">The plan</p>
+      <h2 class="plan__title" id="plan-title">
+        Three steps. You decide after step two. We pay for step two.
+      </h2>
+    </div>
+
+    <ol class="plan__steps">
+      {
+        steps.map((s) => (
+          <li class="step reveal">
+            <span class="step__n">{s.n}</span>
+            <div class="step__content">
+              <h3 class="step__title">{s.title}</h3>
+              <p class="step__body">{s.body}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .plan {
+    border-top: 1px solid var(--line);
+  }
+  .plan__head {
+    max-width: 50rem;
+  }
+  .plan__title {
+    margin-top: var(--space-xs);
+    font-size: var(--step-3);
+    max-width: 22ch;
+  }
+
+  .plan__steps {
+    margin: var(--space-xl) 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0;
+    counter-reset: none;
+  }
+  .step {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: clamp(1rem, 4vw, 2.5rem);
+    align-items: baseline;
+    padding: clamp(1.4rem, 3vw, 2rem) 0;
+    border-top: 1px solid var(--line-strong);
+  }
+  .step:last-child {
+    border-bottom: 1px solid var(--line-strong);
+  }
+  .step__n {
+    font-family: var(--font-mono);
+    font-size: var(--step-1);
+    color: var(--gold-text);
+    font-variant-numeric: tabular-nums;
+  }
+  .step__title {
+    font-size: var(--step-2);
+    color: var(--ink);
+    max-width: 24ch;
+  }
+  .step__body {
+    margin-top: var(--space-xs);
+    color: var(--body);
+    font-size: var(--step-0);
+    line-height: 1.6;
+    max-width: 56ch;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .step:nth-child(2).reveal {
+      transition-delay: 0.08s;
+    }
+    .step:nth-child(3).reveal {
+      transition-delay: 0.16s;
+    }
+  }
+</style>

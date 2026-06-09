@@ -1,0 +1,359 @@
+---
+// PLACEHOLDER CALCULATOR
+// Base is ANNUAL BUILDING ELECTRICITY SPEND (builder's note 2), default ~$150k.
+// Floor rate is a placeholder (builder's note 3) — swap calc() for the locked
+// methodology once the demand-versus-bill question is resolved.
+---
+
+<section class="section calc" id="calculator" aria-labelledby="calc-title">
+  <div class="container">
+    <div class="calc__head reveal">
+      <p class="eyebrow">Model your own floor</p>
+      <h2 class="calc__title" id="calc-title">
+        Put in your electricity spend. See the conservative case.
+      </h2>
+      <p class="calc__lede lede">
+        This is a directional estimate, not a quote. The real number is measured
+        at your building during the pilot, and we pay for that measurement. We
+        would rather under-show it here than over-show it.
+      </p>
+    </div>
+
+    <div class="calc__panel reveal ph">
+      <form class="calc__form" id="calc-form" aria-describedby="calc-disclaimer">
+        <div class="control">
+          <div class="control__row">
+            <label for="spend">Annual building electricity spend</label>
+            <output id="spend-out" for="spend">$150,000</output>
+          </div>
+          <input
+            type="range"
+            id="spend"
+            name="spend"
+            min="40000"
+            max="1500000"
+            step="5000"
+            value="150000"
+          />
+          <div class="control__scale" aria-hidden="true">
+            <span>$40k</span><span>$1.5M</span>
+          </div>
+          <p class="control__hint">
+            Use the electricity line on your bills, not total energy. Power
+            quality work acts on the electrical side, so that is the only base
+            we apply a rate to.
+          </p>
+        </div>
+
+        <div class="control">
+          <span class="control__legend" id="type-legend">Property profile</span>
+          <div
+            class="segmented"
+            role="radiogroup"
+            aria-labelledby="type-legend"
+          >
+            <label class="seg">
+              <input type="radio" name="ptype" value="0.9" />
+              <span>Limited service</span>
+            </label>
+            <label class="seg">
+              <input type="radio" name="ptype" value="1" checked />
+              <span>Full service</span>
+            </label>
+            <label class="seg">
+              <input type="radio" name="ptype" value="1.15" />
+              <span>Resort</span>
+            </label>
+          </div>
+        </div>
+      </form>
+
+      <div class="calc__result" aria-live="polite">
+        <span class="calc__result-label">Estimated annual floor savings</span>
+        <span class="calc__result-value" id="result-value">$16,500</span>
+        <span class="calc__result-range" id="result-range">
+          conservative floor, whole building
+        </span>
+
+        <dl class="calc__breakdown">
+          <div>
+            <dt>Modeled floor rate</dt>
+            <dd id="result-rate">11.0%</dd>
+          </div>
+          <div>
+            <dt>Applied to</dt>
+            <dd class="calc__breakdown-text">Whole-building electricity</dd>
+          </div>
+        </dl>
+
+        <a href="#book" class="btn calc__cta">
+          Verify this at my building
+          <span class="btn__arrow" aria-hidden="true">&rarr;</span>
+        </a>
+        <p class="calc__disclaimer" id="calc-disclaimer">
+          Representative estimate using a conservative placeholder rate. Your
+          verified number is measured on site, at your meter, before any
+          commitment.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  (() => {
+    const form = document.getElementById("calc-form");
+    if (!form) return;
+
+    const fmt = (n) => "$" + Math.round(n).toLocaleString("en-US");
+
+    const spendEl = document.getElementById("spend");
+    const spendOut = document.getElementById("spend-out");
+    const valueEl = document.getElementById("result-value");
+    const rangeEl = document.getElementById("result-range");
+    const rateEl = document.getElementById("result-rate");
+
+    // PLACEHOLDER rate, held blank in the floor table on purpose. Replace with
+    // the locked methodology once demand-versus-bill is resolved.
+    const FLOOR_RATE = 0.11;
+
+    function calc() {
+      const spend = Number(spendEl.value);
+      const typeMult = Number(
+        form.querySelector('input[name="ptype"]:checked').value,
+      );
+      const floor = spend * FLOOR_RATE * typeMult;
+
+      spendOut.textContent = fmt(spend);
+      valueEl.textContent = fmt(floor);
+      rangeEl.textContent = "conservative floor, whole building";
+      rateEl.textContent = (FLOOR_RATE * typeMult * 100).toFixed(1) + "%";
+    }
+
+    form.addEventListener("input", calc);
+    calc();
+  })();
+</script>
+
+<style>
+  .calc {
+    border-top: 1px solid var(--line);
+  }
+  .calc__head {
+    max-width: 54rem;
+  }
+  .calc__title {
+    margin-top: var(--space-xs);
+    font-size: var(--step-3);
+    max-width: 20ch;
+  }
+  .calc__lede {
+    margin-top: var(--space-m);
+  }
+
+  .calc__panel {
+    margin-top: var(--space-xl);
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+    padding: clamp(1.5rem, 4vw, 2.75rem);
+    background: linear-gradient(
+      155deg,
+      var(--surface) 0%,
+      var(--surface-2) 100%
+    );
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    box-shadow: 0 40px 80px -50px rgba(0, 0, 0, 0.7);
+  }
+
+  .calc__form {
+    display: grid;
+    gap: var(--space-l);
+    align-content: start;
+  }
+
+  .control {
+    display: grid;
+    gap: 0.7rem;
+  }
+  .control__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-s);
+  }
+  .control label,
+  .control__legend {
+    font-size: var(--step-0);
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .control output {
+    font-family: var(--font-mono);
+    font-size: var(--step-0);
+    color: var(--gold-text);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .control__scale {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+  .control__hint {
+    font-size: var(--step--1);
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(162, 174, 189, 0.18);
+    outline-offset: 6px;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--gold);
+    border: 3px solid var(--surface);
+    box-shadow: 0 0 0 1px var(--gold), 0 4px 12px -2px var(--gold-glow);
+    cursor: pointer;
+    transition: transform 0.2s var(--ease-out-quart);
+  }
+  input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.12);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--gold);
+    border: 3px solid var(--surface);
+    box-shadow: 0 0 0 1px var(--gold);
+    cursor: pointer;
+  }
+
+  .segmented {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    padding: 4px;
+    background: rgba(10, 20, 34, 0.5);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-s);
+  }
+  .seg {
+    position: relative;
+  }
+  .seg input {
+    position: absolute;
+    opacity: 0;
+    inset: 0;
+    cursor: pointer;
+  }
+  .seg span {
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: 0.65em 0.4em;
+    border-radius: 6px;
+    font-size: var(--step--1);
+    color: var(--body);
+    transition: all 0.25s ease;
+  }
+  .seg input:checked + span {
+    background: rgba(199, 168, 107, 0.14);
+    color: var(--gold-text);
+    font-weight: 600;
+  }
+  .seg input:focus-visible + span {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+  }
+
+  .calc__result {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding-left: clamp(0px, 2vw, 1.5rem);
+    border-left: 1px solid var(--line);
+  }
+  .calc__result-label {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .calc__result-value {
+    font-family: var(--font-serif);
+    font-size: clamp(2.8rem, 6vw, 3.8rem);
+    line-height: 1;
+    color: var(--ink);
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+  }
+  .calc__result-range {
+    font-size: var(--step--1);
+    color: var(--body);
+  }
+  .calc__breakdown {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-s);
+    margin-block: var(--space-m) var(--space-s);
+    padding-top: var(--space-m);
+    border-top: 1px solid var(--line);
+  }
+  .calc__breakdown dt {
+    font-size: 0.72rem;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 0.25rem;
+  }
+  .calc__breakdown dd {
+    font-family: var(--font-serif);
+    font-size: var(--step-1);
+    color: var(--gold-text);
+    font-variant-numeric: tabular-nums;
+  }
+  .calc__breakdown-text {
+    font-size: var(--step-0) !important;
+    color: var(--body) !important;
+    font-family: var(--font-sans) !important;
+  }
+  .calc__cta {
+    margin-top: var(--space-xs);
+    justify-content: center;
+  }
+  .calc__disclaimer {
+    margin-top: var(--space-xs);
+    font-size: 0.74rem;
+    color: var(--muted);
+    line-height: 1.45;
+  }
+
+  @media (max-width: 800px) {
+    .calc__panel {
+      grid-template-columns: 1fr;
+    }
+    .calc__result {
+      padding-left: 0;
+      border-left: 0;
+      padding-top: var(--space-l);
+      border-top: 1px solid var(--line);
+    }
+  }
+</style>

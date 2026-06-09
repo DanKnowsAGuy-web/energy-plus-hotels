@@ -1,0 +1,160 @@
+---
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero__grid" aria-hidden="true"></div>
+  <div class="hero__glow" aria-hidden="true"></div>
+
+  <div class="container hero__inner">
+    <p class="hero__kicker reveal">For hotel owners and portfolio operators</p>
+
+    <h1 class="hero__title reveal" id="hero-title">
+      We get paid to find your waste,
+      <span class="hero__title-accent">not sell you a box.</span>
+    </h1>
+
+    <p class="hero__lede lede reveal">
+      So your building finally runs as one system, instead of fighting itself
+      one more box at a time. We diagnose the whole picture, prove the number at
+      your meter, and <span class="em">pay for the diagnosis ourselves</span>.
+      You commit nothing until the savings are real.
+    </p>
+
+    <div class="hero__actions reveal">
+      <a href="#book" class="btn">
+        Book a verified pilot
+        <span class="btn__arrow" aria-hidden="true">&rarr;</span>
+      </a>
+      <a href="#calculator" class="btn btn--ghost">
+        Model your building's floor
+      </a>
+    </div>
+
+    <p class="hero__trust reveal">
+      The diagnosis is designed by <strong>Cliff Suljak</strong>, an engineer
+      the Department of Defense and Department of Energy trusted on sole-source
+      work at Sandia National Laboratories and on $600&nbsp;million in
+      utility-scale projects at the Salt River Project.
+    </p>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background: linear-gradient(
+      168deg,
+      var(--hero-from) 0%,
+      var(--hero-to) 62%,
+      var(--bg) 100%
+    );
+    padding-block: clamp(5rem, 13vw, 11rem) clamp(4rem, 9vw, 8rem);
+  }
+
+  .hero__grid {
+    position: absolute;
+    inset: -2px;
+    z-index: -2;
+    background-image:
+      linear-gradient(to right, rgba(162, 174, 189, 0.5) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(162, 174, 189, 0.5) 1px, transparent 1px);
+    background-size: 64px 64px;
+    opacity: 0.045;
+    mask-image: radial-gradient(
+      ellipse 90% 70% at 30% 30%,
+      black 35%,
+      transparent 80%
+    );
+    -webkit-mask-image: radial-gradient(
+      ellipse 90% 70% at 30% 30%,
+      black 35%,
+      transparent 80%
+    );
+  }
+
+  .hero__glow {
+    position: absolute;
+    z-index: -1;
+    top: -20%;
+    right: -10%;
+    width: 50vw;
+    height: 50vw;
+    max-width: 720px;
+    max-height: 720px;
+    background: radial-gradient(
+      circle,
+      rgba(199, 168, 107, 0.13) 0%,
+      transparent 65%
+    );
+    filter: blur(8px);
+    pointer-events: none;
+  }
+
+  .hero__inner {
+    max-width: 62rem;
+  }
+
+  .hero__kicker {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--gold-text);
+    margin-bottom: var(--space-m);
+  }
+
+  .hero__title {
+    font-size: var(--step-5);
+    line-height: 1.04;
+    letter-spacing: -0.025em;
+    max-width: 17ch;
+  }
+  .hero__title-accent {
+    color: var(--body);
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  .hero__lede {
+    margin-top: var(--space-l);
+    max-width: 56ch;
+  }
+
+  .hero__actions {
+    margin-top: var(--space-l);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-s);
+  }
+
+  .hero__trust {
+    margin-top: var(--space-xl);
+    padding-top: var(--space-m);
+    border-top: 1px solid var(--line);
+    font-size: var(--step--1);
+    line-height: 1.6;
+    color: var(--muted);
+    max-width: 64ch;
+  }
+  .hero__trust strong {
+    color: var(--body);
+    font-weight: 600;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero__title.reveal {
+      transition-delay: 0.06s;
+    }
+    .hero__lede.reveal {
+      transition-delay: 0.12s;
+    }
+    .hero__actions.reveal {
+      transition-delay: 0.18s;
+    }
+    .hero__trust.reveal {
+      transition-delay: 0.24s;
+    }
+  }
+</style>

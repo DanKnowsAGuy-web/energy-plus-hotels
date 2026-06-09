@@ -1,0 +1,119 @@
+---
+const items = [
+  {
+    term: "Power quality",
+    body: "A building drawing power at a low power factor is billed for current that never does useful work. Harmonic distortion adds electrical noise that degrades load and shortens equipment life. We measure both at the panel, before and after.",
+    tag: "Measured at the panel",
+  },
+  {
+    term: "Demand and penalties",
+    body: "A commercial electricity bill is energy charges plus demand charges plus any power-factor penalty. Much of the recoverable money lives in the demand and penalty portions, where most vendors never look.",
+    tag: "Energy + demand + penalty",
+  },
+  {
+    term: "Systems that fight each other",
+    body: "HVAC, lighting, and any on-site generation were almost certainly specified in isolation. We look at how they interact, because that interaction is where waste hides.",
+    tag: "Whole-system interaction",
+  },
+];
+---
+
+<section class="section actfour" aria-labelledby="actfour-title">
+  <div class="container">
+    <div class="actfour__head reveal">
+      <p class="eyebrow">The threat, made physical</p>
+      <h2 class="actfour__title" id="actfour-title">
+        Your building is paying for power it never turns into anything.
+      </h2>
+      <p class="actfour__lede lede">
+        This is what a full diagnostic looks at, and what single-box vendors
+        miss. None of it shows up on a bill as a line item called "waste." That
+        is exactly why it survives for years.
+      </p>
+    </div>
+
+    <ol class="actfour__list reveal">
+      {
+        items.map((it) => (
+          <li class="threat">
+            <div class="threat__main">
+              <h3 class="threat__term">{it.term}</h3>
+              <p class="threat__body">{it.body}</p>
+            </div>
+            <span class="threat__tag">{it.tag}</span>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .actfour {
+    border-top: 1px solid var(--line);
+    background:
+      radial-gradient(
+        ellipse 50% 45% at 8% 100%,
+        rgba(199, 168, 107, 0.04),
+        transparent 70%
+      ),
+      var(--bg);
+  }
+  .actfour__head {
+    max-width: 54rem;
+  }
+  .actfour__title {
+    margin-top: var(--space-xs);
+    font-size: var(--step-3);
+    max-width: 20ch;
+  }
+  .actfour__lede {
+    margin-top: var(--space-m);
+  }
+
+  .actfour__list {
+    margin: var(--space-xl) 0 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--line-strong);
+  }
+  .threat {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: start;
+    gap: var(--space-m) var(--space-l);
+    padding: clamp(1.4rem, 3vw, 2rem) 0;
+    border-bottom: 1px solid var(--line-strong);
+  }
+  .threat__term {
+    font-size: var(--step-2);
+    color: var(--ink);
+    margin-bottom: var(--space-xs);
+  }
+  .threat__body {
+    color: var(--body);
+    font-size: var(--step-0);
+    line-height: 1.6;
+    max-width: 58ch;
+  }
+  .threat__tag {
+    align-self: center;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.04em;
+    color: var(--gold-text);
+    white-space: nowrap;
+    padding: 0.4em 0.8em;
+    border: 1px solid var(--gold-soft);
+    border-radius: 999px;
+  }
+
+  @media (max-width: 680px) {
+    .threat {
+      grid-template-columns: 1fr;
+    }
+    .threat__tag {
+      justify-self: start;
+    }
+  }
+</style>

@@ -1,0 +1,162 @@
+---
+// PLACEHOLDER CASE STUDIES — Act Five is load-bearing. Replace each with a
+// verified install: property type & size, what the diagnosis found, the action,
+// and the verified result against a metered baseline. Flag pending numbers.
+const cases = [
+  {
+    type: "Limited-service hotel",
+    rooms: "[X] rooms",
+    region: "[region]",
+    finding: "[finding]",
+    action: "[action]",
+    result: "[result]",
+  },
+  {
+    type: "Full-service property",
+    rooms: "[X] rooms",
+    region: "[region]",
+    finding: "[finding]",
+    action: "[action]",
+    result: "[result]",
+  },
+];
+---
+
+<section class="section proof" id="proof" aria-labelledby="proof-title">
+  <div class="container">
+    <div class="proof__head reveal">
+      <p class="eyebrow">Proof</p>
+      <h2 class="proof__title" id="proof-title">
+        Verified results, against a metered baseline.
+      </h2>
+      <p class="proof__lede lede">
+        Until these are filled with real installs, the diagnosis stands on the
+        Salt River and national-lab record above. The page is materially
+        stronger once a verified hotel result sits here.
+      </p>
+    </div>
+
+    <div class="proof__grid">
+      {
+        cases.map((c) => (
+          <article class="case ph">
+            <header class="case__head">
+              <h3 class="case__type">{c.type}</h3>
+              <p class="case__meta">
+                {c.rooms} &middot; {c.region}
+              </p>
+            </header>
+            <dl class="case__body">
+              <div>
+                <dt>The diagnosis found</dt>
+                <dd>{c.finding}</dd>
+              </div>
+              <div>
+                <dt>What we did</dt>
+                <dd>{c.action}</dd>
+              </div>
+              <div class="case__result">
+                <dt>Verified reduction at the meter</dt>
+                <dd>
+                  {c.result}
+                  <span class="case__norm">
+                    normalized for occupancy and weather
+                  </span>
+                </dd>
+              </div>
+            </dl>
+          </article>
+        ))
+      }
+    </div>
+
+    <p class="proof__flag reveal" role="note">
+      Placeholder case studies. Replace with verified property data before
+      publishing.
+    </p>
+  </div>
+</section>
+
+<style>
+  .proof {
+    border-top: 1px solid var(--line);
+    background: var(--bg);
+  }
+  .proof__head {
+    max-width: 54rem;
+  }
+  .proof__title {
+    margin-top: var(--space-xs);
+    font-size: var(--step-3);
+    max-width: 18ch;
+  }
+  .proof__lede {
+    margin-top: var(--space-m);
+  }
+
+  .proof__grid {
+    margin-top: var(--space-xl);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: clamp(1.25rem, 3vw, 2rem);
+  }
+  .case {
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+  }
+  .case__type {
+    font-size: var(--step-2);
+    color: var(--ink);
+  }
+  .case__meta {
+    margin-top: 0.3rem;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--muted);
+  }
+  .case__body {
+    margin: var(--space-l) 0 0;
+    display: grid;
+    gap: var(--space-m);
+  }
+  .case__body dt {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.3rem;
+  }
+  .case__body dd {
+    margin: 0;
+    color: var(--body);
+    font-size: var(--step-0);
+    line-height: 1.5;
+  }
+  .case__result {
+    padding-top: var(--space-m);
+    border-top: 1px solid var(--line);
+  }
+  .case__result dd {
+    font-family: var(--font-serif);
+    font-size: var(--step-2);
+    color: var(--gold-text);
+  }
+  .case__norm {
+    display: block;
+    margin-top: 0.3rem;
+    font-family: var(--font-sans);
+    font-size: var(--step--1);
+    color: var(--muted);
+  }
+
+  .proof__flag {
+    margin-top: var(--space-l);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--gold-text);
+    opacity: 0.8;
+  }
+</style>

@@ -1,0 +1,78 @@
+---
+// Self-hosted fonts (no external network, faster, renders anywhere).
+import "@fontsource-variable/newsreader/wght.css";
+import "@fontsource-variable/newsreader/wght-italic.css";
+import "@fontsource-variable/inter/wght.css";
+import "@fontsource/ibm-plex-mono/400.css";
+import "@fontsource/ibm-plex-mono/500.css";
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "Energy Plus: verified energy savings for hotels",
+  description = "Every fix a hotel buys gets bolted on by a vendor paid to sell it, and the pieces end up fighting each other. We get paid to find your waste and make the building work as one system, proven at your meter before you commit a dollar.",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0a1422" />
+    <title>{title}</title>
+
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+  </head>
+  <body>
+    <a href="#main" class="skip-link">Skip to content</a>
+    <slot />
+
+    <script>
+      // Reveal-on-scroll: content is visible by default (see .reveal in CSS);
+      // this only adds the entrance for users who allow motion.
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+      if (!reduce.matches && "IntersectionObserver" in window) {
+        const io = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-in");
+                io.unobserve(entry.target);
+              }
+            }
+          },
+          { rootMargin: "0px 0px -10% 0px", threshold: 0.1 },
+        );
+        document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+      }
+    </script>
+
+    <style>
+      .skip-link {
+        position: absolute;
+        left: 1rem;
+        top: -3rem;
+        z-index: var(--z-header);
+        background: var(--gold);
+        color: #0a1422;
+        padding: 0.6rem 1rem;
+        border-radius: var(--radius-s);
+        font-weight: 600;
+        text-decoration: none;
+        transition: top 0.2s ease;
+      }
+      .skip-link:focus {
+        top: 1rem;
+      }
+    </style>
+  </body>
+</html>

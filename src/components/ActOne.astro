@@ -1,0 +1,121 @@
+---
+---
+
+<section class="section actone" id="threat" aria-labelledby="actone-title">
+  <div class="container">
+    <header class="actone__head reveal">
+      <p class="eyebrow">Why your last upgrade didn't pay off</p>
+      <h2 class="actone__title" id="actone-title">
+        The number that should bother you.
+      </h2>
+      <p class="actone__stat ph" tabindex="0">~30%</p>
+      <p class="actone__stat-note">
+        According to the EPA, the average commercial building wastes about a
+        third of the energy it consumes. Most hotels have never had anyone
+        qualified find out where.
+      </p>
+    </header>
+
+    <div class="actone__body">
+      <article class="block reveal">
+        <h3 class="block__title">Every fix you bought was sold in isolation</h3>
+        <p>
+          You added lighting. Maybe controls, maybe solar. Each vendor optimized
+          the one thing they sell and left. But a building isn't a pile of
+          separate upgrades. It's one electrical system, and when pieces are
+          bolted on without anyone designing how they work together, they
+          interfere. Power quality degrades. Equipment runs harder than it
+          should and fails sooner. The savings on the brochure quietly leak away
+          in distortion nobody is accountable for.
+        </p>
+        <p>
+          That interference has a literal signature in your panels, and it is
+          measurable. It is also invisible on a utility bill, which is exactly
+          why it survives for years.
+        </p>
+      </article>
+
+      <article class="block reveal">
+        <h3 class="block__title">Nobody was responsible for the whole building</h3>
+        <p>
+          There is a reason it ends up incoherent. Every vendor in this industry
+          gets paid to install their box, so every one of them optimizes their
+          own piece and none of them owns the result. The system was never
+          incoherent by accident. It was incoherent by incentive.
+        </p>
+        <p class="block__turn">
+          We get paid to do the opposite: to find where your building loses
+          money and design the stack that makes it work as one system. The
+          verification is the product. The equipment is just whatever the
+          verification points to.
+        </p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<style>
+  .actone {
+    border-top: 1px solid var(--line);
+  }
+  .actone__head {
+    max-width: 60rem;
+  }
+  .actone__title {
+    margin-top: var(--space-xs);
+    font-size: var(--step-3);
+    max-width: 16ch;
+  }
+  .actone__stat {
+    display: inline-block;
+    margin-top: var(--space-l);
+    font-family: var(--font-serif);
+    font-size: clamp(3.5rem, 9vw, 6rem);
+    line-height: 0.9;
+    color: var(--gold-text);
+    letter-spacing: -0.04em;
+  }
+  .actone__stat-note {
+    margin-top: var(--space-s);
+    font-size: var(--step-1);
+    line-height: 1.5;
+    color: var(--body);
+    max-width: 52ch;
+  }
+
+  .actone__body {
+    margin-top: var(--space-2xl);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    gap: clamp(2rem, 5vw, 4rem);
+  }
+  .block__title {
+    font-size: var(--step-2);
+    max-width: 20ch;
+    margin-bottom: var(--space-m);
+  }
+  .block p {
+    color: var(--body);
+    font-size: var(--step-0);
+    line-height: 1.65;
+    max-width: var(--measure);
+  }
+  .block p + p {
+    margin-top: var(--space-s);
+  }
+  .block__turn {
+    color: var(--ink) !important;
+    font-family: var(--font-serif);
+    font-size: var(--step-1) !important;
+    font-style: italic;
+    line-height: 1.5 !important;
+    letter-spacing: -0.01em;
+    margin-top: var(--space-m) !important;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .actone__body .block:nth-child(2).reveal {
+      transition-delay: 0.1s;
+    }
+  }
+</style>

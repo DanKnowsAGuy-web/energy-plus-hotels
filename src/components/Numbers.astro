@@ -1,0 +1,203 @@
+---
+const measured = [
+  { label: "Power factor, before", value: "0.82", note: "uncorrected" },
+  { label: "Power factor, after", value: "0.97", note: "corrected" },
+  {
+    label: "Verified reduction at the meter",
+    value: "Floor",
+    note: "conservative case",
+  },
+];
+---
+
+<section class="section numbers" id="method" aria-labelledby="numbers-title">
+  <div class="container">
+    <div class="numbers__head reveal">
+      <p class="eyebrow">Where the number comes from</p>
+      <h2 class="numbers__title" id="numbers-title">
+        Real measurements, then honest arithmetic.
+      </h2>
+      <p class="numbers__lede lede">
+        We start from a metered install, not a brochure, and we show every step
+        so you can check the math instead of trusting it.
+      </p>
+    </div>
+
+    <div class="numbers__grid">
+      <figure class="numbers__measured reveal ph">
+        <figcaption>From a verified install</figcaption>
+        <table class="numbers__table">
+          <tbody>
+            {
+              measured.map((r) => (
+                <tr>
+                  <th scope="row">{r.label}</th>
+                  <td>
+                    <span class="numbers__value">{r.value}</span>
+                    <span class="numbers__note">{r.note}</span>
+                  </td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </figure>
+
+      <div class="numbers__math reveal">
+        <h3 class="numbers__math-title">Applied to your building</h3>
+        <ol class="steps">
+          <li class="ph">
+            <span class="steps__op">Your annual electricity spend</span>
+            <span class="steps__num">from your bills</span>
+          </li>
+          <li class="ph">
+            <span class="steps__op">&times; the verified floor rate</span>
+            <span class="steps__num">[X]%</span>
+          </li>
+          <li class="steps__result">
+            <span class="steps__op">Conservative annual floor, whole building</span>
+            <span class="steps__num ph">[result]</span>
+          </li>
+        </ol>
+        <p class="numbers__caveat">
+          We hold the rate to the measured floor, apply no bonus we haven't
+          seen, and round down. If your building beats it, that surfaces during
+          the pilot, not in this estimate.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .numbers {
+    border-top: 1px solid var(--line);
+    background: var(--bg);
+  }
+  .numbers__head {
+    max-width: 54rem;
+  }
+  .numbers__title {
+    margin-top: var(--space-xs);
+    font-size: var(--step-3);
+    max-width: 18ch;
+  }
+  .numbers__lede {
+    margin-top: var(--space-m);
+  }
+
+  .numbers__grid {
+    margin-top: var(--space-xl);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: clamp(1.5rem, 4vw, 3rem);
+    align-items: start;
+  }
+
+  .numbers__measured {
+    margin: 0;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+  }
+  .numbers__measured figcaption {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: var(--space-m);
+  }
+  .numbers__table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .numbers__table tr {
+    border-top: 1px solid var(--line);
+  }
+  .numbers__table tr:first-child {
+    border-top: 0;
+  }
+  .numbers__table th {
+    text-align: left;
+    font-weight: 400;
+    font-size: var(--step-0);
+    color: var(--body);
+    padding: 0.85rem 0;
+    vertical-align: middle;
+  }
+  .numbers__table td {
+    text-align: right;
+    padding: 0.85rem 0;
+  }
+  .numbers__value {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: var(--step-1);
+    color: var(--gold-text);
+    font-variant-numeric: tabular-nums;
+  }
+  .numbers__note {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  .numbers__math-title {
+    font-size: var(--step-2);
+  }
+  .steps {
+    list-style: none;
+    padding: 0;
+    margin: var(--space-l) 0 0;
+    display: grid;
+    gap: 0.25rem;
+  }
+  .steps li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-m);
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .steps__op {
+    color: var(--body);
+  }
+  .steps__num {
+    font-family: var(--font-mono);
+    font-size: var(--step-1);
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .steps__result {
+    border-bottom: 0;
+    margin-top: 0.4rem;
+    padding-top: var(--space-s);
+    border-top: 2px solid var(--gold-soft);
+  }
+  .steps__result .steps__op {
+    color: var(--ink);
+    font-weight: 600;
+    max-width: 22ch;
+  }
+  .steps__result .steps__num {
+    color: var(--gold-text);
+    font-size: var(--step-2);
+    font-family: var(--font-serif);
+  }
+  .numbers__caveat {
+    margin-top: var(--space-m);
+    font-size: var(--step--1);
+    color: var(--muted);
+    max-width: 44ch;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .numbers__math.reveal {
+      transition-delay: 0.12s;
+    }
+  }
+</style>

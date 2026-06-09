@@ -1,0 +1,100 @@
+---
+---
+
+<header class="site-header" id="top">
+  <div class="container site-header__inner">
+    <a href="#top" class="wordmark" aria-label="Energy Plus, home">
+      <span class="wordmark__mark" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+          <path
+            d="M11 1.5 3 11.2h6.2L9 20.5 18.6 9.4H12L13 1.5z"
+            stroke="var(--gold)"
+            stroke-width="1.4"
+            stroke-linejoin="round"
+            fill="rgba(199,168,107,0.08)"></path>
+        </svg>
+      </span>
+      <span class="wordmark__text">Energy<span class="wordmark__plus">+</span></span>
+    </a>
+
+    <nav class="site-nav" aria-label="Primary">
+      <a href="#threat" class="site-nav__link">The threat</a>
+      <a href="#method" class="site-nav__link">The method</a>
+      <a href="#proof" class="site-nav__link">Proof</a>
+      <a href="#guarantee" class="site-nav__link">Guarantee</a>
+      <a href="#book" class="btn site-header__cta">
+        Book a pilot
+        <span class="btn__arrow" aria-hidden="true">&rarr;</span>
+      </a>
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-header);
+    background: color-mix(in srgb, var(--bg-header) 88%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 68px;
+    gap: var(--space-m);
+  }
+
+  .wordmark {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    text-decoration: none;
+    color: var(--ink);
+    font-family: var(--font-serif);
+    font-size: 1.3rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  .wordmark__mark {
+    display: grid;
+    place-items: center;
+  }
+  .wordmark__plus {
+    color: var(--gold-text);
+  }
+
+  .site-nav {
+    display: flex;
+    align-items: center;
+    gap: clamp(1rem, 2.6vw, 2.2rem);
+  }
+  .site-nav__link {
+    color: var(--body);
+    text-decoration: none;
+    font-size: var(--step--1);
+    font-weight: 500;
+    transition: color 0.25s ease;
+  }
+  .site-nav__link:hover {
+    color: var(--ink);
+  }
+
+  .site-header__cta {
+    padding: 0.65em 1.1em;
+    font-size: var(--step--1);
+  }
+
+  @media (max-width: 720px) {
+    .site-nav__link {
+      display: none;
+    }
+    .site-header__cta {
+      display: inline-flex;
+    }
+  }
+</style>

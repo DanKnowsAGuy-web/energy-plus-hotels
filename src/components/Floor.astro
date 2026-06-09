@@ -1,0 +1,132 @@
+---
+// Floor rate left blank deliberately (builder's note 3): do not hard-code a
+// percentage before the demand-versus-bill question is resolved.
+const floorRate = "[X]%";
+---
+
+<section class="section floor" id="floor" aria-labelledby="floor-title">
+  <div class="container">
+    <div class="floor__head reveal">
+      <p class="eyebrow">We quote the floor</p>
+      <h2 class="floor__title" id="floor-title">
+        Your building is the only meter that counts.
+      </h2>
+      <p class="floor__lede lede">
+        We don't slice savings room by room, because that isn't how the work is
+        done or measured. We read the whole building at the service entrance,
+        the same place the utility measures you, and we report the conservative
+        end of what we find.
+      </p>
+    </div>
+
+    <div class="floor__figures reveal">
+      <div class="figure">
+        <span class="figure__label">Verified savings floor</span>
+        <span class="figure__value ph" tabindex="0">{floorRate}</span>
+        <span class="figure__unit">of annual electricity spend</span>
+        <p class="figure__note">
+          The conservative case across measured installs. Your verified number
+          may be higher.
+        </p>
+      </div>
+
+      <div class="figure">
+        <span class="figure__label">Measured against</span>
+        <span class="figure__value figure__value--text">Your meter</span>
+        <span class="figure__unit">whole building, service entrance</span>
+        <p class="figure__note">
+          Read at the service entrance, normalized for occupancy and weather.
+        </p>
+      </div>
+
+      <div class="figure">
+        <span class="figure__label">What you pay to find out</span>
+        <span class="figure__value figure__value--mint">$0</span>
+        <span class="figure__unit">we fund the diagnosis</span>
+        <p class="figure__note">
+          We absorb the cost of the diagnosis and verification.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .floor {
+    border-top: 1px solid var(--line);
+    background:
+      radial-gradient(
+        ellipse 60% 50% at 85% 0%,
+        rgba(199, 168, 107, 0.05),
+        transparent 70%
+      ),
+      var(--bg);
+  }
+  .floor__head {
+    max-width: 60rem;
+  }
+  .floor__title {
+    margin-top: var(--space-xs);
+    font-size: var(--step-3);
+    max-width: 18ch;
+  }
+  .floor__lede {
+    margin-top: var(--space-m);
+  }
+
+  .floor__figures {
+    margin-top: var(--space-xl);
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 2.5rem);
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+
+  .figure {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    padding-top: var(--space-m);
+    border-top: 1px solid var(--line-strong);
+  }
+  .figure__label {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .figure__value {
+    font-family: var(--font-serif);
+    font-size: clamp(3rem, 6.5vw, 4.6rem);
+    line-height: 0.95;
+    color: var(--gold-text);
+    letter-spacing: -0.03em;
+    margin-block: 0.1em 0.05em;
+  }
+  .figure__value--mint {
+    color: var(--mint);
+  }
+  .figure__value--text {
+    color: var(--ink);
+    font-style: italic;
+  }
+  .figure__unit {
+    font-size: var(--step-0);
+    color: var(--body);
+  }
+  .figure__note {
+    margin-top: 0.4rem;
+    font-size: var(--step--1);
+    color: var(--muted);
+    max-width: 32ch;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .floor__figures .figure:nth-child(2) {
+      transition-delay: 0.1s;
+    }
+    .floor__figures .figure:nth-child(3) {
+      transition-delay: 0.2s;
+    }
+  }
+</style>

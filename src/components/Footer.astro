@@ -1,0 +1,85 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <div class="site-footer__brand">
+      <span class="wordmark__text">Energy<span class="wordmark__plus">+</span></span>
+      <p class="site-footer__line">
+        Independent Energy Solutions Partner. We don't sell the box. We diagnose
+        the building and verify the savings.
+      </p>
+    </div>
+
+    <nav class="site-footer__nav" aria-label="Footer">
+      <a href="#threat">The threat</a>
+      <a href="#method">The method</a>
+      <a href="#proof">Proof</a>
+      <a href="#guarantee">Guarantee</a>
+      <a href="#calculator">Calculator</a>
+      <a href="#book">Book a pilot</a>
+    </nav>
+  </div>
+
+  <div class="container site-footer__meta">
+    <span>&copy; {year} Energy Plus</span>
+    <span class="site-footer__neutral">Independent Energy Solutions Partner.</span>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--line);
+    background: var(--bg-header);
+    padding-block: var(--space-xl) var(--space-l);
+  }
+  .site-footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-l);
+  }
+  .site-footer__brand {
+    max-width: 34ch;
+  }
+  .wordmark__text {
+    font-family: var(--font-serif);
+    font-size: 1.3rem;
+    color: var(--ink);
+  }
+  .wordmark__plus {
+    color: var(--gold-text);
+  }
+  .site-footer__line {
+    margin-top: var(--space-s);
+    font-size: var(--step--1);
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .site-footer__nav {
+    display: grid;
+    gap: 0.65rem;
+    align-content: start;
+  }
+  .site-footer__nav a {
+    color: var(--body);
+    text-decoration: none;
+    font-size: var(--step--1);
+    transition: color 0.25s ease;
+  }
+  .site-footer__nav a:hover {
+    color: var(--gold-text);
+  }
+  .site-footer__meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-s);
+    margin-top: var(--space-xl);
+    padding-top: var(--space-m);
+    border-top: 1px solid var(--line);
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+</style>
