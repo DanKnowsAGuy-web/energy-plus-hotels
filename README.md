@@ -16,9 +16,15 @@ npm run preview  # preview the production build
 
 ## Deploy
 
-Pushing to `main` triggers the GitHub Actions workflow in
-`.github/workflows/deploy.yml`, which builds the site and publishes it to
-GitHub Pages automatically.
+The live site is served from the `gh-pages` branch (the built `dist/` output).
+After editing source on `main`, publish an update with:
+
+```bash
+npm run deploy
+```
+
+This builds the site and force-pushes `dist/` to `gh-pages`. GitHub Pages is
+configured to serve that branch at the root.
 
 ## Content placeholders
 

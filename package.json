@@ -7,6 +7,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "deploy": "astro build && gh-pages -d dist -b gh-pages -t",
     "astro": "astro"
   },
   "dependencies": {
@@ -14,5 +15,8 @@
     "@fontsource-variable/newsreader": "^5.2.10",
     "@fontsource/ibm-plex-mono": "^5.2.7",
     "astro": "^4.16.0"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.3.0"
   }
 }
