@@ -16,7 +16,6 @@ const credentials = [
 <section class="section authority" aria-labelledby="authority-title">
   <div class="container">
     <div class="authority__head reveal">
-      <p class="eyebrow">The heroes who back the diagnosis</p>
       <h2 class="authority__title" id="authority-title">
         National-lab engineering, pointed at your building.
       </h2>
@@ -41,10 +40,10 @@ const credentials = [
         </p>
       </div>
 
-      <aside class="authority__creds reveal" aria-label="Credentials">
+      <aside class="authority__creds" aria-label="Credentials">
         {
-          credentials.map((c) => (
-            <div class="cred">
+          credentials.map((c, i) => (
+            <div class="cred reveal" style={`--i: ${i}`}>
               <span class="cred__value">{c.value}</span>
               <span class="cred__label">{c.label}</span>
               <span class="cred__note">{c.note}</span>
@@ -127,11 +126,6 @@ const credentials = [
   @media (max-width: 800px) {
     .authority__grid {
       grid-template-columns: 1fr;
-    }
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    .authority__creds.reveal {
-      transition-delay: 0.12s;
     }
   }
 </style>

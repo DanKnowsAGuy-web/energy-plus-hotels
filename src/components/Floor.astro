@@ -7,7 +7,6 @@ const floorRate = "[X]%";
 <section class="section floor" id="floor" aria-labelledby="floor-title">
   <div class="container">
     <div class="floor__head reveal">
-      <p class="eyebrow">We quote the floor</p>
       <h2 class="floor__title" id="floor-title">
         Your building is the only meter that counts.
       </h2>
@@ -19,8 +18,8 @@ const floorRate = "[X]%";
       </p>
     </div>
 
-    <div class="floor__figures reveal">
-      <div class="figure">
+    <div class="floor__figures">
+      <div class="figure reveal" style="--i: 0">
         <span class="figure__label">Verified savings floor</span>
         <span class="figure__value ph" tabindex="0">{floorRate}</span>
         <span class="figure__unit">of annual electricity spend</span>
@@ -30,7 +29,7 @@ const floorRate = "[X]%";
         </p>
       </div>
 
-      <div class="figure">
+      <div class="figure reveal" style="--i: 1">
         <span class="figure__label">Measured against</span>
         <span class="figure__value figure__value--text">Your meter</span>
         <span class="figure__unit">whole building, service entrance</span>
@@ -39,7 +38,7 @@ const floorRate = "[X]%";
         </p>
       </div>
 
-      <div class="figure">
+      <div class="figure reveal" style="--i: 2">
         <span class="figure__label">What you pay to find out</span>
         <span class="figure__value figure__value--mint">$0</span>
         <span class="figure__unit">we fund the diagnosis</span>
@@ -121,12 +120,4 @@ const floorRate = "[X]%";
     max-width: 32ch;
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    .floor__figures .figure:nth-child(2) {
-      transition-delay: 0.1s;
-    }
-    .floor__figures .figure:nth-child(3) {
-      transition-delay: 0.2s;
-    }
-  }
 </style>

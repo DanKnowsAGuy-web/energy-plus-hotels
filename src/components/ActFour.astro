@@ -21,7 +21,6 @@ const items = [
 <section class="section actfour" aria-labelledby="actfour-title">
   <div class="container">
     <div class="actfour__head reveal">
-      <p class="eyebrow">The threat, made physical</p>
       <h2 class="actfour__title" id="actfour-title">
         Your building is paying for power it never turns into anything.
       </h2>
@@ -32,10 +31,10 @@ const items = [
       </p>
     </div>
 
-    <ol class="actfour__list reveal">
+    <ol class="actfour__list">
       {
-        items.map((it) => (
-          <li class="threat">
+        items.map((it, i) => (
+          <li class="threat reveal" style={`--i: ${i}`}>
             <div class="threat__main">
               <h3 class="threat__term">{it.term}</h3>
               <p class="threat__body">{it.body}</p>

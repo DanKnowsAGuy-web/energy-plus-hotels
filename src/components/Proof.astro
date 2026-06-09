@@ -25,7 +25,6 @@ const cases = [
 <section class="section proof" id="proof" aria-labelledby="proof-title">
   <div class="container">
     <div class="proof__head reveal">
-      <p class="eyebrow">Proof</p>
       <h2 class="proof__title" id="proof-title">
         Verified results, against a metered baseline.
       </h2>
@@ -38,8 +37,8 @@ const cases = [
 
     <div class="proof__grid">
       {
-        cases.map((c) => (
-          <article class="case ph">
+        cases.map((c, i) => (
+          <article class="case ph reveal" style={`--i: ${i}`}>
             <header class="case__head">
               <h3 class="case__type">{c.type}</h3>
               <p class="case__meta">

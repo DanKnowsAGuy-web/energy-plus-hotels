@@ -21,7 +21,6 @@ const steps = [
 <section class="section plan" aria-labelledby="plan-title">
   <div class="container">
     <div class="plan__head reveal">
-      <p class="eyebrow">The plan</p>
       <h2 class="plan__title" id="plan-title">
         Three steps. You decide after step two. We pay for step two.
       </h2>
@@ -29,8 +28,8 @@ const steps = [
 
     <ol class="plan__steps">
       {
-        steps.map((s) => (
-          <li class="step reveal">
+        steps.map((s, i) => (
+          <li class="step reveal" style={`--i: ${i}`}>
             <span class="step__n">{s.n}</span>
             <div class="step__content">
               <h3 class="step__title">{s.title}</h3>
@@ -94,12 +93,4 @@ const steps = [
     max-width: 56ch;
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    .step:nth-child(2).reveal {
-      transition-delay: 0.08s;
-    }
-    .step:nth-child(3).reveal {
-      transition-delay: 0.16s;
-    }
-  }
 </style>
