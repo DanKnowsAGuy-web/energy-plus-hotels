@@ -1,28 +1,24 @@
 ---
-// Water analogy: same gallons, different flow. Laminar lines run calm; the
-// turbulent pipe carries the same volume but rattles everything it touches.
-// Sets up the Harmonizer scene that follows. Paths are compile-time; motion
-// is dash-flow only (cheap, smooth), with static fallback for reduced motion.
+// Water analogy, corrected: both pipes carry the same calm flow at the same
+// meter reading. The second pipe is full of air bubbles, and the meter can't
+// tell water from air. You're billed for the air. Distortion works the same
+// way at your electric meter. Sets up the Harmonizer scene that follows.
 const W = 640;
 const PIPE_H = 110;
 
-function laminar(y: number) {
+function water(y: number) {
   return `M16 ${y} L${W - 16} ${y}`;
 }
 
-function turbulent(yBase: number, seed: number, wob: number) {
-  const N = 96;
-  let d = "";
-  for (let i = 0; i <= N; i++) {
-    const x = 16 + (i / N) * (W - 32);
-    const t = (i / N) * Math.PI * 2;
-    const y =
-      yBase +
-      wob * (0.55 * Math.sin(t * 9 + seed) + 0.3 * Math.sin(t * 17 + seed * 2.3) + 0.18 * Math.sin(t * 29 + seed * 4.1));
-    d += (i === 0 ? "M" : "L") + x.toFixed(1) + " " + y.toFixed(1) + " ";
-  }
-  return d.trim();
-}
+// bubbles: x position, lane y, radius, drift duration s, delay s
+const bubbles = [
+  { y: 30, r: 6, dur: 9, delay: 0 },
+  { y: 62, r: 4, dur: 7, delay: -2.5 },
+  { y: 44, r: 5, dur: 11, delay: -5 },
+  { y: 76, r: 3.4, dur: 8, delay: -1.2 },
+  { y: 36, r: 3, dur: 6.4, delay: -3.8 },
+  { y: 70, r: 5.4, dur: 10, delay: -7 },
+];
 ---
 
 <section class="flow" aria-labelledby="flow-title">
@@ -32,45 +28,56 @@ function turbulent(yBase: number, seed: number, wob: number) {
         Think of water moving through a pipe.
       </h2>
       <p class="flow__lede lede">
-        Both pipes below deliver the same gallons. One delivers them calmly.
-        The other arrives churning, and the turbulence hammers the pump, the
-        joints, and everything downstream. Electricity behaves the same way:
-        the meter reads the same, but distorted power beats your equipment to
-        death on the way in.
+        Both pipes below show the same meter reading. One carries pure water.
+        The other carries water full of air bubbles, and the meter can't tell
+        the difference: it bills every gallon of flow, air included. You
+        thought you were paying for water. Part of it was air. Distorted power
+        works exactly this way at your electric meter, and the air is what
+        beats up your equipment on the way through.
       </p>
     </div>
 
     <figure class="flow__fig reveal" style="--i: 1">
-      <div class="flow__pipe flow__pipe--smooth">
+      <div class="flow__pipe">
         <svg viewBox={`0 0 ${W} ${PIPE_H}`} preserveAspectRatio="none" aria-hidden="true">
-          <rect class="flow__wall" x="2" y="2" width={W - 4} height={PIPE_H - 4} rx="12"></rect>
-          <path class="flow__line flow__line--s" d={laminar(32)} style="--d: 0s"></path>
-          <path class="flow__line flow__line--s" d={laminar(55)} style="--d: -1.1s"></path>
-          <path class="flow__line flow__line--s" d={laminar(78)} style="--d: -2.2s"></path>
+          <rect class="flow__wall flow__wall--pure" x="2" y="2" width={W - 4} height={PIPE_H - 4} rx="12"></rect>
+          <path class="flow__line" d={water(32)} style="--d: 0s"></path>
+          <path class="flow__line" d={water(55)} style="--d: -1.1s"></path>
+          <path class="flow__line" d={water(78)} style="--d: -2.2s"></path>
         </svg>
-        <figcaption class="flow__cap flow__cap--s">
-          <span class="flow__cap-name">Smooth flow</span>
-          <span class="flow__cap-note">every gallon arrives doing work</span>
+        <figcaption class="flow__cap">
+          <span class="flow__cap-name flow__cap-name--pure">Pure water</span>
+          <span class="flow__cap-note">every gallon on the meter is water</span>
         </figcaption>
       </div>
 
-      <div class="flow__pipe flow__pipe--rough">
+      <div class="flow__pipe">
         <svg viewBox={`0 0 ${W} ${PIPE_H}`} preserveAspectRatio="none" aria-hidden="true">
-          <rect class="flow__wall flow__wall--rough" x="2" y="2" width={W - 4} height={PIPE_H - 4} rx="12"></rect>
-          <path class="flow__line flow__line--r" d={turbulent(32, 1.3, 11)} style="--d: 0s"></path>
-          <path class="flow__line flow__line--r" d={turbulent(55, 3.7, 14)} style="--d: -0.9s"></path>
-          <path class="flow__line flow__line--r" d={turbulent(78, 6.1, 11)} style="--d: -1.7s"></path>
+          <rect class="flow__wall flow__wall--air" x="2" y="2" width={W - 4} height={PIPE_H - 4} rx="12"></rect>
+          <path class="flow__line" d={water(32)} style="--d: 0s"></path>
+          <path class="flow__line" d={water(55)} style="--d: -1.1s"></path>
+          <path class="flow__line" d={water(78)} style="--d: -2.2s"></path>
+          {
+            bubbles.map((b) => (
+              <circle
+                class="flow__bubble"
+                cy={b.y}
+                r={b.r}
+                style={`--dur: ${b.dur}s; --delay: ${b.delay}s`}
+              />
+            ))
+          }
         </svg>
-        <figcaption class="flow__cap flow__cap--r">
-          <span class="flow__cap-name">Turbulent flow</span>
-          <span class="flow__cap-note">same gallons, hammering the system</span>
+        <figcaption class="flow__cap">
+          <span class="flow__cap-name flow__cap-name--air">Water + air</span>
+          <span class="flow__cap-note">same meter reading, part of it is air</span>
         </figcaption>
       </div>
     </figure>
 
     <p class="flow__close reveal" style="--i: 2">
-      Same delivery. Different violence. Here is the machine that calms the
-      flow.
+      Same bill. Different delivery. Here is the machine that takes the air
+      out of the line.
     </p>
   </div>
 </section>
@@ -82,7 +89,7 @@ function turbulent(yBase: number, seed: number, wob: number) {
     background:
       radial-gradient(
         ellipse 55% 45% at 10% 0%,
-        rgba(91, 194, 162, 0.04),
+        rgba(91, 157, 194, 0.05),
         transparent 70%
       ),
       var(--bg);
@@ -96,7 +103,7 @@ function turbulent(yBase: number, seed: number, wob: number) {
   }
   .flow__lede {
     margin-top: var(--space-m);
-    max-width: 58ch;
+    max-width: 60ch;
   }
 
   .flow__fig {
@@ -114,36 +121,39 @@ function turbulent(yBase: number, seed: number, wob: number) {
   }
   .flow__wall {
     fill: rgba(255, 255, 255, 0.025);
-    stroke: rgba(91, 194, 162, 0.35);
     stroke-width: 1.5;
   }
-  .flow__wall--rough {
+  .flow__wall--pure {
+    stroke: rgba(91, 157, 194, 0.4);
+  }
+  .flow__wall--air {
     stroke: rgba(224, 90, 43, 0.4);
   }
 
+  /* identical calm water in both pipes: the flow is not the problem */
   .flow__line {
     fill: none;
+    stroke: #5b9dc2;
     stroke-width: 2.2;
     vector-effect: non-scaling-stroke;
     stroke-linecap: round;
-  }
-  .flow__line--s {
-    stroke: var(--mint);
     stroke-dasharray: 26 18;
-    filter: drop-shadow(0 0 5px rgba(91, 194, 162, 0.4));
+    filter: drop-shadow(0 0 5px rgba(91, 157, 194, 0.4));
   }
-  .flow__line--r {
+
+  /* the air: red bubbles riding the same flow */
+  .flow__bubble {
+    fill: rgba(224, 90, 43, 0.16);
     stroke: #e05a2b;
-    stroke-dasharray: 10 9;
-    filter: drop-shadow(0 0 5px rgba(224, 90, 43, 0.35));
+    stroke-width: 1.4;
+    filter: drop-shadow(0 0 4px rgba(224, 90, 43, 0.5));
+    transform: translateX(-30px);
   }
+
   @media (prefers-reduced-motion: no-preference) {
     .flow__line {
       animation: flowDash 7s linear infinite;
       animation-delay: var(--d, 0s);
-    }
-    .flow__line--r {
-      animation-duration: 3.2s;
     }
     @keyframes flowDash {
       from {
@@ -153,13 +163,44 @@ function turbulent(yBase: number, seed: number, wob: number) {
         stroke-dashoffset: -440;
       }
     }
-    .flow__pipe--rough svg {
-      animation: pipeRattle 0.42s ease-in-out infinite;
+    .flow__bubble {
+      animation: bubbleDrift var(--dur, 9s) linear infinite;
+      animation-delay: var(--delay, 0s);
     }
-    @keyframes pipeRattle {
-      0%, 100% { transform: translate(0, 0); }
-      30% { transform: translate(0.7px, -0.5px); }
-      70% { transform: translate(-0.7px, 0.5px); }
+    /* drift left to right with a gentle float; x is linear, y bobs */
+    @keyframes bubbleDrift {
+      0% {
+        transform: translate(-30px, 0);
+        opacity: 0;
+      }
+      6% {
+        opacity: 1;
+      }
+      25% {
+        transform: translate(150px, -5px);
+      }
+      50% {
+        transform: translate(330px, 3px);
+      }
+      75% {
+        transform: translate(510px, -4px);
+      }
+      94% {
+        opacity: 1;
+      }
+      100% {
+        transform: translate(690px, 2px);
+        opacity: 0;
+      }
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    /* static: bubbles parked mid-pipe so the picture still reads */
+    .flow__bubble {
+      transform: translateX(300px);
+    }
+    .flow__bubble:nth-of-type(odd) {
+      transform: translateX(180px);
     }
   }
 
@@ -175,10 +216,10 @@ function turbulent(yBase: number, seed: number, wob: number) {
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
-  .flow__cap--s .flow__cap-name {
-    color: var(--mint);
+  .flow__cap-name--pure {
+    color: #5b9dc2;
   }
-  .flow__cap--r .flow__cap-name {
+  .flow__cap-name--air {
     color: #e05a2b;
   }
   .flow__cap-note {
