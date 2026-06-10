@@ -1,0 +1,157 @@
+---
+// Analog power-factor gauge. Needle rests at 0.82 and sweeps to 0.97 when the
+// dial scrolls into view, illustrating the correction at a glance.
+---
+
+<figure class="dial" data-from="0.82" data-to="0.97">
+  <svg
+    class="dial__svg"
+    viewBox="0 0 200 124"
+    role="img"
+    aria-label="Power factor gauge sweeping from 0.82 to 0.97 after correction."
+  >
+    <!-- track -->
+    <path class="dial__track" d="M18 104 A82 82 0 0 1 182 104" />
+    <!-- corrected 'good' zone (upper-right of the arc) -->
+    <path class="dial__zone" d="M141 33 A82 82 0 0 1 182 104" />
+    <!-- tick marks -->
+    <g class="dial__ticks">
+      <line x1="18" y1="104" x2="28" y2="104" />
+      <line x1="100" y1="22" x2="100" y2="33" />
+      <line x1="182" y1="104" x2="172" y2="104" />
+    </g>
+    <!-- needle -->
+    <g class="dial__needle">
+      <line x1="100" y1="104" x2="100" y2="40" />
+    </g>
+    <circle class="dial__hub" cx="100" cy="104" r="6" />
+  </svg>
+
+  <figcaption class="dial__cap">
+    <span class="dial__value" id="dial-value" aria-live="polite">0.82</span>
+    <span class="dial__label">power factor, after correction</span>
+  </figcaption>
+</figure>
+
+<script is:inline>
+  (() => {
+    const dial = document.querySelector(".dial");
+    if (!dial) return;
+    const needle = dial.querySelector(".dial__needle");
+    const out = dial.querySelector("#dial-value");
+    const from = Number(dial.getAttribute("data-from"));
+    const to = Number(dial.getAttribute("data-to"));
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // value (0.70..1.00) -> needle rotation (-90deg..+90deg)
+    const rot = (v) => ((v - 0.7) / 0.3 - 0.5) * 180;
+    needle.style.transform = "rotate(" + rot(from).toFixed(1) + "deg)";
+
+    const settle = () => {
+      needle.style.transform = "rotate(" + rot(to).toFixed(1) + "deg)";
+      if (reduce) {
+        out.textContent = to.toFixed(2);
+        return;
+      }
+      const start = performance.now();
+      const dur = 1100;
+      const ease = (t) => 1 - Math.pow(1 - t, 4);
+      const tick = (now) => {
+        const t = Math.min((now - start) / dur, 1);
+        out.textContent = (from + (to - from) * ease(t)).toFixed(2);
+        if (t < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    };
+
+    if (reduce || !("IntersectionObserver" in window)) {
+      settle();
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            io.disconnect();
+            settle();
+          }
+        }
+      },
+      { threshold: 0.5 },
+    );
+    io.observe(dial);
+  })();
+</script>
+
+<style>
+  .dial {
+    margin: 0 0 var(--space-l);
+    display: grid;
+    justify-items: center;
+    gap: var(--space-xs);
+  }
+  .dial__svg {
+    width: min(220px, 70%);
+    height: auto;
+    overflow: visible;
+  }
+  .dial__track {
+    fill: none;
+    stroke: var(--line-strong);
+    stroke-width: 6;
+    stroke-linecap: round;
+  }
+  .dial__zone {
+    fill: none;
+    stroke: var(--gold);
+    stroke-width: 6;
+    stroke-linecap: round;
+    opacity: 0.85;
+    filter: drop-shadow(0 0 5px rgba(199, 168, 107, 0.35));
+  }
+  .dial__ticks line {
+    stroke: var(--muted);
+    stroke-width: 1.5;
+  }
+  .dial__needle {
+    transform-origin: 100px 104px;
+    transform: rotate(-90deg);
+    transition: transform 1.1s var(--ease-out-quart);
+  }
+  .dial__needle line {
+    stroke: var(--gold-text);
+    stroke-width: 3;
+    stroke-linecap: round;
+  }
+  .dial__hub {
+    fill: var(--ink);
+    stroke: var(--gold);
+    stroke-width: 1.5;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .dial__needle {
+      transition: none;
+    }
+  }
+
+  .dial__cap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.1rem;
+  }
+  .dial__value {
+    font-family: var(--font-serif);
+    font-size: var(--step-2);
+    line-height: 1;
+    color: var(--gold-text);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .dial__label {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+  }
+</style>

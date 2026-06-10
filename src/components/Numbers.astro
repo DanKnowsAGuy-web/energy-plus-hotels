@@ -1,4 +1,6 @@
 ---
+import Dial from "./Dial.astro";
+
 const measured = [
   { label: "Power factor, before", value: "0.82", note: "uncorrected" },
   { label: "Power factor, after", value: "0.97", note: "corrected" },
@@ -24,6 +26,7 @@ const measured = [
     <div class="numbers__grid">
       <figure class="numbers__measured reveal ph">
         <figcaption>From a verified install</figcaption>
+        <Dial />
         <table class="numbers__table">
           <tbody>
             {

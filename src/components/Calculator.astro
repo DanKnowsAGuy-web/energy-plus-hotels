@@ -112,26 +112,64 @@
     const valueEl = document.getElementById("result-value");
     const rangeEl = document.getElementById("result-range");
     const rateEl = document.getElementById("result-rate");
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     // PLACEHOLDER rate, held blank in the floor table on purpose. Replace with
     // the locked methodology once demand-versus-bill is resolved.
     const FLOOR_RATE = 0.11;
 
-    function calc() {
+    // Odometer feel: the displayed value chases the target on a weighted lerp,
+    // so it rolls under the slider rather than snapping.
+    let dispFloor = 0;
+    let targetFloor = 0;
+    let dispRate = 0;
+    let targetRate = 0;
+    let raf = null;
+
+    const render = () => {
+      valueEl.textContent = fmt(dispFloor);
+      rateEl.textContent = dispRate.toFixed(1) + "%";
+    };
+
+    const loop = () => {
+      const df = targetFloor - dispFloor;
+      const dr = targetRate - dispRate;
+      if (Math.abs(df) < 1 && Math.abs(dr) < 0.01) {
+        dispFloor = targetFloor;
+        dispRate = targetRate;
+        render();
+        valueEl.classList.remove("is-rolling");
+        raf = null;
+        return;
+      }
+      dispFloor += df * 0.2;
+      dispRate += dr * 0.2;
+      render();
+      raf = requestAnimationFrame(loop);
+    };
+
+    const compute = (animate) => {
       const spend = Number(spendEl.value);
       const typeMult = Number(
         form.querySelector('input[name="ptype"]:checked').value,
       );
-      const floor = spend * FLOOR_RATE * typeMult;
-
+      targetFloor = spend * FLOOR_RATE * typeMult;
+      targetRate = FLOOR_RATE * typeMult * 100;
       spendOut.textContent = fmt(spend);
-      valueEl.textContent = fmt(floor);
       rangeEl.textContent = "conservative floor, whole building";
-      rateEl.textContent = (FLOOR_RATE * typeMult * 100).toFixed(1) + "%";
-    }
 
-    form.addEventListener("input", calc);
-    calc();
+      if (!animate || reduce) {
+        dispFloor = targetFloor;
+        dispRate = targetRate;
+        render();
+        return;
+      }
+      valueEl.classList.add("is-rolling");
+      if (!raf) raf = requestAnimationFrame(loop);
+    };
+
+    form.addEventListener("input", () => compute(true));
+    compute(false);
   })();
 </script>
 
@@ -302,6 +340,10 @@
     color: var(--ink);
     letter-spacing: -0.03em;
     font-variant-numeric: tabular-nums;
+    transition: color 0.35s ease;
+  }
+  .calc__result-value.is-rolling {
+    color: var(--gold-text);
   }
   .calc__result-range {
     font-size: var(--step--1);

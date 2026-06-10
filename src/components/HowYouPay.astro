@@ -93,6 +93,7 @@ const terms = [
     color: var(--mint);
   }
   .pay__dot {
+    position: relative;
     display: inline-block;
     width: 9px;
     height: 9px;
@@ -101,6 +102,28 @@ const terms = [
     background: var(--mint);
     box-shadow: 0 0 0 4px var(--mint-soft);
     vertical-align: middle;
+  }
+  .pay__dot.is-pulse::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    animation: dotPulse 1.3s var(--ease-out-quart);
+  }
+  @keyframes dotPulse {
+    from {
+      box-shadow: 0 0 0 0 var(--mint);
+      opacity: 0.55;
+    }
+    to {
+      box-shadow: 0 0 0 16px transparent;
+      opacity: 0;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .pay__dot.is-pulse::after {
+      animation: none;
+    }
   }
   .pay__body {
     color: var(--body);

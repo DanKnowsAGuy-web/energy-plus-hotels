@@ -297,6 +297,117 @@ a {
   }
 }
 
+/* --- Film grain: kills gradient banding on the dark surfaces ------------ */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-sticky);
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 140px 140px;
+}
+
+/* --- Brushed-brass sheen: gold CTAs sweep a highlight on hover ---------- */
+.btn:not(.btn--ghost) {
+  position: relative;
+  isolation: isolate;
+}
+.btn:not(.btn--ghost)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 248, 231, 0.5) 47%,
+    rgba(255, 255, 255, 0.16) 52%,
+    transparent 70%
+  );
+  transform: translateX(-130%);
+  transition: transform 0.75s var(--ease-out-quart);
+  clip-path: inset(0 round var(--radius-s));
+  pointer-events: none;
+}
+.btn:not(.btn--ghost):hover::before {
+  transform: translateX(130%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn:not(.btn--ghost)::before {
+    display: none;
+  }
+}
+
+/* --- Schematic hairline dividers: a ruler tick at each section seam ------ */
+main > .section {
+  position: relative;
+}
+main > .section::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--line-strong) 0 1px,
+    transparent 1px 46px
+  );
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 7%,
+    #000 93%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    #000 7%,
+    #000 93%,
+    transparent
+  );
+}
+
+/* --- Scroll-through-line: a waveform down the edge that cleans up as you
+   scroll. Distorted at the top, resolved by the bottom. ------------------ */
+.through-line {
+  position: fixed;
+  top: 0;
+  right: max(10px, 1.4vw);
+  height: 100vh;
+  width: 30px;
+  /* above the opaque section backgrounds, below the header/grain */
+  z-index: calc(var(--z-sticky) - 1);
+  pointer-events: none;
+}
+.through-line svg {
+  width: 100%;
+  height: 100%;
+}
+.through-line__dist {
+  opacity: calc(1 - var(--tl, 0));
+}
+.through-line__clean {
+  opacity: var(--tl, 0);
+  filter: drop-shadow(0 0 4px rgba(199, 168, 107, 0.35));
+}
+@media (max-width: 1180px) {
+  .through-line {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .through-line {
+    display: none;
+  }
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;

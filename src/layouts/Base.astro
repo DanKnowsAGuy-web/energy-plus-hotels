@@ -16,6 +16,26 @@ const {
   title = "Energy Plus: verified energy savings for hotels",
   description = "We cut your hotel's energy costs and prove the savings at your meter before you pay a cent. We even pay for the diagnosis ourselves.",
 } = Astro.props;
+
+// Vertical through-line waveform paths (built once at compile time).
+const TLH = 1000;
+const TLN = 240;
+const tlMid = 15;
+const tlAmp = 9;
+function tlPath(distort: boolean) {
+  let d = "";
+  for (let i = 0; i <= TLN; i++) {
+    const y = (i / TLN) * TLH;
+    const t = (i / TLN) * Math.PI * 2 * 26;
+    const x = distort
+      ? tlMid + tlAmp * (0.7 * Math.sin(t) + 0.22 * Math.sin(3 * t + 0.6) + 0.16 * Math.sin(5 * t + 1.2))
+      : tlMid + tlAmp * Math.sin(t);
+    d += (i === 0 ? "M" : "L") + x.toFixed(1) + " " + y.toFixed(1) + " ";
+  }
+  return d.trim();
+}
+const tlDist = tlPath(true);
+const tlClean = tlPath(false);
 ---
 
 <!doctype html>
@@ -35,6 +55,25 @@ const {
   <body>
     <a href="#main" class="skip-link">Skip to content</a>
     <div class="scroll-progress" aria-hidden="true"></div>
+
+    <div class="through-line" aria-hidden="true">
+      <svg viewBox="0 0 30 1000" preserveAspectRatio="none" fill="none">
+        <path
+          class="through-line__dist"
+          d={tlDist}
+          stroke="var(--muted)"
+          stroke-width="1.4"
+          vector-effect="non-scaling-stroke"></path>
+        <path
+          class="through-line__clean"
+          d={tlClean}
+          stroke="var(--gold-text)"
+          stroke-width="1.4"
+          vector-effect="non-scaling-stroke"></path>
+      </svg>
+    </div>
+
+    <div class="grain" aria-hidden="true"></div>
     <slot />
 
     <script>
@@ -58,15 +97,19 @@ const {
         document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
       }
 
-      // Scroll-progress rail (rAF-throttled, transform only).
+      // Scroll-progress rail + through-line cleanup (rAF-throttled, one pass).
       const rail = document.querySelector(".scroll-progress");
-      if (rail && !reduce.matches) {
+      const thru = document.querySelector(".through-line");
+      if ((rail || thru) && !reduce.matches) {
         let ticking = false;
         const update = () => {
           const h = document.documentElement;
           const max = h.scrollHeight - h.clientHeight;
           const p = max > 0 ? h.scrollTop / max : 0;
-          rail.style.transform = "scaleX(" + p.toFixed(4) + ")";
+          if (rail) rail.style.transform = "scaleX(" + p.toFixed(4) + ")";
+          // through-line resolves a touch ahead of the rail so it reads "clean"
+          // by the time you reach the money sections.
+          if (thru) thru.style.setProperty("--tl", Math.min(p * 1.15, 1).toFixed(4));
           ticking = false;
         };
         addEventListener(
@@ -80,6 +123,23 @@ const {
           { passive: true },
         );
         update();
+      }
+
+      // Mint pulse: the "diagnosis is on us" dot pulses once on arrival.
+      const dot = document.querySelector(".pay__dot");
+      if (dot && !reduce.matches && "IntersectionObserver" in window) {
+        const io3 = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-pulse");
+                io3.disconnect();
+              }
+            }
+          },
+          { threshold: 0.9 },
+        );
+        io3.observe(dot);
       }
 
       // Count-up on the load-waste stat. Enhances the visible default; if motion

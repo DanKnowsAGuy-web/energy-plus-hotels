@@ -1,0 +1,207 @@
+---
+// Power-factor waveform: distorted (0.82) vs corrected (0.97), built at compile
+// time so there's no client cost beyond a class toggle.
+const W = 640; // viewBox width (visible window)
+const H = 150;
+const mid = H / 2;
+const amp = 42;
+// Draw at double width / double cycles so a -50% translate loops seamlessly.
+const drawW = W * 2;
+const N = 320;
+const cycles = 6;
+
+function buildPath(distort: boolean) {
+  let d = "";
+  for (let i = 0; i <= N; i++) {
+    const x = (i / N) * drawW;
+    const t = (i / N) * Math.PI * 2 * cycles;
+    const y = distort
+      ? mid - amp * (0.7 * Math.sin(t) + 0.22 * Math.sin(3 * t + 0.7) + 0.16 * Math.sin(5 * t + 1.3))
+      : mid - amp * Math.sin(t);
+    d += (i === 0 ? "M" : "L") + x.toFixed(1) + " " + y.toFixed(1) + " ";
+  }
+  return d.trim();
+}
+
+const cleanD = buildPath(false);
+const distD = buildPath(true);
+---
+
+<figure class="wave" data-state="before">
+  <div class="wave__stage">
+    <svg
+      class="wave__svg"
+      viewBox={`0 0 ${W} ${H}`}
+      preserveAspectRatio="none"
+      role="img"
+      aria-label="A distorted power waveform that resolves to a clean sine wave once power factor is corrected."
+    >
+      <line class="wave__axis" x1="0" y1={mid} x2={W} y2={mid}></line>
+      <path class="wave__path wave__path--dist" d={distD}></path>
+      <path class="wave__path wave__path--clean" d={cleanD}></path>
+    </svg>
+  </div>
+
+  <figcaption class="wave__bar">
+    <div class="wave__readout" aria-live="polite">
+      <span class="wave__pf" id="wave-pf">0.82</span>
+      <span class="wave__pf-label" id="wave-state">power factor, uncorrected</span>
+    </div>
+
+    <div class="wave__toggle" role="radiogroup" aria-label="Power factor state">
+      <button type="button" class="wave__opt is-on" data-set="before" aria-pressed="true">
+        Before
+      </button>
+      <button type="button" class="wave__opt" data-set="after" aria-pressed="false">
+        After
+      </button>
+    </div>
+  </figcaption>
+</figure>
+
+<script is:inline>
+  (() => {
+    const fig = document.querySelector(".wave");
+    if (!fig) return;
+    const pf = fig.querySelector("#wave-pf");
+    const state = fig.querySelector("#wave-state");
+    const opts = fig.querySelectorAll(".wave__opt");
+    const data = {
+      before: { pf: "0.82", label: "power factor, uncorrected" },
+      after: { pf: "0.97", label: "power factor, corrected" },
+    };
+    opts.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const set = btn.getAttribute("data-set");
+        fig.setAttribute("data-state", set);
+        pf.textContent = data[set].pf;
+        state.textContent = data[set].label;
+        opts.forEach((o) => {
+          const on = o === btn;
+          o.classList.toggle("is-on", on);
+          o.setAttribute("aria-pressed", String(on));
+        });
+      });
+    });
+  })();
+</script>
+
+<style>
+  .wave {
+    margin: var(--space-xl) 0 0;
+    padding: clamp(1.25rem, 3vw, 2rem);
+    background: linear-gradient(155deg, var(--surface) 0%, var(--surface-2) 100%);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    box-shadow: 0 30px 70px -55px rgba(0, 0, 0, 0.8);
+  }
+
+  .wave__stage {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-s);
+  }
+  .wave__svg {
+    display: block;
+    width: 100%;
+    height: clamp(120px, 22vw, 170px);
+  }
+  .wave__axis {
+    stroke: var(--line);
+    stroke-width: 1;
+    stroke-dasharray: 3 5;
+  }
+  .wave__path {
+    fill: none;
+    stroke-width: 2.5;
+    vector-effect: non-scaling-stroke;
+    transition: opacity 0.55s var(--ease-out-quart);
+  }
+  .wave__path--dist {
+    stroke: var(--muted);
+    opacity: 1;
+  }
+  .wave__path--clean {
+    stroke: var(--gold-text);
+    opacity: 0;
+    filter: drop-shadow(0 0 6px rgba(199, 168, 107, 0.4));
+  }
+  .wave[data-state="after"] .wave__path--dist {
+    opacity: 0;
+  }
+  .wave[data-state="after"] .wave__path--clean {
+    opacity: 1;
+  }
+
+  /* gentle horizontal drift, masked behind the stage edges */
+  @media (prefers-reduced-motion: no-preference) {
+    .wave__path {
+      animation: waveDrift 9s linear infinite;
+    }
+    @keyframes waveDrift {
+      to {
+        transform: translateX(-50%);
+      }
+    }
+  }
+
+  .wave__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-m);
+    margin-top: var(--space-m);
+  }
+  .wave__readout {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+  }
+  .wave__pf {
+    font-family: var(--font-serif);
+    font-size: var(--step-3);
+    line-height: 1;
+    color: var(--ink);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .wave[data-state="after"] .wave__pf {
+    color: var(--gold-text);
+  }
+  .wave__pf-label {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--muted);
+  }
+
+  .wave__toggle {
+    display: inline-flex;
+    padding: 4px;
+    gap: 4px;
+    background: rgba(10, 20, 34, 0.55);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-s);
+  }
+  .wave__opt {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--body);
+    font-family: var(--font-sans);
+    font-size: var(--step--1);
+    font-weight: 600;
+    padding: 0.5em 1.1em;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.25s ease, color 0.25s ease;
+  }
+  .wave__opt.is-on {
+    background: rgba(199, 168, 107, 0.16);
+    color: var(--gold-text);
+  }
+  .wave__opt:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+  }
+</style>

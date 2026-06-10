@@ -4,6 +4,7 @@
 <section class="hero" aria-labelledby="hero-title">
   <div class="hero__grid" aria-hidden="true"></div>
   <div class="hero__glow" aria-hidden="true"></div>
+  <div class="hero__spot" aria-hidden="true"></div>
 
   <div class="container hero__inner">
     <p class="hero__kicker reveal">For hotel owners and portfolio operators</p>
@@ -38,6 +39,35 @@
   </div>
 </section>
 
+<script is:inline>
+  (() => {
+    const hero = document.querySelector(".hero");
+    const spot = hero && hero.querySelector(".hero__spot");
+    if (!hero || !spot) return;
+    if (!matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    let ticking = false;
+    let lx = 0;
+    let ly = 0;
+    hero.addEventListener(
+      "pointermove",
+      (e) => {
+        const r = hero.getBoundingClientRect();
+        lx = e.clientX - r.left;
+        ly = e.clientY - r.top;
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(() => {
+            spot.style.setProperty("--mx", lx + "px");
+            spot.style.setProperty("--my", ly + "px");
+            ticking = false;
+          });
+        }
+      },
+      { passive: true },
+    );
+  })();
+</script>
+
 <style>
   .hero {
     position: relative;
@@ -71,6 +101,25 @@
       black 35%,
       transparent 80%
     );
+  }
+
+  .hero__spot {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.5s var(--ease-out-quart);
+    background: radial-gradient(
+      200px circle at var(--mx, 50%) var(--my, 35%),
+      rgba(199, 168, 107, 0.16),
+      transparent 62%
+    );
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .hero:hover .hero__spot {
+      opacity: 1;
+    }
   }
 
   .hero__glow {
