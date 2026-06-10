@@ -1,11 +1,16 @@
 ---
+import logo from "../assets/energy-plus-logo.png";
 const year = new Date().getFullYear();
 ---
 
 <footer class="site-footer">
   <div class="container site-footer__inner">
     <div class="site-footer__brand">
-      <span class="wordmark__text">Energy<span class="wordmark__plus">+</span> <span class="wordmark__hotels">Hotels</span></span>
+      <span class="footer-lockup">
+        <img class="footer-lockup__logo" src={logo.src} width="104" height="30" alt="Energy Plus" />
+        <span class="footer-lockup__div" aria-hidden="true"></span>
+        <span class="wordmark__hotels">Hotels</span>
+      </span>
       <p class="site-footer__line">
         Independent energy partner to hotels. We don't sell the box. We diagnose
         the property and verify the savings.
@@ -44,13 +49,20 @@ const year = new Date().getFullYear();
   .site-footer__brand {
     max-width: 34ch;
   }
-  .wordmark__text {
-    font-family: var(--font-serif);
-    font-size: 1.3rem;
-    color: var(--ink);
+  .footer-lockup {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
   }
-  .wordmark__plus {
-    color: var(--gold-text);
+  .footer-lockup__logo {
+    height: 26px;
+    width: auto;
+    display: block;
+  }
+  .footer-lockup__div {
+    width: 1px;
+    height: 20px;
+    background: var(--line-strong);
   }
   .wordmark__hotels {
     font-family: "Oswald", var(--font-sans);

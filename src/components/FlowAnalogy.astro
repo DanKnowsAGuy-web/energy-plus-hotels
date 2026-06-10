@@ -10,14 +10,21 @@ function water(y: number) {
   return `M16 ${y} L${W - 16} ${y}`;
 }
 
-// bubbles: x position, lane y, radius, drift duration s, delay s
+// bubbles: lane y, radius, drift duration s, delay s
+// (doubled count, radii x1.3 for a denser, more visible air load)
 const bubbles = [
-  { y: 30, r: 6, dur: 9, delay: 0 },
-  { y: 62, r: 4, dur: 7, delay: -2.5 },
-  { y: 44, r: 5, dur: 11, delay: -5 },
-  { y: 76, r: 3.4, dur: 8, delay: -1.2 },
-  { y: 36, r: 3, dur: 6.4, delay: -3.8 },
-  { y: 70, r: 5.4, dur: 10, delay: -7 },
+  { y: 30, r: 7.8, dur: 9, delay: 0 },
+  { y: 62, r: 5.2, dur: 7, delay: -2.5 },
+  { y: 44, r: 6.5, dur: 11, delay: -5 },
+  { y: 76, r: 4.4, dur: 8, delay: -1.2 },
+  { y: 36, r: 3.9, dur: 6.4, delay: -3.8 },
+  { y: 70, r: 7, dur: 10, delay: -7 },
+  { y: 52, r: 5.8, dur: 8.6, delay: -4.4 },
+  { y: 26, r: 4.6, dur: 7.4, delay: -6.1 },
+  { y: 84, r: 6.2, dur: 9.6, delay: -2 },
+  { y: 58, r: 3.9, dur: 6.8, delay: -0.7 },
+  { y: 40, r: 7.2, dur: 10.5, delay: -8.3 },
+  { y: 68, r: 4.9, dur: 7.8, delay: -3.1 },
 ];
 ---
 

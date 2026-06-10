@@ -118,14 +118,22 @@ const tlClean = tlPath(false);
       const thru = document.querySelector(".through-line");
       if ((rail || thru) && !reduce.matches) {
         let ticking = false;
+        const hz = document.querySelector(".hz");
         const update = () => {
           const h = document.documentElement;
           const max = h.scrollHeight - h.clientHeight;
           const p = max > 0 ? h.scrollTop / max : 0;
           if (rail) rail.style.transform = "scaleX(" + p.toFixed(4) + ")";
-          // through-line resolves a touch ahead of the rail so it reads "clean"
-          // by the time you reach the money sections.
-          if (thru) thru.style.setProperty("--tl", Math.min(p * 1.15, 1).toFixed(4));
+          // through-line resolves fully by the time the harmonizer headline
+          // arrives: dirty at the top of the journey, clean from there down.
+          if (thru) {
+            let tl = Math.min(p * 1.15, 1);
+            if (hz) {
+              const denom = Math.max(1, hz.offsetTop - innerHeight * 0.6);
+              tl = Math.min(h.scrollTop / denom, 1);
+            }
+            thru.style.setProperty("--tl", tl.toFixed(4));
+          }
           ticking = false;
         };
         addEventListener(
