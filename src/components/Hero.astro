@@ -2,6 +2,7 @@
 ---
 
 <section class="hero" aria-labelledby="hero-title">
+  <div class="hero__photo" aria-hidden="true"></div>
   <div class="hero__grid" aria-hidden="true"></div>
   <div class="hero__glow" aria-hidden="true"></div>
   <div class="hero__spot" aria-hidden="true"></div>
@@ -82,13 +83,33 @@
     padding-block: clamp(5rem, 13vw, 11rem) clamp(4rem, 9vw, 8rem);
   }
 
+  /* PLACEHOLDER hero photograph: dusk luxury-hotel exterior, heavily darkened
+     and forest-tinted so ivory headline copy stays readable. Swap the URL for
+     a licensed/owned hero image before publishing. */
+  .hero__photo {
+    position: absolute;
+    inset: 0;
+    z-index: -3;
+    background-image:
+      linear-gradient(180deg, transparent 58%, var(--bg) 100%),
+      linear-gradient(
+        100deg,
+        rgba(8, 23, 16, 0.95) 0%,
+        rgba(10, 28, 22, 0.82) 46%,
+        rgba(12, 33, 27, 0.5) 100%
+      ),
+      url("https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1920&q=72");
+    background-size: cover;
+    background-position: center 30%;
+  }
+
   .hero__grid {
     position: absolute;
     inset: -2px;
     z-index: -2;
     background-image:
-      linear-gradient(to right, rgba(162, 174, 189, 0.5) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(162, 174, 189, 0.5) 1px, transparent 1px);
+      linear-gradient(to right, rgba(226, 216, 196, 0.5) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(226, 216, 196, 0.5) 1px, transparent 1px);
     background-size: 64px 64px;
     opacity: 0.045;
     mask-image: radial-gradient(
@@ -112,7 +133,7 @@
     transition: opacity 0.5s var(--ease-out-quart);
     background: radial-gradient(
       200px circle at var(--mx, 50%) var(--my, 35%),
-      rgba(199, 168, 107, 0.16),
+      rgba(216, 190, 134, 0.18),
       transparent 62%
     );
   }
@@ -133,7 +154,7 @@
     max-height: 720px;
     background: radial-gradient(
       circle,
-      rgba(199, 168, 107, 0.13) 0%,
+      rgba(216, 190, 134, 0.14) 0%,
       transparent 65%
     );
     filter: blur(8px);
