@@ -1,20 +1,22 @@
 ---
-// Scroll-driven scene: distorted power damages hotel equipment; as you scroll,
-// power-quality correction drops into the line and downstream power resolves to
-// clean 60 Hz while the meter climbs 0.82 -> 0.97.
-// Built at compile time: waveform paths are static; scroll only drives clips,
-// the box drop, colors, the meter, and the equipment state.
+// Scroll-driven scene: dirty power flows left to right and runs a hotel motor
+// hot; you scroll, the harmonizer drops into the line, and clean 60 Hz spreads
+// from the harmonizer outward to the motor, which cools from red to blue while
+// the meter climbs 0.82 -> 0.97.
+// Waves are drawn at double width so a -50% translate loops seamlessly (the
+// flow animation); scroll drives the clip reveal, box drop, motor, and meter.
 const X0 = 80;
-const X1 = 600;
+const DRAW_W = 1040; // double the visible 520px window for seamless flow
 const midY = 190;
 const amp = 26;
-const N = 220;
+const N = 320;
 
 function wave(distort: boolean) {
+  const cycles = distort ? 14 : 24;
   let d = "";
   for (let i = 0; i <= N; i++) {
-    const x = X0 + (i / N) * (X1 - X0);
-    const t = (i / N) * Math.PI * 2 * (distort ? 7 : 12);
+    const x = X0 + (i / N) * DRAW_W;
+    const t = (i / N) * Math.PI * 2 * cycles;
     const y = distort
       ? midY - amp * (0.6 * Math.sin(t) + 0.26 * Math.sin(3 * t + 0.6) + 0.2 * Math.sin(5 * t + 1.2))
       : midY - amp * 0.9 * Math.sin(t);
@@ -31,10 +33,10 @@ const cleanD = wave(false);
     <div class="container hz__inner">
       <div class="hz__head">
         <h2 class="hz__title" id="hz-title">
-          What dirty power does, and what correction undoes.
+          What dirty power does, and what the harmonizer undoes.
         </h2>
         <p class="hz__caption" id="hz-caption" aria-live="polite">
-          Distorted power leaves the grid and reaches the equipment as heat,
+          Distorted power flows from the grid into your motors as heat,
           vibration, and early failure.
         </p>
       </div>
@@ -44,36 +46,56 @@ const cleanD = wave(false);
           class="hz__svg"
           viewBox="0 0 680 300"
           role="img"
-          aria-label="A power line where distorted current damages hotel equipment until power-quality correction is inserted and the downstream waveform resolves to a clean 60 hertz sine."
+          aria-label="Distorted current flows into a hotel motor and runs it hot until a harmonizer is inserted; downstream the current resolves to a clean 60 hertz sine and the motor cools."
         >
           <defs>
-            <clipPath id="hz-clip-dist"><rect id="hz-rect-dist" x="80" y="150" width="520" height="80"></rect></clipPath>
-            <clipPath id="hz-clip-clean"><rect id="hz-rect-clean" x="600" y="150" width="0" height="80"></rect></clipPath>
+            <clipPath id="hz-clip-dist">
+              <rect id="hz-rect-dL" x="80" y="150" width="216" height="80"></rect>
+              <rect id="hz-rect-dR" x="388" y="150" width="212" height="80"></rect>
+            </clipPath>
+            <clipPath id="hz-clip-clean">
+              <rect id="hz-rect-c" x="388" y="150" width="0" height="80"></rect>
+            </clipPath>
           </defs>
 
           <line class="hz__axis" x1="80" y1={midY} x2="600" y2={midY}></line>
 
-          <text class="hz__tag hz__tag--src" x="80" y="110">Grid power</text>
-          <text class="hz__tag hz__tag--clean" id="hz-hztag" x="600" y="110" text-anchor="end">60 Hz, corrected</text>
+          <text class="hz__tag" x="80" y="112">Grid power</text>
+          <text class="hz__tag hz__tag--clean" id="hz-hztag" x="600" y="112" text-anchor="end">distorted</text>
 
-          <path class="hz__wave hz__wave--dist" d={distD} clip-path="url(#hz-clip-dist)"></path>
-          <path class="hz__wave hz__wave--clean" d={cleanD} clip-path="url(#hz-clip-clean)"></path>
-
-          <g class="hz__equip" id="hz-equip" transform="translate(612,150)">
-            <rect class="hz__equip-body" x="0" y="0" width="56" height="80" rx="5"></rect>
-            <line class="hz__equip-louver" x1="8" y1="18" x2="48" y2="18"></line>
-            <line class="hz__equip-louver" x1="8" y1="30" x2="48" y2="30"></line>
-            <line class="hz__equip-louver" x1="8" y1="42" x2="48" y2="42"></line>
-            <circle class="hz__equip-led" cx="28" cy="62" r="5"></circle>
+          <g clip-path="url(#hz-clip-dist)">
+            <path class="hz__wave hz__wave--dist hz__flow" d={distD}></path>
           </g>
-          <text class="hz__tag hz__tag--equip" x="640" y="248" text-anchor="middle">Hotel plant</text>
+          <g clip-path="url(#hz-clip-clean)">
+            <path class="hz__wave hz__wave--clean hz__flow" d={cleanD}></path>
+          </g>
 
-          <g class="hz__box" id="hz-box" transform="translate(0,170)">
-            <rect class="hz__box-body" x="300" y="138" width="84" height="104" rx="7"></rect>
-            <line class="hz__box-line" x1="316" y1="166" x2="368" y2="166"></line>
-            <line class="hz__box-line" x1="316" y1="180" x2="368" y2="180"></line>
-            <line class="hz__box-line" x1="316" y1="194" x2="368" y2="194"></line>
-            <text class="hz__box-label" x="342" y="224" text-anchor="middle">Correction</text>
+          <!-- hotel motor / compressor -->
+          <g class="hz__motor" id="hz-motor">
+            <g class="hz__heat" aria-hidden="true">
+              <path d="M612 160 q-4 -6 0 -12 q4 -6 0 -12"></path>
+              <path d="M627 158 q-4 -6 0 -12 q4 -6 0 -12"></path>
+              <path d="M642 160 q-4 -6 0 -12 q4 -6 0 -12"></path>
+            </g>
+            <rect class="hz__motor-foot" x="606" y="214" width="10" height="7" rx="1"></rect>
+            <rect class="hz__motor-foot" x="636" y="214" width="10" height="7" rx="1"></rect>
+            <rect class="hz__motor-body" x="600" y="166" width="50" height="50" rx="8"></rect>
+            <line class="hz__motor-fin" x1="609" y1="172" x2="609" y2="210"></line>
+            <line class="hz__motor-fin" x1="620" y1="172" x2="620" y2="210"></line>
+            <line class="hz__motor-fin" x1="631" y1="172" x2="631" y2="210"></line>
+            <line class="hz__motor-fin" x1="642" y1="172" x2="642" y2="210"></line>
+            <circle class="hz__motor-hub" cx="658" cy="191" r="12"></circle>
+            <circle class="hz__motor-shaft" cx="658" cy="191" r="3"></circle>
+          </g>
+          <text class="hz__tag hz__tag--motor" x="628" y="244" text-anchor="middle">Hotel motor</text>
+
+          <!-- harmonizer -->
+          <g class="hz__box" id="hz-box" transform="translate(0,150)">
+            <rect class="hz__box-body" x="296" y="138" width="92" height="104" rx="7"></rect>
+            <line class="hz__box-line" x1="312" y1="166" x2="372" y2="166"></line>
+            <line class="hz__box-line" x1="312" y1="180" x2="372" y2="180"></line>
+            <line class="hz__box-line" x1="312" y1="194" x2="372" y2="194"></line>
+            <text class="hz__box-label" x="342" y="224" text-anchor="middle">Harmonizer</text>
           </g>
 
           <g class="hz__meter" transform="translate(80,236)">
@@ -95,16 +117,17 @@ const cleanD = wave(false);
     const sec = document.querySelector(".hz");
     if (!sec) return;
     const caption = document.getElementById("hz-caption");
-    const rectDist = document.getElementById("hz-rect-dist");
-    const rectClean = document.getElementById("hz-rect-clean");
+    const rectDL = document.getElementById("hz-rect-dL");
+    const rectDR = document.getElementById("hz-rect-dR");
+    const rectC = document.getElementById("hz-rect-c");
     const box = document.getElementById("hz-box");
-    const equip = document.getElementById("hz-equip");
     const pf = document.getElementById("hz-pf");
+    const tag = document.getElementById("hz-hztag");
     const prog = document.getElementById("hz-progress");
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const BOX_LEFT = 300;
-    const BOX_RIGHT = 384;
+    const BOX_L = 296;
+    const BOX_R = 388;
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
     const smooth = (p, a, b) => {
       const t = clamp((p - a) / (b - a), 0, 1);
@@ -113,32 +136,38 @@ const cleanD = wave(false);
     const lerp = (a, b, t) => a + (b - a) * t;
 
     const captions = [
-      "Distorted power leaves the grid and reaches the equipment as heat, vibration, and early failure.",
-      "Power-quality correction drops into the line, between the grid and your plant.",
-      "Downstream of the correction, the current resolves to a clean 60 Hz. The equipment is protected.",
+      "Distorted power flows from the grid into your motors as heat, vibration, and early failure.",
+      "The harmonizer drops into the line, between the grid and your equipment.",
+      "Downstream, the current resolves to a clean 60 Hz. The motor cools and the power factor recovers.",
     ];
     let lastPhase = -1;
 
     const apply = (p) => {
       const drop = smooth(p, 0.12, 0.42);
-      const engage = smooth(p, 0.48, 0.86);
-      // box drops into the line
-      box.setAttribute("transform", "translate(0," + (170 * (1 - drop)).toFixed(1) + ")");
+      const engage = smooth(p, 0.5, 0.9);
+      box.setAttribute("transform", "translate(0," + (150 * (1 - drop)).toFixed(1) + ")");
       box.style.opacity = (0.2 + 0.8 * drop).toFixed(2);
-      // clean reveal grows from the box toward the equipment
-      const distEnd = lerp(600, BOX_LEFT, engage);
-      const cleanStart = lerp(600, BOX_RIGHT, engage);
-      rectDist.setAttribute("width", Math.max(0, distEnd - 80).toFixed(1));
-      rectClean.setAttribute("x", cleanStart.toFixed(1));
-      rectClean.setAttribute("width", Math.max(0, 600 - cleanStart).toFixed(1));
-      // meter steps up
-      const pfVal = 0.82 + Math.round(engage * 5) / 5 * 0.15;
+
+      // dirty retreats to the left of the box as it seats; clean spreads from
+      // the box outward to the right (the conversion front F moves right).
+      const leftEnd = lerp(600, BOX_L, drop);
+      const F = lerp(BOX_R, 600, engage);
+      rectDL.setAttribute("width", Math.max(0, leftEnd - 80).toFixed(1));
+      rectDR.setAttribute("x", F.toFixed(1));
+      rectDR.setAttribute("width", Math.max(0, 600 - F).toFixed(1));
+      rectC.setAttribute("width", Math.max(0, F - BOX_R).toFixed(1));
+
+      const pfVal = 0.82 + (Math.round(engage * 5) / 5) * 0.15;
       pf.textContent = pfVal.toFixed(2);
+
       const clean = engage > 0.5;
+      const cool = engage > 0.85;
       sec.classList.toggle("is-clean", clean);
+      sec.classList.toggle("is-cool", cool);
       pf.classList.toggle("is-good", engage > 0.95);
+      if (tag) tag.textContent = cool ? "60 Hz, corrected" : "distorted";
       if (prog) prog.style.transform = "scaleX(" + p.toFixed(3) + ")";
-      // caption phase
+
       const phase = p < 0.42 ? 0 : p < 0.7 ? 1 : 2;
       if (phase !== lastPhase && caption) {
         caption.textContent = captions[phase];
@@ -147,15 +176,16 @@ const cleanD = wave(false);
     };
 
     if (reduce) {
-      // resolved static state for reduced motion
-      sec.classList.add("is-static", "is-clean");
+      sec.classList.add("is-static", "is-clean", "is-cool");
       box.setAttribute("transform", "translate(0,0)");
       box.style.opacity = "1";
-      rectDist.setAttribute("width", (BOX_LEFT - 80).toFixed(1));
-      rectClean.setAttribute("x", BOX_RIGHT.toFixed(1));
-      rectClean.setAttribute("width", (600 - BOX_RIGHT).toFixed(1));
+      rectDL.setAttribute("width", (BOX_L - 80).toFixed(1));
+      rectDR.setAttribute("x", "600");
+      rectDR.setAttribute("width", "0");
+      rectC.setAttribute("width", (600 - BOX_R).toFixed(1));
       pf.textContent = "0.97";
       pf.classList.add("is-good");
+      tag.textContent = "60 Hz, corrected";
       caption.textContent = captions[2];
       return;
     }
@@ -167,16 +197,12 @@ const cleanD = wave(false);
       apply(p);
       ticking = false;
     };
-    addEventListener(
-      "scroll",
-      () => {
-        if (!ticking) {
-          ticking = true;
-          requestAnimationFrame(onScroll);
-        }
-      },
-      { passive: true },
-    );
+    addEventListener("scroll", () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(onScroll);
+      }
+    }, { passive: true });
     addEventListener("resize", onScroll, { passive: true });
     apply(0);
   })();
@@ -214,7 +240,6 @@ const cleanD = wave(false);
     color: var(--body);
     max-width: 56ch;
     min-height: 3em;
-    transition: color 0.4s ease;
   }
 
   .hz__figure {
@@ -237,12 +262,24 @@ const cleanD = wave(false);
     vector-effect: non-scaling-stroke;
   }
   .hz__wave--dist {
-    stroke: #c97b53;
-    filter: drop-shadow(0 0 5px rgba(201, 123, 83, 0.35));
+    stroke: #e05a2b;
+    filter: drop-shadow(0 0 5px rgba(224, 90, 43, 0.4));
   }
   .hz__wave--clean {
     stroke: var(--mint);
-    filter: drop-shadow(0 0 6px rgba(91, 194, 162, 0.45));
+    filter: drop-shadow(0 0 6px rgba(91, 194, 162, 0.5));
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hz__flow {
+      animation: hzFlow 2.4s linear infinite;
+    }
+    .hz__wave--clean.hz__flow {
+      animation-duration: 1.9s;
+    }
+    @keyframes hzFlow {
+      from { transform: translateX(-50%); }
+      to { transform: translateX(0); }
+    }
   }
 
   .hz__tag {
@@ -250,53 +287,80 @@ const cleanD = wave(false);
     font-size: 12px;
     fill: var(--muted);
   }
-  .hz__tag--src {
+  .hz__tag--clean {
+    fill: #e05a2b;
+    transition: fill 0.5s ease;
+  }
+  .hz.is-cool .hz__tag--clean {
+    fill: var(--mint);
+  }
+
+  /* motor: hot red -> cool blue */
+  .hz__motor-body {
+    fill: rgba(224, 90, 43, 0.13);
+    stroke: #e05a2b;
+    stroke-width: 1.8;
+    transition: fill 0.6s ease, stroke 0.6s ease, filter 0.6s ease;
+    filter: drop-shadow(0 0 8px rgba(224, 90, 43, 0.5));
+  }
+  .hz__motor-fin,
+  .hz__motor-hub {
+    stroke: #e05a2b;
+    fill: none;
+    stroke-width: 1.6;
+    transition: stroke 0.6s ease;
+  }
+  .hz__motor-shaft {
+    fill: #e05a2b;
+    transition: fill 0.6s ease;
+  }
+  .hz__motor-foot {
     fill: var(--muted);
   }
-  .hz__tag--clean {
-    fill: #c97b53;
-    transition: fill 0.5s ease;
-  }
-  .hz.is-clean .hz__tag--clean {
-    fill: var(--mint);
-  }
-
-  /* equipment */
-  .hz__equip-body {
-    fill: rgba(255, 255, 255, 0.03);
-    stroke: #c97b53;
-    stroke-width: 1.6;
-    transition: stroke 0.5s ease;
-  }
-  .hz__equip-louver {
-    stroke: var(--muted);
+  .hz__heat path {
+    fill: none;
+    stroke: #e05a2b;
     stroke-width: 1.4;
+    opacity: 0.85;
+    transition: opacity 0.5s ease;
   }
-  .hz__equip-led {
-    fill: #c97b53;
-    transition: fill 0.5s ease;
+  .hz.is-cool .hz__motor-body {
+    fill: rgba(91, 157, 194, 0.13);
+    stroke: #5b9dc2;
+    filter: drop-shadow(0 0 7px rgba(91, 157, 194, 0.45));
   }
-  .hz.is-clean .hz__equip-body {
-    stroke: var(--mint);
+  .hz.is-cool .hz__motor-fin,
+  .hz.is-cool .hz__motor-hub {
+    stroke: #5b9dc2;
   }
-  .hz.is-clean .hz__equip-led {
-    fill: var(--mint);
+  .hz.is-cool .hz__motor-shaft {
+    fill: #5b9dc2;
+  }
+  .hz.is-cool .hz__heat path {
+    opacity: 0;
   }
   @media (prefers-reduced-motion: no-preference) {
-    .hz__equip {
-      animation: hzShake 0.32s ease-in-out infinite;
+    .hz__motor {
+      animation: hzShake 0.34s ease-in-out infinite;
     }
-    .hz.is-clean .hz__equip {
+    .hz.is-cool .hz__motor {
       animation: none;
     }
+    .hz__heat path {
+      animation: hzRise 1.4s ease-in-out infinite;
+    }
     @keyframes hzShake {
-      0%, 100% { transform: translate(612px, 150px); }
-      25% { transform: translate(613.4px, 149px); }
-      75% { transform: translate(610.6px, 151px); }
+      0%, 100% { transform: translate(0, 0); }
+      25% { transform: translate(1px, -0.6px); }
+      75% { transform: translate(-1px, 0.6px); }
+    }
+    @keyframes hzRise {
+      0% { transform: translateY(2px); opacity: 0.2; }
+      50% { opacity: 0.85; }
+      100% { transform: translateY(-4px); opacity: 0; }
     }
   }
 
-  /* correction box */
   .hz__box-body {
     fill: var(--surface-2);
     stroke: var(--gold);
@@ -310,10 +374,9 @@ const cleanD = wave(false);
     font-family: var(--font-mono);
     font-size: 11px;
     fill: var(--gold-text);
-    letter-spacing: 0.04em;
+    letter-spacing: 0.02em;
   }
 
-  /* meter */
   .hz__meter-label {
     font-family: var(--font-mono);
     font-size: 11px;
@@ -324,7 +387,7 @@ const cleanD = wave(false);
   .hz__meter-val {
     font-family: var(--font-serif);
     font-size: 30px;
-    fill: #c97b53;
+    fill: #e05a2b;
     transition: fill 0.5s ease;
   }
   .hz__meter-val.is-good {
@@ -346,7 +409,6 @@ const cleanD = wave(false);
     transform-origin: 0 50%;
   }
 
-  /* reduced motion: collapse the pinned scroll track */
   .hz.is-static {
     height: auto;
   }
