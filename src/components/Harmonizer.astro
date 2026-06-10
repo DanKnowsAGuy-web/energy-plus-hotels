@@ -1,10 +1,12 @@
 ---
-// Scroll-driven scene: dirty power flows left to right and runs a hotel motor
-// hot; you scroll, the harmonizer drops into the line, and clean 60 Hz spreads
-// from the harmonizer outward to the motor, which cools from red to blue while
-// the meter climbs 0.82 -> 0.97.
+// Scroll-driven scene: dirty power flows left to right into the hotel's three
+// most stressed loads (elevators, PTACs, pool pumps); you scroll, the
+// harmonizer drops into the line, and clean 60 Hz spreads from the harmonizer
+// outward to the loads, which cool from hot red to calm blue while the meter
+// climbs 0.82 -> 0.97. The utility meter reads the same kWh the whole time:
+// distortion never shows on the bill.
 // Waves are drawn at double width so a -50% translate loops seamlessly (the
-// flow animation); scroll drives the clip reveal, box drop, motor, and meter.
+// flow animation); scroll drives the clip reveal, box drop, loads, and meter.
 const X0 = 80;
 const DRAW_W = 1040; // double the visible 520px window for seamless flow
 const midY = 190;
@@ -36,8 +38,8 @@ const cleanD = wave(false);
           What dirty power does, and what the harmonizer undoes.
         </h2>
         <p class="hz__caption" id="hz-caption" aria-live="polite">
-          Distorted power flows from the grid into your motors as heat,
-          vibration, and early failure.
+          Distorted power flows from the grid into your elevators, PTACs, and
+          pool pumps as heat, vibration, and early failure.
         </p>
       </div>
 
@@ -46,22 +48,24 @@ const cleanD = wave(false);
           class="hz__svg"
           viewBox="0 0 680 300"
           role="img"
-          aria-label="Distorted current flows into a hotel motor and runs it hot until a harmonizer is inserted; downstream the current resolves to a clean 60 hertz sine and the motor cools."
+          aria-label="Distorted current flows into a hotel's elevators, PTAC units, and pool pumps, running them hot, until a harmonizer is inserted; downstream the current resolves to a clean 60 hertz sine and the equipment cools. The utility meter reads the same kilowatt-hours throughout."
         >
           <defs>
             <clipPath id="hz-clip-dist">
               <rect id="hz-rect-dL" x="80" y="150" width="216" height="80"></rect>
-              <rect id="hz-rect-dR" x="388" y="150" width="212" height="80"></rect>
+              <rect id="hz-rect-dR" x="388" y="150" width="208" height="80"></rect>
             </clipPath>
             <clipPath id="hz-clip-clean">
               <rect id="hz-rect-c" x="388" y="150" width="0" height="80"></rect>
             </clipPath>
           </defs>
 
-          <line class="hz__axis" x1="80" y1={midY} x2="600" y2={midY}></line>
+          <line class="hz__axis" x1="80" y1={midY} x2="596" y2={midY}></line>
 
-          <text class="hz__tag" x="80" y="112">Grid power</text>
-          <text class="hz__tag hz__tag--clean" id="hz-hztag" x="600" y="112" text-anchor="end">distorted</text>
+          <text class="hz__tag" x="80" y="104">Grid power</text>
+          <text class="hz__meter-reads" x="80" y="122">meter reads 100 kWh, distorted or not</text>
+          <text class="hz__tag hz__tag--clean" id="hz-hztag" x="596" y="104" text-anchor="end">distorted</text>
+          <text class="hz__meter-reads" x="596" y="122" text-anchor="end">what your equipment feels</text>
 
           <g clip-path="url(#hz-clip-dist)">
             <path class="hz__wave hz__wave--dist hz__flow" d={distD}></path>
@@ -70,24 +74,41 @@ const cleanD = wave(false);
             <path class="hz__wave hz__wave--clean hz__flow" d={cleanD}></path>
           </g>
 
-          <!-- hotel motor / compressor -->
-          <g class="hz__motor" id="hz-motor">
-            <g class="hz__heat" aria-hidden="true">
-              <path d="M612 160 q-4 -6 0 -12 q4 -6 0 -12"></path>
-              <path d="M627 158 q-4 -6 0 -12 q4 -6 0 -12"></path>
-              <path d="M642 160 q-4 -6 0 -12 q4 -6 0 -12"></path>
+          <!-- distribution bus feeding the three hotel loads -->
+          <g class="hz__busgroup" id="hz-loads">
+            <line class="hz__bus" x1="596" y1={midY} x2="608" y2={midY}></line>
+            <line class="hz__bus" x1="608" y1="120" x2="608" y2="252"></line>
+            <line class="hz__bus" x1="608" y1="120" x2="618" y2="120"></line>
+            <line class="hz__bus" x1="608" y1="186" x2="618" y2="186"></line>
+            <line class="hz__bus" x1="608" y1="252" x2="618" y2="252"></line>
+
+            <!-- elevator -->
+            <g class="hz__load">
+              <rect class="hz__load-body" x="620" y="102" width="40" height="36" rx="3"></rect>
+              <line class="hz__load-ln" x1="640" y1="102" x2="640" y2="138"></line>
+              <path class="hz__load-ln" d="M627 117 l5 -6 5 6"></path>
+              <path class="hz__load-ln" d="M647 123 l5 6 5 -6" transform="translate(-4,0)"></path>
             </g>
-            <rect class="hz__motor-foot" x="606" y="214" width="10" height="7" rx="1"></rect>
-            <rect class="hz__motor-foot" x="636" y="214" width="10" height="7" rx="1"></rect>
-            <rect class="hz__motor-body" x="600" y="166" width="50" height="50" rx="8"></rect>
-            <line class="hz__motor-fin" x1="609" y1="172" x2="609" y2="210"></line>
-            <line class="hz__motor-fin" x1="620" y1="172" x2="620" y2="210"></line>
-            <line class="hz__motor-fin" x1="631" y1="172" x2="631" y2="210"></line>
-            <line class="hz__motor-fin" x1="642" y1="172" x2="642" y2="210"></line>
-            <circle class="hz__motor-hub" cx="658" cy="191" r="12"></circle>
-            <circle class="hz__motor-shaft" cx="658" cy="191" r="3"></circle>
+            <text class="hz__load-tag" x="640" y="96" text-anchor="middle">Elevators</text>
+
+            <!-- PTAC -->
+            <g class="hz__load">
+              <rect class="hz__load-body" x="620" y="168" width="40" height="36" rx="3"></rect>
+              <line class="hz__load-ln" x1="626" y1="178" x2="654" y2="178"></line>
+              <line class="hz__load-ln" x1="626" y1="186" x2="654" y2="186"></line>
+              <circle class="hz__load-ln" cx="640" cy="196" r="4.5"></circle>
+            </g>
+            <text class="hz__load-tag" x="640" y="162" text-anchor="middle">PTACs</text>
+
+            <!-- pool / spa pump -->
+            <g class="hz__load">
+              <rect class="hz__load-body" x="620" y="234" width="40" height="36" rx="3"></rect>
+              <circle class="hz__load-ln" cx="636" cy="252" r="8"></circle>
+              <path class="hz__load-ln" d="M636 252 l6 -5"></path>
+              <line class="hz__load-ln" x1="644" y1="244" x2="654" y2="244"></line>
+            </g>
+            <text class="hz__load-tag" x="640" y="282" text-anchor="middle">Pool pumps</text>
           </g>
-          <text class="hz__tag hz__tag--motor" x="628" y="244" text-anchor="middle">Hotel motor</text>
 
           <!-- harmonizer -->
           <g class="hz__box" id="hz-box" transform="translate(0,150)">
@@ -136,9 +157,9 @@ const cleanD = wave(false);
     const lerp = (a, b, t) => a + (b - a) * t;
 
     const captions = [
-      "Distorted power flows from the grid into your motors as heat, vibration, and early failure.",
+      "Distorted power flows from the grid into your elevators, PTACs, and pool pumps as heat, vibration, and early failure. The utility meter can't see any of it.",
       "The harmonizer drops into the line, between the grid and your equipment.",
-      "Downstream, the current resolves to a clean 60 Hz. The motor cools and the power factor recovers.",
+      "Downstream, the current resolves to a clean 60 Hz. The loads cool, and the power factor recovers. The meter reads the same; the equipment feels everything.",
     ];
     let lastPhase = -1;
 
@@ -150,11 +171,11 @@ const cleanD = wave(false);
 
       // dirty retreats to the left of the box as it seats; clean spreads from
       // the box outward to the right (the conversion front F moves right).
-      const leftEnd = lerp(600, BOX_L, drop);
-      const F = lerp(BOX_R, 600, engage);
+      const leftEnd = lerp(596, BOX_L, drop);
+      const F = lerp(BOX_R, 596, engage);
       rectDL.setAttribute("width", Math.max(0, leftEnd - 80).toFixed(1));
       rectDR.setAttribute("x", F.toFixed(1));
-      rectDR.setAttribute("width", Math.max(0, 600 - F).toFixed(1));
+      rectDR.setAttribute("width", Math.max(0, 596 - F).toFixed(1));
       rectC.setAttribute("width", Math.max(0, F - BOX_R).toFixed(1));
 
       const pfVal = 0.82 + (Math.round(engage * 5) / 5) * 0.15;
@@ -180,9 +201,9 @@ const cleanD = wave(false);
       box.setAttribute("transform", "translate(0,0)");
       box.style.opacity = "1";
       rectDL.setAttribute("width", (BOX_L - 80).toFixed(1));
-      rectDR.setAttribute("x", "600");
+      rectDR.setAttribute("x", "596");
       rectDR.setAttribute("width", "0");
-      rectC.setAttribute("width", (600 - BOX_R).toFixed(1));
+      rectC.setAttribute("width", (596 - BOX_R).toFixed(1));
       pf.textContent = "0.97";
       pf.classList.add("is-good");
       tag.textContent = "60 Hz, corrected";
@@ -294,70 +315,64 @@ const cleanD = wave(false);
   .hz.is-cool .hz__tag--clean {
     fill: var(--mint);
   }
-
-  /* motor: hot red -> cool blue */
-  .hz__motor-body {
-    fill: rgba(224, 90, 43, 0.13);
-    stroke: #e05a2b;
-    stroke-width: 1.8;
-    transition: fill 0.6s ease, stroke 0.6s ease, filter 0.6s ease;
-    filter: drop-shadow(0 0 8px rgba(224, 90, 43, 0.5));
+  .hz__meter-reads {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    fill: var(--muted);
+    opacity: 0.8;
   }
-  .hz__motor-fin,
-  .hz__motor-hub {
+
+  /* bus + hotel loads: hot red -> cool blue */
+  .hz__bus {
     stroke: #e05a2b;
-    fill: none;
     stroke-width: 1.6;
     transition: stroke 0.6s ease;
   }
-  .hz__motor-shaft {
-    fill: #e05a2b;
-    transition: fill 0.6s ease;
+  .hz__load-body {
+    fill: rgba(224, 90, 43, 0.13);
+    stroke: #e05a2b;
+    stroke-width: 1.6;
+    transition: fill 0.6s ease, stroke 0.6s ease, filter 0.6s ease;
+    filter: drop-shadow(0 0 6px rgba(224, 90, 43, 0.45));
   }
-  .hz__motor-foot {
+  .hz__load-ln {
+    stroke: #e05a2b;
+    fill: none;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    transition: stroke 0.6s ease;
+  }
+  .hz__load-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
     fill: var(--muted);
   }
-  .hz__heat path {
-    fill: none;
-    stroke: #e05a2b;
-    stroke-width: 1.4;
-    opacity: 0.85;
-    transition: opacity 0.5s ease;
+  .hz.is-cool .hz__bus,
+  .hz.is-cool .hz__load-ln {
+    stroke: #5b9dc2;
   }
-  .hz.is-cool .hz__motor-body {
+  .hz.is-cool .hz__load-body {
     fill: rgba(91, 157, 194, 0.13);
     stroke: #5b9dc2;
-    filter: drop-shadow(0 0 7px rgba(91, 157, 194, 0.45));
-  }
-  .hz.is-cool .hz__motor-fin,
-  .hz.is-cool .hz__motor-hub {
-    stroke: #5b9dc2;
-  }
-  .hz.is-cool .hz__motor-shaft {
-    fill: #5b9dc2;
-  }
-  .hz.is-cool .hz__heat path {
-    opacity: 0;
+    filter: drop-shadow(0 0 6px rgba(91, 157, 194, 0.4));
   }
   @media (prefers-reduced-motion: no-preference) {
-    .hz__motor {
+    .hz__load {
       animation: hzShake 0.34s ease-in-out infinite;
     }
-    .hz.is-cool .hz__motor {
-      animation: none;
+    .hz__load:nth-of-type(2) {
+      animation-delay: 0.08s;
     }
-    .hz__heat path {
-      animation: hzRise 1.4s ease-in-out infinite;
+    .hz__load:nth-of-type(3) {
+      animation-delay: 0.16s;
+    }
+    .hz.is-cool .hz__load {
+      animation: none;
     }
     @keyframes hzShake {
       0%, 100% { transform: translate(0, 0); }
       25% { transform: translate(1px, -0.6px); }
       75% { transform: translate(-1px, 0.6px); }
-    }
-    @keyframes hzRise {
-      0% { transform: translateY(2px); opacity: 0.2; }
-      50% { opacity: 0.85; }
-      100% { transform: translateY(-4px); opacity: 0; }
     }
   }
 
