@@ -392,10 +392,31 @@ main > .section::before {
 }
 .through-line__dist {
   opacity: calc(1 - var(--tl, 0));
+  filter: drop-shadow(0 0 4px rgba(224, 90, 43, 0.45));
+}
+.through-line__spark {
+  filter: drop-shadow(0 0 5px rgba(255, 138, 77, 0.9));
+}
+@media (prefers-reduced-motion: no-preference) {
+  .through-line__spark {
+    animation: tlSpark 1.7s ease-in-out infinite;
+  }
+  .through-line__spark--b {
+    animation-duration: 2.3s;
+    animation-delay: 0.6s;
+  }
+  @keyframes tlSpark {
+    0%, 100% {
+      opacity: 0.45;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
 }
 .through-line__clean {
   opacity: var(--tl, 0);
-  filter: drop-shadow(0 0 4px rgba(199, 168, 107, 0.35));
+  filter: drop-shadow(0 0 4px rgba(216, 190, 134, 0.4));
 }
 @media (max-width: 1180px) {
   .through-line {

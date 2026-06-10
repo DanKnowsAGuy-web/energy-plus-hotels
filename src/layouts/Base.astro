@@ -19,17 +19,28 @@ const {
 } = Astro.props;
 
 // Vertical through-line waveform paths (built once at compile time).
+// The distorted line is deliberately jagged: harmonic content plus a
+// deterministic point-to-point hash jitter so it reads as violent noise.
 const TLH = 1000;
-const TLN = 240;
+const TLN = 480;
 const tlMid = 15;
 const tlAmp = 9;
+function tlHash(i: number) {
+  const s = Math.sin(i * 127.1 + 311.7) * 43758.5453;
+  return (s - Math.floor(s)) * 2 - 1;
+}
 function tlPath(distort: boolean) {
   let d = "";
   for (let i = 0; i <= TLN; i++) {
     const y = (i / TLN) * TLH;
     const t = (i / TLN) * Math.PI * 2 * 26;
     const x = distort
-      ? tlMid + tlAmp * (0.7 * Math.sin(t) + 0.22 * Math.sin(3 * t + 0.6) + 0.16 * Math.sin(5 * t + 1.2))
+      ? tlMid +
+        tlAmp *
+          (0.5 * Math.sin(t) +
+            0.26 * Math.sin(3 * t + 0.6) +
+            0.2 * Math.sin(7 * t + 1.2) +
+            0.38 * tlHash(i))
       : tlMid + tlAmp * Math.sin(t);
     d += (i === 0 ? "M" : "L") + x.toFixed(1) + " " + y.toFixed(1) + " ";
   }
@@ -59,12 +70,16 @@ const tlClean = tlPath(false);
 
     <div class="through-line" aria-hidden="true">
       <svg viewBox="0 0 30 1000" preserveAspectRatio="none" fill="none">
-        <path
-          class="through-line__dist"
-          d={tlDist}
-          stroke="var(--muted)"
-          stroke-width="1.4"
-          vector-effect="non-scaling-stroke"></path>
+        <g class="through-line__dist">
+          <path
+            id="tl-dist-path"
+            d={tlDist}
+            stroke="#e05a2b"
+            stroke-width="1.4"
+            vector-effect="non-scaling-stroke"></path>
+          <circle class="through-line__spark" data-spark-dur="7" data-spark-off="0" r="2.4" fill="#ff8a4d"></circle>
+          <circle class="through-line__spark through-line__spark--b" data-spark-dur="11" data-spark-off="0.45" r="1.8" fill="#ffb070"></circle>
+        </g>
         <path
           class="through-line__clean"
           d={tlClean}
@@ -124,6 +139,40 @@ const tlClean = tlPath(false);
           { passive: true },
         );
         update();
+      }
+
+      // Traveling sparks on the through-line's distorted wave (rAF-driven;
+      // SMIL is unreliable across engines). They inherit the group's opacity,
+      // so they fade out as the line resolves clean.
+      try {
+        const tlWrap = document.querySelector(".through-line");
+        const sparkPath = document.getElementById("tl-dist-path");
+        const sparks = document.querySelectorAll(".through-line__spark");
+        const tlVisible =
+          tlWrap && getComputedStyle(tlWrap).display !== "none";
+        if (tlVisible && sparkPath && sparks.length && !reduce.matches) {
+          const len = sparkPath.getTotalLength();
+          if (len > 0) {
+            const items = Array.from(sparks).map((el) => ({
+              el,
+              dur: Number(el.getAttribute("data-spark-dur")) * 1000,
+              off: Number(el.getAttribute("data-spark-off")),
+            }));
+            const t0 = performance.now();
+            const step = (now) => {
+              for (const s of items) {
+                const t = (((now - t0) / s.dur) + s.off) % 1;
+                const pt = sparkPath.getPointAtLength(t * len);
+                s.el.setAttribute("cx", pt.x.toFixed(2));
+                s.el.setAttribute("cy", pt.y.toFixed(2));
+              }
+              requestAnimationFrame(step);
+            };
+            requestAnimationFrame(step);
+          }
+        }
+      } catch (e) {
+        /* sparks are decoration; never let them break the page scripts */
       }
 
       // Mint pulse: the "diagnosis is on us" dot pulses once on arrival.
