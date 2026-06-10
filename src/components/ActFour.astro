@@ -2,32 +2,30 @@
 const items = [
   {
     term: "Power quality",
-    body: "A building drawing power at a low power factor is billed for current that never does useful work. Harmonic distortion adds electrical noise that degrades load and shortens equipment life. We measure both at the panel, before and after.",
+    body: "A building running at a low power factor is billed for current that never does useful work, and harmonic distortion adds electrical noise that wears equipment out early. We measure both at the panel, before and after.",
     tag: "Measured at the panel",
   },
   {
     term: "Demand and penalties",
-    body: "A commercial electricity bill is energy charges plus demand charges plus any power-factor penalty. Much of the recoverable money lives in the demand and penalty portions, where most vendors never look.",
+    body: "Your electricity bill is energy charges plus demand charges plus any power-factor penalty. Much of the recoverable money lives in the demand and penalty portions, where most vendors never look.",
     tag: "Energy + demand + penalty",
   },
   {
     term: "Systems that fight each other",
-    body: "HVAC, lighting, and any on-site generation were almost certainly specified in isolation. We look at how they interact, because that interaction is where waste hides.",
+    body: "Your HVAC, lighting, and any on-site generation were almost certainly specified in isolation. We look at how they interact, because that interaction is where the waste hides.",
     tag: "Whole-system interaction",
   },
 ];
 ---
 
-<section class="section actfour" aria-labelledby="actfour-title">
+<section class="section actfour" id="what-we-find" aria-labelledby="actfour-title">
   <div class="container">
     <div class="actfour__head reveal">
       <h2 class="actfour__title" id="actfour-title">
-        Your building is paying for power it never turns into anything.
+        What a real diagnosis finds.
       </h2>
       <p class="actfour__lede lede">
-        This is what a full diagnostic looks at, and what single-box vendors
-        miss. None of it shows up on a bill as a line item called "waste." That
-        is exactly why it survives for years.
+        Single-box vendors never look at most of this. We measure all of it.
       </p>
     </div>
 
@@ -44,6 +42,11 @@ const items = [
         ))
       }
     </ol>
+
+    <p class="actfour__close reveal">
+      None of this appears on a bill as a line item called waste. That is
+      exactly why it survives for years.
+    </p>
   </div>
 </section>
 
@@ -105,6 +108,16 @@ const items = [
     padding: 0.4em 0.8em;
     border: 1px solid var(--gold-soft);
     border-radius: 999px;
+  }
+
+  .actfour__close {
+    margin-top: var(--space-l);
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: var(--step-1);
+    line-height: 1.5;
+    color: var(--ink);
+    max-width: 50ch;
   }
 
   @media (max-width: 680px) {

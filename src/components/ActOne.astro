@@ -1,54 +1,37 @@
 ---
 ---
 
-<section class="section actone" id="threat" aria-labelledby="actone-title">
+<section class="section actone" id="problem" aria-labelledby="actone-title">
   <div class="container">
-    <header class="actone__head reveal">
-      <h2 class="actone__title" id="actone-title">
-        The number that should bother you.
-      </h2>
-      <p class="actone__stat ph" data-countup="30" tabindex="0">~30%</p>
-      <p class="actone__stat-note">
-        According to the EPA, the average commercial building wastes about a
-        third of the energy it consumes. Most hotels have never had anyone
-        qualified find out where.
-      </p>
-    </header>
+    <div class="actone__grid">
+      <div class="actone__lead reveal">
+        <h2 class="actone__title" id="actone-title">
+          Why your last upgrade didn't pay off.
+        </h2>
+        <p class="actone__stat ph" data-countup="30" tabindex="0">~30%</p>
+        <p class="actone__stat-note">
+          According to the EPA, the average commercial building wastes about a
+          third of the energy it consumes. Most hotels have never had anyone
+          qualified find out where.
+        </p>
+      </div>
 
-    <div class="actone__body">
-      <article class="block reveal">
-        <h3 class="block__title">Every fix you bought was sold in isolation</h3>
+      <div class="actone__body reveal">
         <p>
           You added lighting. Maybe controls, maybe solar. Each vendor optimized
-          the one thing they sell and left. But a building isn't a pile of
-          separate upgrades. It's one electrical system, and when pieces are
+          the one thing they sell, then left. But a hotel isn't a stack of
+          separate upgrades. It's one electrical system, and when pieces get
           bolted on without anyone designing how they work together, they
-          interfere. Power quality degrades. Equipment runs harder than it
-          should and fails sooner. The savings on the brochure quietly leak away
-          in distortion nobody is accountable for.
+          interfere. Power quality degrades, equipment runs harder and fails
+          sooner, and the savings on the brochure quietly leak away.
         </p>
-        <p>
-          That interference has a literal signature in your panels, and it is
-          measurable. It is also invisible on a utility bill, which is exactly
-          why it survives for years.
+        <p class="actone__turn">
+          That interference isn't bad luck. Every vendor in this industry gets
+          paid to install their box, so each one optimizes their own piece and
+          none of them owns the result. Your building wasn't left incoherent by
+          accident. It was left incoherent by incentive.
         </p>
-      </article>
-
-      <article class="block reveal">
-        <h3 class="block__title">Nobody was responsible for the whole building</h3>
-        <p>
-          There is a reason it ends up incoherent. Every vendor in this industry
-          gets paid to install their box, so every one of them optimizes their
-          own piece and none of them owns the result. The system was never
-          incoherent by accident. It was incoherent by incentive.
-        </p>
-        <p class="block__turn">
-          We get paid to do the opposite: to find where your building loses
-          money and design the stack that makes it work as one system. The
-          verification is the product. The equipment is just whatever the
-          verification points to.
-        </p>
-      </article>
+      </div>
     </div>
   </div>
 </section>
@@ -57,13 +40,15 @@
   .actone {
     border-top: 1px solid var(--line);
   }
-  .actone__head {
-    max-width: 60rem;
+  .actone__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: start;
   }
   .actone__title {
-    margin-top: var(--space-xs);
     font-size: var(--step-3);
-    max-width: 16ch;
+    max-width: 14ch;
   }
   .actone__stat {
     display: inline-block;
@@ -76,44 +61,30 @@
   }
   .actone__stat-note {
     margin-top: var(--space-s);
-    font-size: var(--step-1);
-    line-height: 1.5;
-    color: var(--body);
-    max-width: 52ch;
-  }
-
-  .actone__body {
-    margin-top: var(--space-2xl);
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
-    gap: clamp(2rem, 5vw, 4rem);
-  }
-  .block__title {
-    font-size: var(--step-2);
-    max-width: 20ch;
-    margin-bottom: var(--space-m);
-  }
-  .block p {
-    color: var(--body);
     font-size: var(--step-0);
-    line-height: 1.65;
+    line-height: 1.6;
+    color: var(--body);
+    max-width: 44ch;
+  }
+  .actone__body {
+    padding-top: var(--space-2xs);
+  }
+  .actone__body p {
+    color: var(--body);
+    font-size: var(--step-1);
+    line-height: 1.6;
     max-width: var(--measure);
   }
-  .block p + p {
-    margin-top: var(--space-s);
-  }
-  .block__turn {
+  .actone__turn {
+    margin-top: var(--space-m);
     color: var(--ink) !important;
     font-family: var(--font-serif);
-    font-size: var(--step-1) !important;
     font-style: italic;
-    line-height: 1.5 !important;
     letter-spacing: -0.01em;
-    margin-top: var(--space-m) !important;
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .actone__body .block:nth-child(2).reveal {
+    .actone__body.reveal {
       transition-delay: 0.1s;
     }
   }
