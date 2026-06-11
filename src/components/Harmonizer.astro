@@ -1,36 +1,31 @@
 ---
-// "The healing of a hotel" — merged scroll scene, v2.
-// Grid power (left) flows into a hotel cross-section (right). The harmonizer
-// drops in directly at the building's edge, like a shield. A kWh meter sits
-// between shield and entrance reading 14,555 kWh dirty -> 9,000 kWh clean.
-// Devices are drawn as what they are (pool/spa pump, laundry drum, PTAC
-// fleet, elevator with up/down arrows) and labeled. Sparks travel the riser
-// while the building is dirty; after the shield engages, clean blue sine
-// waves feed the meter and every device line.
+// "The healing of a hotel" — merged scroll scene, v3.
+// Grid power stays dirty the entire time: distortion is what the utility
+// delivers. The harmonizer sits pressed against the building like a shield,
+// and only what's behind it transforms. The circular device on the ground
+// floor IS the kWh meter (reading beside it falls 14,555 -> 9,000); the
+// pool/laundry drive drum sits just left of the elevator shaft. Sparks ride
+// the riser while dirty; clean blue sine waves feed every line once healed.
 const X0 = 80;
-const WAVE_END = 264;
+const WAVE_END = 322;
 const DRAW_W = (WAVE_END - X0) * 2;
 const midY = 280;
 const amp = 22;
 const N = 240;
 
-function wave(distort: boolean) {
-  const cycles = distort ? 6 : 11;
+function wave() {
+  const cycles = 7;
   let d = "";
   for (let i = 0; i <= N; i++) {
     const x = X0 + (i / N) * DRAW_W;
     const t = (i / N) * Math.PI * 2 * cycles;
-    const y = distort
-      ? midY - amp * (0.6 * Math.sin(t) + 0.26 * Math.sin(3 * t + 0.6) + 0.2 * Math.sin(5 * t + 1.2))
-      : midY - amp * 0.9 * Math.sin(t);
+    const y = midY - amp * (0.6 * Math.sin(t) + 0.26 * Math.sin(3 * t + 0.6) + 0.2 * Math.sin(5 * t + 1.2));
     d += (i === 0 ? "M" : "L") + x.toFixed(1) + " " + y.toFixed(1) + " ";
   }
   return d.trim();
 }
-const distD = wave(true);
-const cleanD = wave(false);
+const distD = wave();
 
-// small clean sine along a horizontal feed line
 function mini(x1: number, x2: number, y: number) {
   const n = Math.max(16, Math.round((x2 - x1) / 6));
   const cycles = (x2 - x1) / 26;
@@ -66,36 +61,21 @@ const ptacs = [244, 204, 164];
           class="hz__svg"
           viewBox="0 0 760 360"
           role="img"
-          aria-label="Distorted current flows from the grid into a hotel cross-section, running its pool pumps, laundry drives, PTAC units, and elevator motor hot while the kilowatt-hour meter reads 14,555; a harmonizer drops in at the building's edge like a shield, clean current feeds every device, the equipment cools, the meter falls to 9,000, and the guest windows warm as the building settles."
+          aria-label="Distorted grid current flows toward a hotel cross-section, running its meter, laundry and pool drives, PTAC units, and elevator motor hot; a harmonizer drops in against the building like a shield, and everything behind it heals: clean blue current feeds every line, the meter falls from 14,555 to 9,000 kilowatt-hours, and the guest windows warm as the building settles. The grid side stays distorted throughout."
         >
           <defs>
             <clipPath id="hz-clip-dist">
-              <rect id="hz-rect-dL" x="80" y="250" width="184" height="62"></rect>
-            </clipPath>
-            <clipPath id="hz-clip-clean">
-              <rect id="hz-rect-c" x="80" y="250" width="0" height="62"></rect>
+              <rect x="80" y="250" width="242" height="62"></rect>
             </clipPath>
           </defs>
 
           <line class="hz__ground" x1="80" y1="330" x2="752" y2="330"></line>
-          <text class="hz__tag" x="80" y="240">Grid power</text>
+          <text class="hz__tag" x="80" y="240">Grid power, distorted</text>
 
-          <!-- the line: grid -> shield -> meter -> entrance -->
+          <!-- the line: the grid side never cleans up -->
           <line class="hz__axis" x1="80" y1={midY} x2="420" y2={midY}></line>
           <g clip-path="url(#hz-clip-dist)">
             <path class="hz__wave hz__wave--dist hz__flow" d={distD}></path>
-          </g>
-          <g clip-path="url(#hz-clip-clean)">
-            <path class="hz__wave hz__wave--clean hz__flow" d={cleanD}></path>
-          </g>
-
-          <!-- kWh meter between shield and entrance -->
-          <g class="hz__kwh" id="hz-kwhbox">
-            <rect class="hz__kwh-body" x="368" y="262" width="44" height="36" rx="4"></rect>
-            <circle class="hz__kwh-dial" cx="390" cy="276" r="7"></circle>
-            <line class="hz__kwh-tick" x1="390" y1="276" x2="394" y2="271"></line>
-            <text class="hz__kwh-read" id="hz-kwh" x="390" y="254" text-anchor="middle">14,555 kWh</text>
-            <text class="hz__dev-label" x="390" y="316" text-anchor="middle">kWh meter</text>
           </g>
 
           <!-- building shell -->
@@ -121,17 +101,19 @@ const ptacs = [244, 204, 164];
             <path class="hz__riser hz__riser--red" id="hz-drop-red" d="M424 280 L424 312"></path>
             <path class="hz__riser hz__riser--mint" id="hz-drop-mint" d="M424 280 L424 312"></path>
 
-            <!-- basement: pool/spa pump + laundry drum -->
+            <!-- ground floor: the kWh meter (the circle) + reading beside it,
+                 then the pool/laundry drive drum left of the shaft -->
             <g class="hz__load" id="hz-base">
-              <line class="hz__stub" x1="424" y1="312" x2="446" y2="312"></line>
-              <path class="hz__mini" d={mini(428, 446, 312)}></path>
-              <circle class="hz__load-ln" cx="458" cy="312" r="9"></circle>
-              <path class="hz__load-ln" d="M458 312 l6 -5"></path>
-              <path class="hz__load-ln" d="M450 326 q4 -4 8 0 q4 4 8 0"></path>
-              <rect class="hz__load-ln" x="492" y="298" width="30" height="28" rx="3"></rect>
-              <circle class="hz__load-ln" cx="507" cy="312" r="8"></circle>
-              <circle class="hz__load-ln" cx="507" cy="312" r="3"></circle>
+              <line class="hz__stub" x1="424" y1="312" x2="576" y2="312"></line>
+              <path class="hz__mini" d={mini(428, 574, 312)}></path>
+              <circle class="hz__load-ln hz__meter-face" cx="455" cy="312" r="10"></circle>
+              <line class="hz__load-ln" x1="455" y1="312" x2="461" y2="306"></line>
+              <rect class="hz__load-ln" x="578" y="298" width="30" height="28" rx="3"></rect>
+              <circle class="hz__load-ln" cx="593" cy="312" r="8"></circle>
+              <circle class="hz__load-ln" cx="593" cy="312" r="3"></circle>
             </g>
+            <text class="hz__kwh-read" id="hz-kwh" x="472" y="308">14,555 kWh</text>
+            <text class="hz__dev-label" x="472" y="322">kWh meter</text>
 
             <!-- PTAC fleet -->
             {ptacs.map((y, i) => (
@@ -166,21 +148,19 @@ const ptacs = [244, 204, 164];
             <text class="hz__dev-label" x="668" y="88">Elevator motor</text>
             <line class="hz__leader" x1="608" y1="210" x2="664" y2="210"></line>
             <text class="hz__dev-label" x="668" y="214">PTAC fleet</text>
-            <line class="hz__leader" x1="526" y1="312" x2="664" y2="312"></line>
+            <line class="hz__leader" x1="610" y1="312" x2="664" y2="312"></line>
             <text class="hz__dev-label" x="668" y="310">Pool &amp; spa pumps,</text>
             <text class="hz__dev-label" x="668" y="322">laundry drives</text>
           </g>
 
-          <!-- harmonizer: the shield at the building's edge -->
+          <!-- harmonizer: the shield, pressed against the building -->
           <g class="hz__box" id="hz-box" transform="translate(0,-230)">
-            <rect class="hz__box-body" x="272" y="232" width="92" height="96" rx="7"></rect>
-            <line class="hz__box-line" x1="288" y1="258" x2="348" y2="258"></line>
-            <line class="hz__box-line" x1="288" y1="272" x2="348" y2="272"></line>
-            <line class="hz__box-line" x1="288" y1="286" x2="348" y2="286"></line>
-            <text class="hz__box-label" x="318" y="314" text-anchor="middle">Harmonizer</text>
+            <rect class="hz__box-body" x="326" y="232" width="92" height="96" rx="7"></rect>
+            <line class="hz__box-line" x1="342" y1="258" x2="402" y2="258"></line>
+            <line class="hz__box-line" x1="342" y1="272" x2="402" y2="272"></line>
+            <line class="hz__box-line" x1="342" y1="286" x2="402" y2="286"></line>
+            <text class="hz__box-label" x="372" y="314" text-anchor="middle">Harmonizer</text>
           </g>
-          <!-- clean blue feed: shield -> meter -> entrance -->
-          <path class="hz__mini hz__mini--main" id="hz-mini-main" d={mini(364, 418, 280)}></path>
 
           <g class="hz__meter" transform="translate(80,110)">
             <text class="hz__meter-label" x="0" y="0">Power factor</text>
@@ -206,12 +186,9 @@ const ptacs = [244, 204, 164];
     if (!sec) return;
     const $ = (id) => document.getElementById(id);
     const caption = $("hz-caption");
-    const rectDL = $("hz-rect-dL");
-    const rectC = $("hz-rect-c");
     const box = $("hz-box");
     const pf = $("hz-pf");
     const kwh = $("hz-kwh");
-    const kwhBox = $("hz-kwhbox");
     const prog = $("hz-progress");
     const riserRed = $("hz-riser-red");
     const riserMint = $("hz-riser-mint");
@@ -220,7 +197,6 @@ const ptacs = [244, 204, 164];
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const RISER = 216, DROP = 32;
-    const BOX_L = 272, BOX_R = 364, END = 264;
     const KWH_HI = 14555, KWH_LO = 9000;
     [ [riserRed, RISER], [riserMint, RISER], [dropRed, DROP], [dropMint, DROP] ]
       .forEach(([el, len]) => {
@@ -229,11 +205,11 @@ const ptacs = [244, 204, 164];
       });
 
     const loads = [
-      { el: $("hz-base"), hot: 0.06, cool: 0.64 },
-      { el: $("hz-ptac0"), hot: 0.11, cool: 0.70 },
+      { el: $("hz-base"), hot: 0.06, cool: 0.62 },
+      { el: $("hz-ptac0"), hot: 0.11, cool: 0.69 },
       { el: $("hz-ptac1"), hot: 0.15, cool: 0.76 },
-      { el: $("hz-ptac2"), hot: 0.19, cool: 0.82 },
-      { el: $("hz-elev"), hot: 0.23, cool: 0.88 },
+      { el: $("hz-ptac2"), hot: 0.19, cool: 0.83 },
+      { el: $("hz-elev"), hot: 0.23, cool: 0.89 },
     ];
     const winRows = [0, 1, 2, 3, 4].map((i) => ({
       el: $("hz-w" + i), at: 0.885 + i * 0.022,
@@ -244,13 +220,12 @@ const ptacs = [244, 204, 164];
       const t = clamp((p - a) / (b - a), 0, 1);
       return t * t * (3 - 2 * t);
     };
-    const lerp = (a, b, t) => a + (b - a) * t;
     const fmtK = (n) => Math.round(n).toLocaleString("en-US") + " kWh";
 
     const captions = [
-      "Distortion comes in with the power itself. It climbs from the service entrance into everything you own: the pool pumps, the laundry drives, the PTAC fleet, the elevator. The meter bills all of it.",
-      "The harmonizer drops in at the building's edge, a shield between the grid and everything behind it.",
-      "Clean current feeds the meter, then every line in the building. Floor by floor, the equipment cools, and the meter falls.",
+      "Distortion comes in with the power itself. It climbs from the service entrance into everything you own, and the meter on the ground floor bills all of it: 14,555 kWh.",
+      "The harmonizer drops in against the building, a shield between the grid and everything behind it.",
+      "The grid stays dirty; that's not yours to fix. Behind the shield, clean current feeds every line, the equipment cools floor by floor, and the meter falls.",
       "The building runs as one system. 14,555 becomes 9,000 at the meter, and your guests never felt a thing.",
     ];
     let lastPhase = -1;
@@ -258,9 +233,8 @@ const ptacs = [244, 204, 164];
 
     const apply = (p) => {
       const infect = smooth(p, 0, 0.24);
-      const drop = smooth(p, 0.26, 0.42);
-      const heal = smooth(p, 0.46, 0.6);
-      const climb = smooth(p, 0.62, 0.88);
+      const drop = smooth(p, 0.26, 0.44);
+      const climb = smooth(p, 0.5, 0.86);
       infectNow = infect; climbNow = climb;
 
       riserRed.style.strokeDashoffset = (RISER * (1 - infect)).toFixed(1);
@@ -271,13 +245,6 @@ const ptacs = [244, 204, 164];
       box.setAttribute("transform", "translate(0," + (-230 * (1 - drop)).toFixed(1) + ")");
       box.style.opacity = (0.15 + 0.85 * drop).toFixed(2);
 
-      // once the shield seats, the clean front sweeps the line left to right
-      const front = lerp(80, END, heal);
-      rectC.setAttribute("x", "80");
-      rectC.setAttribute("width", Math.max(0, front - 80).toFixed(1));
-      rectDL.setAttribute("x", front.toFixed(1));
-      rectDL.setAttribute("width", Math.max(0, END - front).toFixed(1));
-
       loads.forEach((l) => {
         const cooled = p >= l.cool;
         l.el.classList.toggle("is-hot", p > l.hot && !cooled);
@@ -285,17 +252,14 @@ const ptacs = [244, 204, 164];
       });
       winRows.forEach((w) => w.el.classList.toggle("is-warm", p > w.at));
 
-      // kWh meter: 14,555 dirty -> 9,000 clean, falling with the climb
       kwh.textContent = fmtK(KWH_HI - (KWH_HI - KWH_LO) * climb);
-      kwhBox.classList.toggle("is-hot", infect > 0.3 && climb < 0.05);
-      kwhBox.classList.toggle("is-good", climb > 0.6);
+      kwh.classList.toggle("is-good", climb > 0.6);
 
       const pfVal = 0.82 + (Math.round(climb * 5) / 5) * 0.15;
       pf.textContent = pfVal.toFixed(2);
       pf.classList.toggle("is-good", p > 0.93);
       sec.classList.toggle("is-stamped", p > 0.93);
       sec.classList.toggle("is-settled", p > 0.96);
-      sec.classList.toggle("is-fed", heal > 0.9);
       if (prog) prog.style.transform = "scaleX(" + p.toFixed(3) + ")";
 
       const phase = p < 0.3 ? 0 : p < 0.5 ? 1 : p < 0.88 ? 2 : 3;
@@ -306,23 +270,20 @@ const ptacs = [244, 204, 164];
     };
 
     if (reduce) {
-      sec.classList.add("is-static", "is-stamped", "is-settled", "is-fed");
+      sec.classList.add("is-static", "is-stamped", "is-settled");
       box.setAttribute("transform", "translate(0,0)");
       box.style.opacity = "1";
       [riserRed, dropRed, riserMint, dropMint].forEach((el) => (el.style.strokeDashoffset = 0));
-      rectDL.setAttribute("width", "0");
-      rectC.setAttribute("width", (264 - 80).toFixed(1));
       loads.forEach((l) => l.el.classList.add("is-cool"));
       winRows.forEach((w) => w.el.classList.add("is-warm"));
       pf.textContent = "0.97";
       pf.classList.add("is-good");
       kwh.textContent = fmtK(KWH_LO);
-      kwhBox.classList.add("is-good");
+      kwh.classList.add("is-good");
       caption.textContent = captions[3];
       return;
     }
 
-    // sparks riding the riser while the building is dirty
     try {
       const sparks = [
         { el: $("hz-spark1"), dur: 2600, off: 0 },
@@ -382,10 +343,8 @@ const ptacs = [244, 204, 164];
   .hz__axis { stroke: var(--line); stroke-width: 1; stroke-dasharray: 3 6; }
   .hz__wave { fill: none; stroke-width: 2.6; vector-effect: non-scaling-stroke; }
   .hz__wave--dist { stroke: #e05a2b; filter: drop-shadow(0 0 5px rgba(224, 90, 43, 0.4)); }
-  .hz__wave--clean { stroke: var(--mint); filter: drop-shadow(0 0 6px rgba(91, 194, 162, 0.5)); }
   @media (prefers-reduced-motion: no-preference) {
     .hz__flow { animation: hzFlow 6.5s linear infinite; }
-    .hz__wave--clean.hz__flow { animation-duration: 5.2s; }
     @keyframes hzFlow {
       from { transform: translateX(-50%); }
       to { transform: translateX(0); }
@@ -396,25 +355,12 @@ const ptacs = [244, 204, 164];
   .hz__dev-label { font-family: var(--font-mono); font-size: 10px; fill: var(--muted); }
   .hz__leader { stroke: var(--line); stroke-width: 0.7; stroke-dasharray: 2 3; }
 
-  /* kWh meter */
-  .hz__kwh-body {
-    fill: rgba(255, 255, 255, 0.03); stroke: var(--muted); stroke-width: 1.5;
-    transition: stroke 0.5s ease;
-  }
-  .hz__kwh-dial { fill: none; stroke: var(--muted); stroke-width: 1.2; transition: stroke 0.5s ease; }
-  .hz__kwh-tick { stroke: var(--muted); stroke-width: 1.2; transition: stroke 0.5s ease; }
   .hz__kwh-read {
     font-family: var(--font-mono); font-size: 13px; font-weight: 500;
     fill: #e05a2b; transition: fill 0.5s ease;
   }
-  .hz__kwh.is-hot .hz__kwh-body { stroke: #e05a2b; }
-  .hz__kwh.is-good .hz__kwh-read { fill: var(--mint); }
-  .hz__kwh.is-good .hz__kwh-body,
-  .hz__kwh.is-good .hz__kwh-dial,
-  .hz__kwh.is-good .hz__kwh-tick { stroke: var(--mint); }
-  @media (prefers-reduced-motion: no-preference) {
-    .hz__kwh.is-hot { animation: hzShake 0.34s ease-in-out infinite; }
-  }
+  .hz__kwh-read.is-good { fill: var(--mint); }
+  .hz__meter-face { fill: #0c211b; }
 
   /* building */
   .hz__shell {
@@ -445,7 +391,6 @@ const ptacs = [244, 204, 164];
     filter: drop-shadow(0 0 4px rgba(255, 138, 77, 0.9));
   }
 
-  /* clean blue feed waves: hidden until each line is healed */
   .hz__mini {
     fill: none; stroke: #5b9dc2; stroke-width: 1.6;
     stroke-dasharray: 14 10; opacity: 0;
@@ -453,7 +398,6 @@ const ptacs = [244, 204, 164];
     transition: opacity 0.6s ease;
   }
   .hz__load.is-cool .hz__mini { opacity: 1; }
-  .hz.is-fed .hz__mini--main { opacity: 1; }
   @media (prefers-reduced-motion: no-preference) {
     .hz__mini { animation: hzFeed 1.6s linear infinite; }
     @keyframes hzFeed {
@@ -462,7 +406,6 @@ const ptacs = [244, 204, 164];
     }
   }
 
-  /* loads: idle -> hot -> cool */
   .hz__stub { stroke: var(--line-strong); stroke-width: 1.4; transition: stroke 0.5s ease; }
   .hz__load-ln {
     stroke: var(--muted); fill: none; stroke-width: 1.6; stroke-linecap: round;
