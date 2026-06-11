@@ -28,6 +28,20 @@ const year = new Date().getFullYear();
     </nav>
   </div>
 
+  <div class="container">
+    <p class="site-footer__legal">
+      <strong>How to read this page.</strong> Energy Plus is an independent
+      energy solutions partner. We do not manufacture equipment. We diagnose
+      each property and procure, size, and integrate the right technologies
+      from our stack for that specific building. Case studies and figures
+      reflect results achieved with specific technologies we deploy, under the
+      conditions of those facilities. Your results will depend on your
+      building, climate, occupancy, equipment condition, and utility rates,
+      which is exactly why we measure your floor at your meter before you
+      commit. Modeled numbers are directional estimates, not quotes.
+    </p>
+  </div>
+
   <div class="container site-footer__meta">
     <span>&copy; {year} Energy Plus</span>
     <span class="site-footer__neutral">Independent Energy Solutions Partner.</span>
@@ -92,6 +106,18 @@ const year = new Date().getFullYear();
   .site-footer__nav a:hover {
     color: var(--gold-text);
   }
+  .site-footer__legal {
+    margin-top: var(--space-xl);
+    font-size: 0.72rem;
+    line-height: 1.6;
+    color: var(--muted);
+    max-width: 78ch;
+  }
+  .site-footer__legal strong {
+    color: var(--body);
+    font-weight: 600;
+  }
+
   .site-footer__meta {
     display: flex;
     flex-wrap: wrap;

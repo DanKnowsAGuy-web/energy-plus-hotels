@@ -70,6 +70,45 @@ const team = [
   </div>
 </section>
 
+<script is:inline>
+  (() => {
+    // Touch devices have no hover, so the color reveal is scroll-driven:
+    // a photo starts tinted, fades to full color as its top travels from
+    // mid-viewport to the top, holds, then fades back to tint as its bottom
+    // crosses mid-viewport on the way out.
+    if (!matchMedia("(hover: none)").matches) return;
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const photos = Array.from(document.querySelectorAll(".team__photo"));
+    if (!photos.length) return;
+    const TINT = [1, 0.25, 95, 0.55, 0.92]; // grayscale sepia hue sat bright
+    const clamp = (v) => Math.max(0, Math.min(1, v));
+    let ticking = false;
+    const update = () => {
+      const half = innerHeight / 2;
+      for (const ph of photos) {
+        const r = ph.getBoundingClientRect();
+        if (r.bottom < 0 || r.top > innerHeight) continue;
+        const colorIn = clamp((half - r.top) / half);
+        const colorOut = clamp((r.bottom - half) / half);
+        const c = Math.min(colorIn, colorOut); // 0 = tinted, 1 = full color
+        const k = 1 - c;
+        ph.style.filter =
+          "grayscale(" + (TINT[0] * k).toFixed(3) +
+          ") sepia(" + (TINT[1] * k).toFixed(3) +
+          ") hue-rotate(" + (TINT[2] * k).toFixed(1) +
+          "deg) saturate(" + (1 - (1 - TINT[3]) * k).toFixed(3) +
+          ") brightness(" + (1 - (1 - TINT[4]) * k).toFixed(3) + ")";
+      }
+      ticking = false;
+    };
+    addEventListener("scroll", () => {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }, { passive: true });
+    addEventListener("resize", update, { passive: true });
+    update();
+  })();
+</script>
+
 <style>
   .team { border-top: 1px solid var(--line); }
   /* the team gets a wider stage than the prose sections */
