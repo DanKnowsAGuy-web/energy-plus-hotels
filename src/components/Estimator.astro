@@ -136,6 +136,20 @@ const heats = [
       <div class="est__grid">
         <figure class="est__measured">
           <figcaption>From your inputs</figcaption>
+          <div class="est__dial">
+            <svg viewBox="0 0 200 124" role="img" aria-label="Meter needle falling from your current bill to the bill after the savings floor.">
+              <path class="est__dial-track" d="M18 104 A82 82 0 0 1 182 104"></path>
+              <path class="est__dial-zone" d="M18 104 A82 82 0 0 1 59 33"></path>
+              <g class="est__dial-needle" id="est-needle">
+                <line x1="100" y1="104" x2="100" y2="40"></line>
+              </g>
+              <circle class="est__dial-hub" cx="100" cy="104" r="6"></circle>
+            </svg>
+            <div class="est__dial-cap">
+              <span class="est__dial-val" id="est-newbill">&nbsp;</span>
+              <span class="est__dial-label">annual bill, after the floor</span>
+            </div>
+          </div>
           <table class="est__table" id="est-inputs-table">
             <tbody>
               <tr><th scope="row">Annual electricity spend</th><td><span class="est__tv" id="est-t-spend"></span></td></tr>
@@ -157,18 +171,34 @@ const heats = [
             <li><span class="op">Outdoor lighting</span><span class="num" id="est-lit"></span></li>
             <li id="est-nego-row"><span class="op">Rate negotiation, deregulated market</span><span class="num" id="est-nego"></span></li>
             <li class="result"><span class="op">Conservative annual floor</span><span class="num" id="est-floor"></span></li>
+            <li class="ded"><span class="op">Section 179D deduction, one-time</span><span class="num" id="est-ded"></span></li>
           </ol>
           <p class="est__rangeline" id="est-range"></p>
+          <div class="est__sqft">
+            <label for="est-sqft">Square footage <span class="est__sqft-note">(prefilled estimate; adjust to your real number)</span></label>
+            <input type="number" id="est-sqft" min="1000" max="2000000" step="500" />
+          </div>
         </div>
       </div>
 
-      <p class="est__portfolio" id="est-portfolio" hidden></p>
+      <div class="est__portfolio" id="est-portfolio" hidden>
+        <span class="est__big-label" id="est-portfolio-label"></span>
+        <span class="est__big-val" id="est-portfolio-val"></span>
+      </div>
+
+      <div class="est__projgrid">
+        <div class="est__proj">
+          <span class="est__big-label">Unclaimed over five years</span>
+          <span class="est__big-val" id="est-proj5"></span>
+        </div>
+        <div class="est__proj">
+          <span class="est__big-label">Over ten years</span>
+          <span class="est__big-val" id="est-proj10"></span>
+        </div>
+        <p class="est__proj-note" id="est-proj-note"></p>
+      </div>
 
       <div class="est__facts">
-        <div class="est__fact">
-          <h3 class="est__fact-title">Left on the table by waiting</h3>
-          <p class="est__fact-body" id="est-proj-body"></p>
-        </div>
         <div class="est__fact">
           <h3 class="est__fact-title">Your equipment, meanwhile</h3>
           <p class="est__fact-body">
@@ -177,10 +207,6 @@ const heats = [
             the pumps. The bill is the floor; <a href="#what-we-find">the
             equipment is the other half of the story</a>.
           </p>
-        </div>
-        <div class="est__fact">
-          <h3 class="est__fact-title">Section 179D deduction</h3>
-          <p class="est__fact-body" id="est-ded-body"></p>
         </div>
       </div>
 
@@ -285,34 +311,63 @@ const heats = [
         Math.round((floor / S) * 100) + "% to " + Math.round((ceil / S) * 100) +
         "% of your bill, before incentives.";
 
-      // portfolio: low x floor to high x ceiling per spec
+      // portfolio: low x floor to high x ceiling per spec, shown large
       const port = $("est-portfolio");
       if (hi > 1) {
         port.hidden = false;
-        port.textContent =
-          "Across " + short + " at similar spend, the portfolio range runs " +
-          fr(floor * lo, ceil * hi) + " a year.";
+        $("est-portfolio-label").textContent =
+          "Across " + short + " at similar spend, per year";
+        $("est-portfolio-val").textContent = fr(floor * lo, ceil * hi);
       } else port.hidden = true;
 
       // escalation applied to savings: annuity factor on the hero figure
       const hero = hi > 1 ? floor * lo : floor;
       const ef = (y) => (Math.pow(1 + rate, y) - 1) / rate;
-      $("est-proj-body").textContent =
+      $("est-proj5").textContent = fmt(hero * ef(5));
+      $("est-proj10").textContent = fmt(hero * ef(10));
+      $("est-proj-note").textContent =
         "Commercial rates in " + opt.value + " have been rising " +
         (range === "volatile" ? "on a volatile trajectory (we project a conservative 2.5% floor)" : range + " a year") +
-        ". At that pace, the savings you are not capturing compound to about " +
-        fmt(hero * ef(5)) + " over five years and " + fmt(hero * ef(10)) +
-        " over ten.";
+        "; these are the savings that compound away while you wait.";
 
-      // Section 179D
+      // Section 179D: prefilled estimate, editable
       const raw = S / 3.5;
       const sqft = raw >= 10000 ? Math.round(raw / 1000) * 1000 : raw >= 2000 ? Math.round(raw / 500) * 500 : Math.round(raw / 100) * 100;
-      $("est-ded-body").textContent =
-        "A property this size runs roughly " + sqft.toLocaleString("en-US") +
-        " sq ft. Efficiency work at this scale can qualify for a federal deduction up to " +
-        fmt(sqft * 5.94) + ". Most operators have never claimed it. We confirm eligibility during the pilot.";
+      const sqftEl = $("est-sqft");
+      sqftEl.value = sqft;
+      const ded = () => {
+        $("est-ded").textContent = "up to " + fmt(Math.max(0, Number(sqftEl.value) || 0) * 5.94);
+      };
+      sqftEl.oninput = ded;
+      ded();
 
+      // the meter: needle falls from the full bill to the bill after the floor
+      const needle = $("est-needle");
+      const newBill = $("est-newbill");
+      const rot = (frac) => (frac - 0.5) * 180; // 0..1 -> -90..+90 deg
+      const target = (S - floor) / S;
+      needle.style.transition = "none";
+      needle.style.transform = "rotate(" + rot(1) + "deg)";
+      newBill.textContent = fmt(S);
       results.hidden = false;
+      requestAnimationFrame(() => {
+        needle.style.transition = reduce ? "none" : "transform 1.3s cubic-bezier(0.25, 1, 0.5, 1)";
+        needle.style.transform = "rotate(" + rot(target) + "deg)";
+        if (reduce) {
+          newBill.textContent = fmt(S - floor);
+        } else {
+          const t0 = performance.now();
+          const dur = 1300;
+          newBill.textContent = fmt(S - floor);
+          const tick = (now) => {
+            const p = Math.min((now - t0) / dur, 1);
+            const e = 1 - Math.pow(1 - p, 4);
+            newBill.textContent = fmt(S - floor * e);
+            if (p < 1) requestAnimationFrame(tick);
+          };
+          requestAnimationFrame(tick);
+        }
+      });
       results.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
     });
   })();
@@ -449,10 +504,69 @@ const heats = [
   }
   .est__rangeline { margin-top: var(--space-m); font-size: var(--step--1); color: var(--muted); max-width: 46ch; }
 
+  /* the meter: bill falling onto the savings floor */
+  .est__dial {
+    display: grid; justify-items: center; gap: 0.3rem;
+    margin-bottom: var(--space-m);
+  }
+  .est__dial svg { width: min(200px, 70%); height: auto; overflow: visible; }
+  .est__dial-track { fill: none; stroke: var(--line-strong); stroke-width: 6; stroke-linecap: round; }
+  .est__dial-zone {
+    fill: none; stroke: var(--mint); stroke-width: 6; stroke-linecap: round;
+    opacity: 0.85; filter: drop-shadow(0 0 5px rgba(91, 194, 162, 0.35));
+  }
+  .est__dial-needle { transform-origin: 100px 104px; transform: rotate(90deg); }
+  .est__dial-needle line { stroke: var(--gold-text); stroke-width: 3; stroke-linecap: round; }
+  .est__dial-hub { fill: var(--ink); stroke: var(--gold); stroke-width: 1.5; }
+  .est__dial-cap { display: grid; justify-items: center; gap: 0.1rem; }
+  .est__dial-val {
+    font-family: var(--font-serif); font-size: var(--step-2); line-height: 1;
+    color: var(--mint); font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
+    min-height: 1em;
+  }
+  .est__dial-label {
+    font-family: var(--font-mono); font-size: 0.68rem;
+    letter-spacing: 0.05em; color: var(--muted);
+  }
+
+  .est__steps li.ded { border-bottom: 0; }
+  .est__steps li.ded .op { color: var(--muted); }
+  .est__steps li.ded .num { color: var(--mint); font-size: var(--step-1); }
+
+  .est__sqft { margin-top: var(--space-m); display: grid; gap: 0.45rem; max-width: 24rem; }
+  .est__sqft label { font-size: var(--step--1); color: var(--ink); font-weight: 500; }
+  .est__sqft-note { color: var(--muted); font-weight: 400; }
+  .est__sqft input {
+    background: var(--surface); border: 1px solid var(--line-strong);
+    border-radius: var(--radius-s); color: var(--gold-text);
+    font-family: var(--font-mono); font-size: var(--step-0);
+    padding: 0.6em 0.9em; width: 100%;
+  }
+  .est__sqft input:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+  .est__big-label {
+    display: block; font-family: var(--font-mono); font-size: var(--step--1);
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+  }
+  .est__big-val {
+    display: block; font-family: var(--font-serif);
+    font-size: clamp(2rem, 4.5vw, 3.2rem); line-height: 1.05;
+    color: var(--gold-text); letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums; margin-top: 0.2em;
+  }
   .est__portfolio {
-    margin-top: var(--space-l);
-    font-family: var(--font-serif); font-style: italic;
-    font-size: var(--step-1); color: var(--gold-text); max-width: 52ch;
+    margin-top: var(--space-xl); padding-top: var(--space-l);
+    border-top: 1px solid var(--line);
+  }
+  .est__projgrid {
+    margin-top: var(--space-xl); padding-top: var(--space-l);
+    border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: clamp(1.5rem, 4vw, 3rem);
+  }
+  .est__proj-note {
+    grid-column: 1 / -1; font-size: var(--step--1);
+    color: var(--muted); max-width: 60ch;
   }
   .est__facts {
     margin-top: var(--space-xl);
