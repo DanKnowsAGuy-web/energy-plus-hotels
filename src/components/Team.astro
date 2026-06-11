@@ -48,8 +48,8 @@ const team = [
             <img
               class="team__photo"
               src={m.photo.src}
-              width="400"
-              height="400"
+              width={m.photo.width}
+              height={m.photo.height}
               loading="lazy"
               alt={`${m.name}, ${m.role}`}
             />
@@ -105,10 +105,10 @@ const team = [
     border-color: rgba(194, 163, 104, 0.5);
     transform: translateY(-3px);
   }
+  /* full original framing at every width: scale, never crop */
   .team__photo {
     width: 100%;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
+    height: auto;
     display: block;
     filter: grayscale(1) sepia(0.25) hue-rotate(95deg) saturate(0.55) brightness(0.92);
     transition: filter 0.5s ease;
