@@ -14,12 +14,14 @@ const amp = 22;
 const N = 240;
 
 function wave() {
+  // mildly distorted: some noise arrives with grid power, but the violent
+  // distortion is made inside the building (see card 1)
   const cycles = 7;
   let d = "";
   for (let i = 0; i <= N; i++) {
     const x = X0 + (i / N) * DRAW_W;
     const t = (i / N) * Math.PI * 2 * cycles;
-    const y = midY - amp * (0.6 * Math.sin(t) + 0.26 * Math.sin(3 * t + 0.6) + 0.2 * Math.sin(5 * t + 1.2));
+    const y = midY - amp * (0.84 * Math.sin(t) + 0.11 * Math.sin(3 * t + 0.6) + 0.07 * Math.sin(5 * t + 1.2));
     d += (i === 0 ? "M" : "L") + x.toFixed(1) + " " + y.toFixed(1) + " ";
   }
   return d.trim();
@@ -50,10 +52,14 @@ const ptacs = [244, 204, 164];
         <h2 class="hz__title" id="hz-title">
           What dirty power does, and what the harmonizer undoes.
         </h2>
-        <p class="hz__caption" id="hz-caption" aria-live="polite">
-          Distortion comes in with the power itself. Watch it enter the
-          service entrance and climb into everything you own.
-        </p>
+        <div class="hz__card" id="hz-card" aria-live="polite">
+          <span class="hz__card-num" id="hz-card-num">1 / 4</span>
+          <p class="hz__card-text" id="hz-card-text">
+            Modern equipment pulls power in fast pulses instead of a steady
+            draw. The pulses make the power in your panels unstable, and most
+            of that instability starts inside your own building.
+          </p>
+        </div>
       </div>
 
       <figure class="hz__figure">
@@ -70,7 +76,7 @@ const ptacs = [244, 204, 164];
           </defs>
 
           <line class="hz__ground" x1="80" y1="330" x2="752" y2="330"></line>
-          <text class="hz__tag" x="80" y="240">Grid power, distorted</text>
+          <text class="hz__tag" x="80" y="240">Grid power, lightly noisy</text>
 
           <!-- the line: the grid side never cleans up -->
           <line class="hz__axis" x1="80" y1={midY} x2="420" y2={midY}></line>
@@ -120,12 +126,14 @@ const ptacs = [244, 204, 164];
                 <rect class="hz__load-ln" x="584" y={y} width="22" height="12" rx="2"></rect>
                 <line class="hz__load-ln" x1="588" y1={y + 4} x2="598" y2={y + 4}></line>
                 <circle class="hz__load-ln" cx="601" cy={y + 8} r="2.4"></circle>
+                <circle class="hz__ripple" cx="595" cy={y + 6} r="7"></circle>
                 {i === 0 && (
                   <>
                     <line class="hz__stub" x1="593" y1={y + 12} x2="593" y2="298"></line>
                     <rect class="hz__load-ln" x="578" y="298" width="30" height="28" rx="3"></rect>
                     <circle class="hz__load-ln" cx="593" cy="312" r="8"></circle>
                     <circle class="hz__load-ln" cx="593" cy="312" r="3"></circle>
+                    <circle class="hz__ripple" cx="593" cy="312" r="9"></circle>
                   </>
                 )}
               </g>
@@ -140,6 +148,7 @@ const ptacs = [244, 204, 164];
               <rect class="hz__load-ln" x="621" y="196" width="22" height="28" rx="2"></rect>
               <path class="hz__load-ln" d="M626 176 l6 -9 6 9"></path>
               <path class="hz__load-ln" d="M626 240 l6 9 6 -9"></path>
+              <circle class="hz__ripple" cx="632" cy="84" r="9"></circle>
             </g>
 
             <!-- sparks riding the riser while the building is dirty -->
@@ -167,12 +176,13 @@ const ptacs = [244, 204, 164];
             <line class="hz__box-line" x1="342" y1="258" x2="402" y2="258"></line>
             <line class="hz__box-line" x1="342" y1="272" x2="402" y2="272"></line>
             <line class="hz__box-line" x1="342" y1="286" x2="402" y2="286"></line>
-            <text class="hz__box-label" x="372" y="314" text-anchor="middle">Harmonizer</text>
+            <text class="hz__box-label" x="372" y="308" text-anchor="middle">Harmonizer</text>
+            <text class="hz__box-sub" x="372" y="321" text-anchor="middle">at the panel</text>
           </g>
 
           <g class="hz__meter" transform="translate(80,52)">
             <text class="hz__meter-label" x="0" y="0">What the utility bills</text>
-            <text class="hz__bill-lbl" x="0" y="26">Demand (kW)</text>
+            <text class="hz__bill-lbl" x="0" y="26">Peak demand</text>
             <text class="hz__bill-val" id="hz-kw" x="0" y="50">66.0</text>
             <text class="hz__bill-lbl" x="0" y="78">Power factor</text>
             <text class="hz__bill-val" id="hz-pf" x="0" y="102">0.82</text>
@@ -198,7 +208,6 @@ const ptacs = [244, 204, 164];
     const sec = document.querySelector(".hz");
     if (!sec) return;
     const $ = (id) => document.getElementById(id);
-    const caption = $("hz-caption");
     const box = $("hz-box");
     const pf = $("hz-pf");
     const kwh = $("hz-kwh");
@@ -238,12 +247,29 @@ const ptacs = [244, 204, 164];
     const fmtK = (n) => Math.round(n).toLocaleString("en-US");
     const rectD = $("hz-rect-d");
 
-    const captions = [
-      "Distortion comes in with the power itself. It climbs from the service entrance into everything you own, and the meter on the ground floor bills all of it: 14,555 kWh.",
-      "The harmonizer drops in against the building, a shield between the grid and everything behind it.",
-      "The grid stays dirty; that's not yours to fix. Behind the shield, clean current feeds every line, the equipment cools floor by floor, and the meter falls.",
-      "The building runs as one system. 14,555 becomes 9,000 at the meter, and your guests never felt a thing.",
+    const cards = [
+      "Modern equipment pulls power in fast pulses instead of a steady draw. The pulses make the power in your panels unstable, and most of that instability starts inside your own building.",
+      "Unstable power does less work per delivery, so the utility has to send more to do the same job. You pay for the extra: bigger demand charges and penalties.",
+      "The harmonizer smooths the power right at the panel, absorbing the noise your equipment makes instead of letting it bounce through every circuit. Machines run cooler.",
+      "Smaller demand charges. Fewer breakdowns. Longer equipment life. Verified at hotels like yours: 8 to 14 percent.",
     ];
+    const card = $("hz-card");
+    const cardText = $("hz-card-text");
+    const cardNum = $("hz-card-num");
+    const setCard = (phase) => {
+      const swap = () => {
+        cardText.textContent = cards[phase];
+        cardNum.textContent = (phase + 1) + " / 4";
+      };
+      if (reduce) { swap(); return; }
+      card.classList.add("is-exit");
+      setTimeout(() => {
+        swap();
+        card.classList.remove("is-exit");
+        card.classList.add("is-enter");
+        requestAnimationFrame(() => requestAnimationFrame(() => card.classList.remove("is-enter")));
+      }, 240);
+    };
     let lastPhase = -1;
     let infectNow = 0, climbNow = 0;
 
@@ -293,8 +319,8 @@ const ptacs = [244, 204, 164];
       if (prog) prog.style.transform = "scaleX(" + p.toFixed(3) + ")";
 
       const phase = p < 0.22 ? 0 : p < 0.38 ? 1 : p < 0.68 ? 2 : 3;
-      if (phase !== lastPhase && caption) {
-        caption.textContent = captions[phase];
+      if (phase !== lastPhase) {
+        setCard(phase);
         lastPhase = phase;
       }
     };
@@ -315,7 +341,7 @@ const ptacs = [244, 204, 164];
       kwS.textContent = "59.9"; kwS.classList.add("is-good");
       mxS.textContent = "1 a day"; mxS.classList.add("is-good");
       sec.classList.add("is-deferred");
-      caption.textContent = captions[3];
+      setCard(3);
       return;
     }
 
@@ -333,9 +359,9 @@ const ptacs = [244, 204, 164];
           const vis = infectNow * (1 - climbNow);
           for (const s of sparks) {
             const t = (((now - t0) / s.dur) + s.off) % 1;
-            // travel UP the riser, toward the devices, as far as the
-            // infection has reached
-            const pt = riserRed.getPointAtLength(t * infectNow * len);
+            // noise is emitted by the devices: sparks travel DOWN the riser,
+            // from the infected front back toward the panel
+            const pt = riserRed.getPointAtLength((1 - t) * infectNow * len);
             s.el.setAttribute("cx", pt.x.toFixed(1));
             s.el.setAttribute("cy", pt.y.toFixed(1));
             s.el.style.opacity = (vis * (0.55 + 0.45 * Math.sin(now / 130 + s.off * 7))).toFixed(2);
@@ -371,9 +397,44 @@ const ptacs = [244, 204, 164];
   .hz__inner { width: 100%; }
   .hz__head { max-width: 60rem; margin-bottom: clamp(1rem, 3vh, 2.5rem); }
   .hz__title { font-size: var(--step-3); max-width: 20ch; }
-  .hz__caption {
-    margin-top: var(--space-m); font-size: var(--step-1); line-height: 1.5;
-    color: var(--body); max-width: 58ch; min-height: 3em;
+  /* narration card: slides out left, in from the right on each beat */
+  .hz__card {
+    position: relative;
+    margin-top: var(--space-m);
+    max-width: 56ch;
+    min-height: 6.2em;
+    padding: 0.9rem 1.1rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-s);
+    transition: transform 0.24s var(--ease-out-quart), opacity 0.24s ease;
+  }
+  .hz__card.is-exit {
+    transform: translateX(-26px);
+    opacity: 0;
+  }
+  .hz__card.is-enter {
+    transition: none;
+    transform: translateX(26px);
+    opacity: 0;
+  }
+  .hz__card-num {
+    position: absolute;
+    top: 0.7rem;
+    right: 0.9rem;
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.08em;
+    color: var(--gold-text);
+  }
+  .hz__card-text {
+    font-size: var(--step-0);
+    line-height: 1.55;
+    color: var(--body);
+    padding-right: 2.6rem;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hz__card { transition: none; }
   }
 
   .hz__figure { margin: 0; }
@@ -490,6 +551,29 @@ const ptacs = [244, 204, 164];
   .hz__box-label {
     font-family: var(--font-mono); font-size: 11px;
     fill: var(--gold-text); letter-spacing: 0.02em;
+  }
+  .hz__box-sub {
+    font-family: var(--font-mono); font-size: 8.5px;
+    fill: var(--muted); letter-spacing: 0.04em;
+  }
+
+  /* noise radiating from hot machines */
+  .hz__ripple {
+    fill: none;
+    stroke: #e05a2b;
+    stroke-width: 1.2;
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .hz__load.is-hot .hz__ripple {
+      animation: hzRipple 1.5s ease-out infinite;
+    }
+    @keyframes hzRipple {
+      0% { transform: scale(0.6); opacity: 0.85; }
+      100% { transform: scale(2.4); opacity: 0; }
+    }
   }
 
   .hz__meter-label {
