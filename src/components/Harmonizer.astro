@@ -211,15 +211,17 @@ const ptacs = [244, 204, 164];
         el.style.strokeDashoffset = len;
       });
 
+    // choreography completes by ~p 0.75; the rest of the track is a hold
+    // beat so the finished building gets a full scroll of quiet
     const loads = [
-      { el: $("hz-base"), hot: 0.06, cool: 0.62 },
-      { el: $("hz-ptac0"), hot: 0.11, cool: 0.69 },
-      { el: $("hz-ptac1"), hot: 0.15, cool: 0.76 },
-      { el: $("hz-ptac2"), hot: 0.19, cool: 0.83 },
-      { el: $("hz-elev"), hot: 0.23, cool: 0.89 },
+      { el: $("hz-base"), hot: 0.045, cool: 0.48 },
+      { el: $("hz-ptac0"), hot: 0.08, cool: 0.53 },
+      { el: $("hz-ptac1"), hot: 0.11, cool: 0.58 },
+      { el: $("hz-ptac2"), hot: 0.14, cool: 0.63 },
+      { el: $("hz-elev"), hot: 0.17, cool: 0.67 },
     ];
     const winRows = [0, 1, 2, 3, 4].map((i) => ({
-      el: $("hz-w" + i), at: 0.885 + i * 0.022,
+      el: $("hz-w" + i), at: 0.68 + i * 0.016,
     }));
 
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -240,9 +242,9 @@ const ptacs = [244, 204, 164];
     let infectNow = 0, climbNow = 0;
 
     const apply = (p) => {
-      const infect = smooth(p, 0, 0.24);
-      const drop = smooth(p, 0.26, 0.44);
-      const climb = smooth(p, 0.5, 0.86);
+      const infect = smooth(p, 0, 0.18);
+      const drop = smooth(p, 0.2, 0.33);
+      const climb = smooth(p, 0.38, 0.66);
       infectNow = infect; climbNow = climb;
 
       riserRed.style.strokeDashoffset = (RISER * (1 - infect)).toFixed(1);
@@ -269,12 +271,12 @@ const ptacs = [244, 204, 164];
 
       const pfVal = 0.82 + (Math.round(climb * 5) / 5) * 0.15;
       pf.textContent = pfVal.toFixed(2);
-      pf.classList.toggle("is-good", p > 0.93);
-      sec.classList.toggle("is-stamped", p > 0.93);
-      sec.classList.toggle("is-settled", p > 0.96);
+      pf.classList.toggle("is-good", p > 0.72);
+      sec.classList.toggle("is-stamped", p > 0.72);
+      sec.classList.toggle("is-settled", p > 0.75);
       if (prog) prog.style.transform = "scaleX(" + p.toFixed(3) + ")";
 
-      const phase = p < 0.3 ? 0 : p < 0.5 ? 1 : p < 0.88 ? 2 : 3;
+      const phase = p < 0.22 ? 0 : p < 0.38 ? 1 : p < 0.68 ? 2 : 3;
       if (phase !== lastPhase && caption) {
         caption.textContent = captions[phase];
         lastPhase = phase;
@@ -340,7 +342,8 @@ const ptacs = [244, 204, 164];
 </script>
 
 <style>
-  .hz { position: relative; height: 380vh; border-top: 1px solid var(--line); }
+  /* extra track length = the hold beat at the finished state */
+  .hz { position: relative; height: 480vh; border-top: 1px solid var(--line); }
   .hz__sticky {
     position: sticky; top: 0; height: 100vh;
     display: flex; align-items: center; overflow: hidden;
