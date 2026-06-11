@@ -7,7 +7,7 @@
 // pool/laundry drive drum sits just left of the elevator shaft. Sparks ride
 // the riser while dirty; clean blue sine waves feed every line once healed.
 const X0 = 80;
-const WAVE_END = 322;
+const WAVE_END = 418; // reaches the building until the shield clips it back
 const DRAW_W = (WAVE_END - X0) * 2;
 const midY = 280;
 const amp = 22;
@@ -65,7 +65,7 @@ const ptacs = [244, 204, 164];
         >
           <defs>
             <clipPath id="hz-clip-dist">
-              <rect x="80" y="250" width="242" height="62"></rect>
+              <rect id="hz-rect-d" x="80" y="250" width="338" height="62"></rect>
             </clipPath>
           </defs>
 
@@ -104,16 +104,13 @@ const ptacs = [244, 204, 164];
             <!-- ground floor: the kWh meter (the circle) + reading beside it,
                  then the pool/laundry drive drum left of the shaft -->
             <g class="hz__load" id="hz-base">
-              <line class="hz__stub" x1="424" y1="312" x2="576" y2="312"></line>
-              <path class="hz__mini" d={mini(428, 574, 312)}></path>
+              <line class="hz__stub" x1="424" y1="312" x2="446" y2="312"></line>
+              <path class="hz__mini" d={mini(426, 444, 312)}></path>
               <circle class="hz__load-ln hz__meter-face" cx="455" cy="312" r="10"></circle>
               <line class="hz__load-ln" x1="455" y1="312" x2="461" y2="306"></line>
-              <rect class="hz__load-ln" x="578" y="298" width="30" height="28" rx="3"></rect>
-              <circle class="hz__load-ln" cx="593" cy="312" r="8"></circle>
-              <circle class="hz__load-ln" cx="593" cy="312" r="3"></circle>
             </g>
-            <text class="hz__kwh-read" id="hz-kwh" x="472" y="308">14,555 kWh</text>
-            <text class="hz__dev-label" x="472" y="322">kWh meter</text>
+            <text class="hz__kwh-read" id="hz-kwh" x="472" y="318">14,555</text>
+            <text class="hz__dev-label" x="473" y="329">kWh meter</text>
 
             <!-- PTAC fleet -->
             {ptacs.map((y, i) => (
@@ -123,6 +120,14 @@ const ptacs = [244, 204, 164];
                 <rect class="hz__load-ln" x="584" y={y} width="22" height="12" rx="2"></rect>
                 <line class="hz__load-ln" x1="588" y1={y + 4} x2="598" y2={y + 4}></line>
                 <circle class="hz__load-ln" cx="601" cy={y + 8} r="2.4"></circle>
+                {i === 0 && (
+                  <>
+                    <line class="hz__stub" x1="593" y1={y + 12} x2="593" y2="298"></line>
+                    <rect class="hz__load-ln" x="578" y="298" width="30" height="28" rx="3"></rect>
+                    <circle class="hz__load-ln" cx="593" cy="312" r="8"></circle>
+                    <circle class="hz__load-ln" cx="593" cy="312" r="3"></circle>
+                  </>
+                )}
               </g>
             ))}
 
@@ -140,6 +145,8 @@ const ptacs = [244, 204, 164];
             <!-- sparks riding the riser while the building is dirty -->
             <circle class="hz__spark" id="hz-spark1" r="2.6"></circle>
             <circle class="hz__spark" id="hz-spark2" r="2"></circle>
+            <circle class="hz__spark" id="hz-spark3" r="2.3"></circle>
+            <circle class="hz__spark" id="hz-spark4" r="1.7"></circle>
           </g>
 
           <!-- device labels, right column -->
@@ -220,7 +227,8 @@ const ptacs = [244, 204, 164];
       const t = clamp((p - a) / (b - a), 0, 1);
       return t * t * (3 - 2 * t);
     };
-    const fmtK = (n) => Math.round(n).toLocaleString("en-US") + " kWh";
+    const fmtK = (n) => Math.round(n).toLocaleString("en-US");
+    const rectD = $("hz-rect-d");
 
     const captions = [
       "Distortion comes in with the power itself. It climbs from the service entrance into everything you own, and the meter on the ground floor bills all of it: 14,555 kWh.",
@@ -244,6 +252,10 @@ const ptacs = [244, 204, 164];
 
       box.setAttribute("transform", "translate(0," + (-230 * (1 - drop)).toFixed(1) + ")");
       box.style.opacity = (0.15 + 0.85 * drop).toFixed(2);
+
+      // the dirty wave reaches the building until the shield seats, then is
+      // clipped back to the shield's left edge (no dead gap on the line)
+      rectD.setAttribute("width", (418 - 92 * drop - 80).toFixed(1));
 
       loads.forEach((l) => {
         const cooled = p >= l.cool;
@@ -274,6 +286,7 @@ const ptacs = [244, 204, 164];
       box.setAttribute("transform", "translate(0,0)");
       box.style.opacity = "1";
       [riserRed, dropRed, riserMint, dropMint].forEach((el) => (el.style.strokeDashoffset = 0));
+      rectD.setAttribute("width", "246");
       loads.forEach((l) => l.el.classList.add("is-cool"));
       winRows.forEach((w) => w.el.classList.add("is-warm"));
       pf.textContent = "0.97";
@@ -288,7 +301,9 @@ const ptacs = [244, 204, 164];
       const sparks = [
         { el: $("hz-spark1"), dur: 2600, off: 0 },
         { el: $("hz-spark2"), dur: 3900, off: 0.5 },
-      ];
+        { el: $("hz-spark3"), dur: 3100, off: 0.25 },
+        { el: $("hz-spark4"), dur: 4500, off: 0.75 },
+      ].filter((s) => s.el);
       const len = riserRed.getTotalLength();
       if (len > 0) {
         const t0 = performance.now();
@@ -296,7 +311,9 @@ const ptacs = [244, 204, 164];
           const vis = infectNow * (1 - climbNow);
           for (const s of sparks) {
             const t = (((now - t0) / s.dur) + s.off) % 1;
-            const pt = riserRed.getPointAtLength((1 - t * infectNow) * len);
+            // travel UP the riser, toward the devices, as far as the
+            // infection has reached
+            const pt = riserRed.getPointAtLength(t * infectNow * len);
             s.el.setAttribute("cx", pt.x.toFixed(1));
             s.el.setAttribute("cy", pt.y.toFixed(1));
             s.el.style.opacity = (vis * (0.55 + 0.45 * Math.sin(now / 130 + s.off * 7))).toFixed(2);
@@ -356,8 +373,9 @@ const ptacs = [244, 204, 164];
   .hz__leader { stroke: var(--line); stroke-width: 0.7; stroke-dasharray: 2 3; }
 
   .hz__kwh-read {
-    font-family: var(--font-mono); font-size: 13px; font-weight: 500;
+    font-family: var(--font-mono); font-size: 26px; font-weight: 500;
     fill: #e05a2b; transition: fill 0.5s ease;
+    font-variant-numeric: tabular-nums;
   }
   .hz__kwh-read.is-good { fill: var(--mint); }
   .hz__meter-face { fill: #0c211b; }
@@ -427,6 +445,20 @@ const ptacs = [244, 204, 164];
       0%, 100% { transform: translate(0, 0); }
       25% { transform: translate(1px, -0.6px); }
       75% { transform: translate(-1px, 0.6px); }
+    }
+    /* overheating: the machine outlines themselves pulse with heat */
+    .hz__load.is-hot .hz__load-ln {
+      animation: hzOverheat 1.1s ease-in-out infinite;
+    }
+    @keyframes hzOverheat {
+      0%, 100% {
+        filter: drop-shadow(0 0 3px rgba(224, 90, 43, 0.45));
+        stroke-width: 1.6;
+      }
+      50% {
+        filter: drop-shadow(0 0 8px rgba(224, 90, 43, 0.85));
+        stroke-width: 2;
+      }
     }
   }
 
