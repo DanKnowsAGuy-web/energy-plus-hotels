@@ -1,0 +1,140 @@
+---
+// Bios mirrored from yourenergyplus.com (team section), restyled to the
+// grand-hotel system. Photos are forest-tinted grayscale that warm on hover.
+import daniel from "../assets/daniel.jpeg";
+import cliff from "../assets/cliff.jpeg";
+import ronson from "../assets/ronson.jpeg";
+import cj from "../assets/cj.jpeg";
+
+const team = [
+  {
+    photo: daniel, name: "Daniel Gutierrez", role: "CEO + Founder",
+    bio: "19 years connecting people, capital, and opportunity across 14+ industries and 70+ specialized markets. Former director of FDA-registered clinical trials. Works fee-for-performance, and is committed to deploying profits toward American infrastructure.",
+    tags: ["14+ Industries", "Fee for Performance"],
+  },
+  {
+    photo: cliff, name: "Clifford Suljak", role: "Chief Engineer",
+    bio: "42+ years managing large-scale infrastructure. Ran projects exceeding $600M at Salt River Project. Awarded an exclusive sole-source consulting contract by Sandia National Laboratories (DOE/DOD). Member: EPRI, AWS, ASNT, ASM, ASTM.",
+    tags: ["Sandia National Labs", "$600M+ Projects"],
+  },
+  {
+    photo: ronson, name: "Ronson Provido", role: "Principal Engineering Advisor",
+    bio: "20+ years in electrical engineering: design, commissioning, R&D, and project management. Portfolio includes LAX and multi-state commercial and hospitality projects. Licensed PE, Title 24 and LEED qualified.",
+    tags: ["Licensed PE", "LAX Portfolio", "LEED"],
+  },
+  {
+    photo: cj, name: "CJ Metz", role: "Strategic Account Manager",
+    bio: "23+ years in technology leadership, sales, and consulting. Air Force veteran who has led initiatives for Fortune 500 firms, driving transformation across business, technology, and community.",
+    tags: ["Air Force Veteran", "Fortune 500"],
+  },
+];
+---
+
+<section class="section team" id="team" aria-labelledby="team-title">
+  <div class="container">
+    <div class="team__head reveal">
+      <h2 class="team__title" id="team-title">Who reads your meter.</h2>
+      <p class="team__lede lede">
+        Not a network of strangers. A team with verified credentials at the
+        highest levels of government, infrastructure, and commercial energy,
+        pointed at your hotel.
+      </p>
+    </div>
+
+    <div class="team__grid">
+      {
+        team.map((m, i) => (
+          <article class="team__card reveal" style={`--i: ${i}`}>
+            <img
+              class="team__photo"
+              src={m.photo.src}
+              width="400"
+              height="400"
+              loading="lazy"
+              alt={`${m.name}, ${m.role}`}
+            />
+            <div class="team__body">
+              <h3 class="team__name">{m.name}</h3>
+              <p class="team__role">{m.role}</p>
+              <p class="team__bio">{m.bio}</p>
+              <div class="team__tags">
+                {m.tags.map((t) => (
+                  <span class="team__tag">{t}</span>
+                ))}
+              </div>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .team { border-top: 1px solid var(--line); }
+  .team__head { max-width: 54rem; }
+  .team__title { font-size: var(--step-3); max-width: 16ch; }
+  .team__lede { margin-top: var(--space-m); }
+
+  .team__grid {
+    margin-top: var(--space-xl);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: clamp(1.25rem, 3vw, 2rem);
+  }
+  .team__card {
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color 0.35s ease, transform 0.45s var(--ease-out-quart);
+  }
+  .team__card:hover {
+    border-color: rgba(194, 163, 104, 0.5);
+    transform: translateY(-3px);
+  }
+  .team__photo {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    display: block;
+    filter: grayscale(1) sepia(0.25) hue-rotate(95deg) saturate(0.55) brightness(0.92);
+    transition: filter 0.5s ease;
+  }
+  .team__card:hover .team__photo,
+  .team__card:focus-within .team__photo {
+    filter: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .team__card, .team__photo { transition: none; }
+  }
+  .team__body { padding: 1.3rem 1.4rem 1.5rem; }
+  .team__name {
+    font-size: var(--step-1);
+    letter-spacing: -0.01em;
+  }
+  .team__role {
+    margin-top: 0.2rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--gold-text);
+  }
+  .team__bio {
+    margin-top: var(--space-s);
+    font-size: var(--step--1);
+    line-height: 1.6;
+    color: var(--body);
+  }
+  .team__tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: var(--space-s); }
+  .team__tag {
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    padding: 0.3em 0.75em;
+  }
+</style>

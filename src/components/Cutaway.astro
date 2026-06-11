@@ -1,0 +1,150 @@
+---
+// Hotel cross-section: distortion enters at the service entrance and climbs
+// the riser zone by zone as the section scrolls through the viewport.
+// Scroll drives a 0..1 progress var; each zone lights when the front passes it.
+const zones = [
+  { id: "z-svc", label: "Service entrance", y: 318 },
+  { id: "z-base", label: "Pumps & laundry", y: 282 },
+  { id: "z-elev", label: "Elevator shaft", y: 220 },
+  { id: "z-rooms", label: "Guest floors, PTAC", y: 150 },
+  { id: "z-roof", label: "Rooftop HVAC", y: 58 },
+];
+---
+
+<section class="cut" id="cutaway" aria-labelledby="cut-title">
+  <div class="container">
+    <div class="cut__head reveal">
+      <h2 class="cut__title" id="cut-title">Where it hides in your building.</h2>
+      <p class="cut__lede lede">
+        Distortion comes in at the service entrance with the power itself,
+        then climbs the riser into every load you own. Watch it travel.
+      </p>
+    </div>
+
+    <figure class="cut__fig reveal" style="--i: 1">
+      <svg
+        class="cut__svg"
+        viewBox="0 0 680 360"
+        role="img"
+        aria-label="Cross-section of a hotel: electrical distortion enters at the basement service entrance and spreads up through pumps, the elevator shaft, the guest floors, and the rooftop HVAC."
+      >
+        <!-- building shell -->
+        <rect class="cut__shell" x="200" y="40" width="300" height="290" rx="4"></rect>
+        <line class="cut__floorline" x1="200" y1="90" x2="500" y2="90"></line>
+        <line class="cut__floorline" x1="200" y1="130" x2="500" y2="130"></line>
+        <line class="cut__floorline" x1="200" y1="170" x2="500" y2="170"></line>
+        <line class="cut__floorline" x1="200" y1="210" x2="500" y2="210"></line>
+        <line class="cut__floorline" x1="200" y1="250" x2="500" y2="250"></line>
+        <!-- ground line -->
+        <line class="cut__ground" x1="120" y1="330" x2="580" y2="330"></line>
+        <!-- rooftop unit -->
+        <rect class="cut__shell" x="320" y="18" width="60" height="22" rx="3"></rect>
+        <!-- elevator shaft -->
+        <rect class="cut__shaft" x="440" y="90" width="36" height="240"></rect>
+        <line class="cut__floorline" x1="458" y1="90" x2="458" y2="330"></line>
+        <!-- windows: guest floors -->
+        <g class="cut__wins">
+          {[105, 145, 185, 225].map((y) =>
+            [222, 262, 302, 342, 382].map((x) => (
+              <rect x={x} y={y} width="22" height="12" rx="1.5"></rect>
+            ))
+          )}
+        </g>
+        <!-- grid feed + riser -->
+        <line class="cut__feed" x1="120" y1="318" x2="200" y2="318"></line>
+        <path class="cut__riser" id="cut-riser" d="M210 318 L210 52 L335 52 L335 40"></path>
+        <!-- zone markers -->
+        {
+          zones.map((z, i) => (
+            <g class="cut__zone" id={z.id} style={`--zi: ${i}`}>
+              <circle class="cut__zone-dot" cx="210" cy={z.y} r="6"></circle>
+              <text class="cut__zone-tag" x="190" y={z.y + 4} text-anchor="end">{z.label}</text>
+            </g>
+          ))
+        }
+        <text class="cut__tag" x="120" y="306">Grid</text>
+      </svg>
+    </figure>
+  </div>
+</section>
+
+<script is:inline>
+  (() => {
+    const sec = document.querySelector(".cut");
+    if (!sec) return;
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const zones = sec.querySelectorAll(".cut__zone");
+    const riser = document.getElementById("cut-riser");
+    if (reduce) {
+      zones.forEach((z) => z.classList.add("is-hot"));
+      sec.classList.add("is-traced");
+      return;
+    }
+    const len = (() => { try { return riser.getTotalLength(); } catch (e) { return 0; } })();
+    if (len > 0) {
+      riser.style.strokeDasharray = len;
+      riser.style.strokeDashoffset = len;
+    }
+    let ticking = false;
+    const update = () => {
+      const r = sec.getBoundingClientRect();
+      // 0 when section enters, 1 when its bottom nears mid-viewport
+      const p = Math.max(0, Math.min(1,
+        (innerHeight - r.top) / (r.height + innerHeight * 0.35)));
+      if (len > 0) riser.style.strokeDashoffset = (len * (1 - p)).toFixed(1);
+      zones.forEach((z, i) => {
+        z.classList.toggle("is-hot", p > (i + 0.6) / (zones.length + 0.6));
+      });
+      ticking = false;
+    };
+    addEventListener("scroll", () => {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }, { passive: true });
+    update();
+  })();
+</script>
+
+<style>
+  .cut {
+    padding-block: clamp(4rem, 9vw, var(--space-3xl));
+    border-top: 1px solid var(--line);
+    background:
+      radial-gradient(ellipse 55% 45% at 85% 100%, rgba(224, 90, 43, 0.04), transparent 70%),
+      var(--bg);
+  }
+  .cut__head { max-width: 54rem; }
+  .cut__title { font-size: var(--step-3); max-width: 18ch; }
+  .cut__lede { margin-top: var(--space-m); }
+  .cut__fig { margin: var(--space-xl) 0 0; }
+  .cut__svg { width: 100%; max-width: 760px; height: auto; display: block; margin-inline: auto; }
+
+  .cut__shell { fill: rgba(255, 255, 255, 0.02); stroke: var(--line-strong); stroke-width: 1.5; }
+  .cut__floorline { stroke: var(--line); stroke-width: 1; }
+  .cut__ground { stroke: var(--line-strong); stroke-width: 1.5; stroke-dasharray: 5 6; }
+  .cut__shaft { fill: rgba(226, 216, 196, 0.04); stroke: var(--line); stroke-width: 1; }
+  .cut__wins rect { fill: rgba(226, 216, 196, 0.07); stroke: var(--line); stroke-width: 0.6; }
+  .cut__feed { stroke: #e05a2b; stroke-width: 2; filter: drop-shadow(0 0 4px rgba(224, 90, 43, 0.45)); }
+  .cut__riser {
+    fill: none; stroke: #e05a2b; stroke-width: 2.2;
+    filter: drop-shadow(0 0 5px rgba(224, 90, 43, 0.5));
+  }
+  .cut__tag, .cut__zone-tag {
+    font-family: var(--font-mono); font-size: 11px; fill: var(--muted);
+  }
+  .cut__zone-dot {
+    fill: rgba(224, 90, 43, 0.12); stroke: #e05a2b; stroke-width: 1.4;
+    opacity: 0.25; transition: opacity 0.45s ease;
+  }
+  .cut__zone.is-hot .cut__zone-dot {
+    opacity: 1; filter: drop-shadow(0 0 6px rgba(224, 90, 43, 0.65));
+  }
+  .cut__zone.is-hot .cut__zone-tag { fill: #e05a2b; }
+  .cut__zone-tag { transition: fill 0.45s ease; }
+  @media (prefers-reduced-motion: no-preference) {
+    .cut__zone.is-hot .cut__zone-dot { animation: cutPulse 1.6s ease-in-out infinite; }
+    @keyframes cutPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.55; }
+    }
+  }
+</style>

@@ -122,6 +122,10 @@ const cleanD = wave(false);
           <g class="hz__meter" transform="translate(80,236)">
             <text class="hz__meter-label" x="0" y="0">Power factor</text>
             <text class="hz__meter-val" id="hz-pf" x="0" y="34">0.82</text>
+            <g class="hz__stamp">
+              <rect x="78" y="10" width="84" height="26" rx="3"></rect>
+              <text x="120" y="28" text-anchor="middle">VERIFIED</text>
+            </g>
           </g>
         </svg>
       </figure>
@@ -186,6 +190,7 @@ const cleanD = wave(false);
       sec.classList.toggle("is-clean", clean);
       sec.classList.toggle("is-cool", cool);
       pf.classList.toggle("is-good", engage > 0.95);
+      sec.classList.toggle("is-stamped", engage > 0.95);
       if (tag) tag.textContent = cool ? "60 Hz, corrected" : "distorted";
       if (prog) prog.style.transform = "scaleX(" + p.toFixed(3) + ")";
 
@@ -197,7 +202,7 @@ const cleanD = wave(false);
     };
 
     if (reduce) {
-      sec.classList.add("is-static", "is-clean", "is-cool");
+      sec.classList.add("is-static", "is-clean", "is-cool", "is-stamped");
       box.setAttribute("transform", "translate(0,0)");
       box.style.opacity = "1";
       rectDL.setAttribute("width", (BOX_L - 80).toFixed(1));
@@ -407,6 +412,33 @@ const cleanD = wave(false);
   }
   .hz__meter-val.is-good {
     fill: var(--mint);
+  }
+
+  /* inspector's stamp: presses in once the floor is verified */
+  .hz__stamp {
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    transform: scale(1.6) rotate(-7deg);
+    transition: opacity 0.35s ease, transform 0.45s var(--ease-out-quart);
+  }
+  .hz.is-stamped .hz__stamp {
+    opacity: 1;
+    transform: scale(1) rotate(-4deg);
+  }
+  .hz__stamp rect {
+    fill: rgba(91, 194, 162, 0.08);
+    stroke: var(--mint);
+    stroke-width: 1.4;
+  }
+  .hz__stamp text {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    fill: var(--mint);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hz__stamp { transition: none; }
   }
 
   .hz__progress {
