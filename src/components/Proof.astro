@@ -1,23 +1,47 @@
 ---
-// PLACEHOLDER CASE STUDIES — Act Five is load-bearing. Replace each with a
-// verified install: property type & size, what the diagnosis found, the action,
-// and the verified result against a metered baseline. Flag pending numbers.
+// Verified Tune case studies (from the published one-pagers). One canonical
+// card format; 3 visible on desktop, 1 on mobile; infinite carousel.
+// Figures shown floor-first, units always labeled (kWh vs kW matters).
 const cases = [
   {
-    type: "Limited-service hotel",
-    rooms: "[X] rooms",
-    region: "[region]",
-    finding: "[finding]",
-    action: "[action]",
-    result: "[result]",
+    segment: "Hospitality · Marietta, GA",
+    name: "Hilton Garden Inn, Atlanta",
+    figure: "13.51%",
+    unit: "kWh reduction at the meter, 12 months",
+    scope: "123 rooms · 11 devices across 28 panels",
+    verifier: "Verified by ABRAXAS",
   },
   {
-    type: "Full-service property",
-    rooms: "[X] rooms",
-    region: "[region]",
-    finding: "[finding]",
-    action: "[action]",
-    result: "[result]",
+    segment: "Hotel & Resort · Orange Beach, AL",
+    name: "Caribe Resort",
+    figure: "14%+",
+    unit: "kWh reduction, monthly average over 12 months",
+    scope: "3 buildings · paid for itself in the first year",
+    verifier: "Verified by CHI Energy",
+  },
+  {
+    segment: "Hospitality · Las Vegas, NV",
+    name: "Southpoint Hotel & Casino",
+    figure: "8.59%",
+    unit: "kW demand reduction, metered panels",
+    scope: "arena lighting + receptacle panels, 45-day baseline",
+    verifier: "Third-party meter data",
+  },
+  {
+    segment: "Office + Warehouse · Atlanta, GA",
+    name: "Corey Center",
+    figure: "14.8%",
+    unit: "kWh reduction, four-year average",
+    scope: "35,000 sq ft · 8 devices, one per panel",
+    verifier: "Verified by Noesis",
+  },
+  {
+    segment: "Office · Birmingham, AL",
+    name: "The Massey Building",
+    figure: "9–19%",
+    unit: "kWh reduction, metered floor by floor",
+    scope: "10 floors · 10 devices, one per floor",
+    verifier: "Metered impact evaluation",
   },
 ];
 ---
@@ -29,9 +53,8 @@ const cases = [
         Proof, not promises.
       </h2>
       <p class="proof__lede lede">
-        Until these are filled with real installs, the diagnosis stands on the
-        Salt River and national-lab record above. The page is materially
-        stronger once a verified hotel result sits here.
+        The scene above isn't hypothetical. Here is the distortion lever,
+        measured in the field by independent analysts, floor numbers first.
       </p>
     </div>
 
@@ -48,46 +71,70 @@ const cases = [
       </p>
     </div>
 
-    <div class="proof__grid">
-      {
-        cases.map((c, i) => (
-          <article class="case ph reveal" style={`--i: ${i}`}>
-            <header class="case__head">
-              <h3 class="case__type">{c.type}</h3>
-              <p class="case__meta">
-                {c.rooms} &middot; {c.region}
-              </p>
-            </header>
-            <dl class="case__body">
-              <div>
-                <dt>The diagnosis found</dt>
-                <dd>{c.finding}</dd>
-              </div>
-              <div>
-                <dt>What we did</dt>
-                <dd>{c.action}</dd>
-              </div>
-              <div class="case__result">
-                <dt>Verified reduction at the meter</dt>
-                <dd>
-                  {c.result}
-                  <span class="case__norm">
-                    normalized for occupancy and weather
-                  </span>
-                </dd>
-              </div>
-            </dl>
-          </article>
-        ))
-      }
+    <div class="proof__carousel reveal" style="--i: 1">
+      <button class="proof__arrow" id="proof-prev" type="button" aria-label="Previous case study">&larr;</button>
+      <div class="proof__viewport" id="proof-viewport">
+        <div class="proof__track" id="proof-track">
+          {
+            cases.map((c) => (
+              <article class="case">
+                <p class="case__segment">{c.segment}</p>
+                <h3 class="case__name">{c.name}</h3>
+                <p class="case__figure">{c.figure}</p>
+                <p class="case__unit">{c.unit}</p>
+                <p class="case__scope">{c.scope}</p>
+                <p class="case__verifier">{c.verifier}</p>
+                <p class="case__chip">Tune&reg; · one technology in our stack</p>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+      <button class="proof__arrow" id="proof-next" type="button" aria-label="Next case study">&rarr;</button>
     </div>
-
-    <p class="proof__flag reveal" role="note">
-      Placeholder case studies. Replace with verified property data before
-      publishing.
-    </p>
   </div>
 </section>
+
+<script is:inline>
+  (() => {
+    const track = document.getElementById("proof-track");
+    if (!track) return;
+    const viewport = document.getElementById("proof-viewport");
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const originals = Array.from(track.children);
+    const n = originals.length;
+    // clone both ends so the loop is seamless
+    originals.forEach((c) => track.appendChild(c.cloneNode(true)));
+    originals.forEach((c) => track.insertBefore(c.cloneNode(true), track.firstChild));
+    let idx = n; // start on the first real card
+    let animating = false;
+
+    const cardStep = () => track.children[0].getBoundingClientRect().width +
+      parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap || 0);
+
+    const go = (target, instant) => {
+      track.style.transition = instant || reduce ? "none" : "transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)";
+      track.style.transform = "translateX(" + (-target * cardStep()).toFixed(1) + "px)";
+    };
+
+    const step = (dir) => {
+      if (animating) return;
+      animating = true;
+      idx += dir;
+      go(idx, false);
+      setTimeout(() => {
+        if (idx >= n * 2) { idx -= n; go(idx, true); }
+        if (idx < n) { idx += n; go(idx, true); }
+        animating = false;
+      }, reduce ? 30 : 520);
+    };
+
+    document.getElementById("proof-prev").addEventListener("click", () => step(-1));
+    document.getElementById("proof-next").addEventListener("click", () => step(1));
+    addEventListener("resize", () => go(idx, true), { passive: true });
+    go(idx, true);
+  })();
+</script>
 
 <style>
   .proof {
@@ -124,69 +171,114 @@ const cases = [
     font-weight: 600;
   }
 
-  .proof__grid {
+  .proof__carousel {
     margin-top: var(--space-xl);
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: clamp(1.25rem, 3vw, 2rem);
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: clamp(0.6rem, 2vw, 1.25rem);
+  }
+  .proof__viewport {
+    overflow: hidden;
+  }
+  .proof__track {
+    display: flex;
+    gap: clamp(1rem, 2.5vw, 1.5rem);
+    will-change: transform;
   }
   .case {
-    padding: clamp(1.5rem, 3vw, 2.25rem);
+    flex: 0 0 calc((100% - 2 * clamp(1rem, 2.5vw, 1.5rem)) / 3);
+    padding: clamp(1.25rem, 3vw, 1.75rem);
     background: var(--surface);
     border: 1px solid var(--line-strong);
     border-radius: var(--radius);
+    display: flex;
+    flex-direction: column;
   }
-  .case__type {
-    font-size: var(--step-2);
-    color: var(--ink);
+  @media (max-width: 980px) {
+    .case {
+      flex-basis: calc((100% - clamp(1rem, 2.5vw, 1.5rem)) / 2);
+    }
   }
-  .case__meta {
-    margin-top: 0.3rem;
-    font-family: var(--font-mono);
-    font-size: var(--step--1);
-    color: var(--muted);
-  }
-  .case__body {
-    margin: var(--space-l) 0 0;
-    display: grid;
-    gap: var(--space-m);
-  }
-  .case__body dt {
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 0.3rem;
-  }
-  .case__body dd {
-    margin: 0;
-    color: var(--body);
-    font-size: var(--step-0);
-    line-height: 1.5;
-  }
-  .case__result {
-    padding-top: var(--space-m);
-    border-top: 1px solid var(--line);
-  }
-  .case__result dd {
-    font-family: var(--font-serif);
-    font-size: var(--step-2);
-    color: var(--gold-text);
-  }
-  .case__norm {
-    display: block;
-    margin-top: 0.3rem;
-    font-family: var(--font-sans);
-    font-size: var(--step--1);
-    color: var(--muted);
+  @media (max-width: 640px) {
+    .case {
+      flex-basis: 100%;
+    }
   }
 
-  .proof__flag {
-    margin-top: var(--space-l);
+  .case__segment {
     font-family: var(--font-mono);
-    font-size: var(--step--1);
+    font-size: 0.68rem;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .case__name {
+    margin-top: 0.5rem;
+    font-size: var(--step-1);
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .case__figure {
+    margin-top: var(--space-m);
+    font-family: var(--font-serif);
+    font-size: clamp(2.4rem, 4.5vw, 3.2rem);
+    line-height: 1;
     color: var(--gold-text);
-    opacity: 0.8;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .case__unit {
+    margin-top: 0.35rem;
+    font-size: var(--step--1);
+    color: var(--body);
+  }
+  .case__scope {
+    margin-top: var(--space-s);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .case__verifier {
+    margin-top: var(--space-m);
+    padding-top: var(--space-s);
+    border-top: 1px solid var(--line);
+    font-size: var(--step--1);
+    font-weight: 600;
+    color: var(--mint);
+  }
+  .case__chip {
+    margin-top: var(--space-s);
+    align-self: flex-start;
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    padding: 0.32em 0.8em;
+  }
+
+  .proof__arrow {
+    appearance: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    background: transparent;
+    color: var(--gold-text);
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: border-color 0.25s ease, background 0.25s ease, transform 0.3s var(--ease-out-quart);
+  }
+  .proof__arrow:hover {
+    border-color: var(--gold);
+    background: rgba(194, 163, 104, 0.1);
+    transform: translateY(-1px);
+  }
+  .proof__arrow:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
   }
 </style>

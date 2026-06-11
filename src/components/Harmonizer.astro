@@ -155,6 +155,7 @@ const ptacs = [244, 204, 164];
             <text class="hz__dev-label" x="668" y="88">Elevator motor</text>
             <line class="hz__leader" x1="608" y1="210" x2="664" y2="210"></line>
             <text class="hz__dev-label" x="668" y="214">PTAC fleet</text>
+            <text class="hz__defer" x="668" y="228">replacement deferred</text>
             <line class="hz__leader" x1="610" y1="312" x2="664" y2="312"></line>
             <text class="hz__dev-label" x="668" y="310">Pool &amp; spa pumps,</text>
             <text class="hz__dev-label" x="668" y="322">laundry drives</text>
@@ -169,13 +170,18 @@ const ptacs = [244, 204, 164];
             <text class="hz__box-label" x="372" y="314" text-anchor="middle">Harmonizer</text>
           </g>
 
-          <g class="hz__meter" transform="translate(80,110)">
-            <text class="hz__meter-label" x="0" y="0">Power factor</text>
-            <text class="hz__meter-val" id="hz-pf" x="0" y="34">0.82</text>
+          <g class="hz__meter" transform="translate(80,52)">
+            <text class="hz__meter-label" x="0" y="0">What the utility bills</text>
+            <text class="hz__bill-lbl" x="0" y="26">Demand (kW)</text>
+            <text class="hz__bill-val" id="hz-kw" x="0" y="50">66.0</text>
+            <text class="hz__bill-lbl" x="0" y="78">Power factor</text>
+            <text class="hz__bill-val" id="hz-pf" x="0" y="102">0.82</text>
             <g class="hz__stamp">
-              <rect x="78" y="10" width="84" height="26" rx="3"></rect>
-              <text x="120" y="28" text-anchor="middle">VERIFIED</text>
+              <rect x="78" y="80" width="84" height="26" rx="3"></rect>
+              <text x="120" y="98" text-anchor="middle">VERIFIED</text>
             </g>
+            <text class="hz__bill-lbl" x="0" y="130">Maintenance calls</text>
+            <text class="hz__bill-val" id="hz-mx" x="0" y="154">5 a day</text>
           </g>
         </svg>
       </figure>
@@ -269,6 +275,16 @@ const ptacs = [244, 204, 164];
       kwh.textContent = fmtK(KWH_HI - (KWH_HI - KWH_LO) * climb);
       kwh.classList.toggle("is-good", climb > 0.6);
 
+      // the bill, left side: demand falls (Southpoint metered numbers),
+      // maintenance calls fall with the heal (underwriter-backed claim)
+      const kw = $("hz-kw");
+      const mx = $("hz-mx");
+      kw.textContent = (66.0 - 6.1 * climb).toFixed(1);
+      kw.classList.toggle("is-good", climb > 0.6);
+      mx.textContent = Math.round(5 - 4 * climb) + " a day";
+      mx.classList.toggle("is-good", climb > 0.6);
+      sec.classList.toggle("is-deferred", p > 0.66);
+
       const pfVal = 0.82 + (Math.round(climb * 5) / 5) * 0.15;
       pf.textContent = pfVal.toFixed(2);
       pf.classList.toggle("is-good", p > 0.72);
@@ -295,6 +311,10 @@ const ptacs = [244, 204, 164];
       pf.classList.add("is-good");
       kwh.textContent = fmtK(KWH_LO);
       kwh.classList.add("is-good");
+      const kwS = $("hz-kw"), mxS = $("hz-mx");
+      kwS.textContent = "59.9"; kwS.classList.add("is-good");
+      mxS.textContent = "1 a day"; mxS.classList.add("is-good");
+      sec.classList.add("is-deferred");
       caption.textContent = captions[3];
       return;
     }
@@ -476,11 +496,23 @@ const ptacs = [244, 204, 164];
     font-family: var(--font-mono); font-size: 11px;
     letter-spacing: 0.08em; text-transform: uppercase; fill: var(--muted);
   }
-  .hz__meter-val {
-    font-family: var(--font-serif); font-size: 30px;
-    fill: #e05a2b; transition: fill 0.5s ease;
+  .hz__bill-lbl {
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.06em; text-transform: uppercase; fill: var(--muted);
   }
-  .hz__meter-val.is-good { fill: var(--mint); }
+  .hz__bill-val {
+    font-family: var(--font-serif); font-size: 22px;
+    fill: #e05a2b; transition: fill 0.5s ease;
+    font-variant-numeric: tabular-nums;
+  }
+  .hz__bill-val.is-good { fill: var(--mint); }
+
+  .hz__defer {
+    font-family: var(--font-mono); font-size: 9px;
+    letter-spacing: 0.04em; fill: var(--gold-text);
+    opacity: 0; transition: opacity 0.6s ease;
+  }
+  .hz.is-deferred .hz__defer { opacity: 1; }
 
   .hz__stamp {
     opacity: 0; transform-box: fill-box; transform-origin: center;
