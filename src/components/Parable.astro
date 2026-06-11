@@ -1,0 +1,230 @@
+---
+// "You don't give insulin to someone who isn't diabetic." The parable of the
+// prescription without the exam, illustrated as a tale of two buildings: the
+// same box installed in both, a big result in one, nothing in the other.
+const wins = [0, 1, 2];
+const winRows = [60, 96, 132];
+function bldWins(x0: number) {
+  const out: { x: number; y: number }[] = [];
+  for (const ry of winRows) for (const c of wins) out.push({ x: x0 + 18 + c * 36, y: ry });
+  return out;
+}
+const bldA = bldWins(80);
+const bldB = bldWins(420);
+---
+
+<section class="section par" id="parable" aria-labelledby="par-title">
+  <div class="container">
+    <div class="par__head reveal">
+      <h2 class="par__title" id="par-title">
+        You don't give insulin to someone who isn't diabetic.
+      </h2>
+      <p class="par__body">
+        Yet that's how energy efficiency is sold: a prescription, without the
+        exam. The vendor arrives with the one medicine they carry, the box
+        that worked on somebody else's building. They didn't lie to you. They
+        just never diagnosed whether it was the right medicine for yours.
+      </p>
+      <p class="par__body">
+        We sit on your side of the table instead. We purchase on your behalf,
+        direct from HVAC manufacturers and retrofit makers, and our engineers
+        custom-modify equipment so it works the way your building actually
+        needs. We prescribe only after the exam.
+      </p>
+      <p class="par__bet reveal">
+        If someone shows us a solution we don't have access to, we'll pay them
+        a finder's fee.
+      </p>
+    </div>
+
+    <figure class="par__fig reveal" id="par-fig" style="--i: 1">
+      <svg
+        class="par__svg"
+        viewBox="0 0 680 300"
+        role="img"
+        aria-label="Two identical buildings receive the same energy-savings box. One building's bill falls 14 percent and its windows warm; the other shows no change. Same box, different buildings; the difference was the missing exam."
+      >
+        <line class="par__ground" x1="40" y1="218" x2="640" y2="218"></line>
+
+        <!-- building A -->
+        <g class="par__bld">
+          <rect class="par__shell" x="80" y="40" width="140" height="178" rx="3"></rect>
+          {bldA.map((w) => (
+            <rect class="par__win par__win--a" x={w.x} y={w.y} width="22" height="14" rx="1.5"></rect>
+          ))}
+          <rect class="par__panel" x="142" y="190" width="16" height="20"></rect>
+          <g class="par__box" id="par-box-a">
+            <rect class="par__box-body" x="106" y="176" width="26" height="22" rx="3"></rect>
+            <line class="par__box-line" x1="111" y1="184" x2="127" y2="184"></line>
+            <line class="par__box-line" x1="111" y1="190" x2="127" y2="190"></line>
+          </g>
+        </g>
+        <text class="par__meter par__meter--a" id="par-meter-a" x="150" y="252" text-anchor="middle">0%</text>
+        <text class="par__tag" x="150" y="272" text-anchor="middle">right building for it</text>
+
+        <!-- building B -->
+        <g class="par__bld">
+          <rect class="par__shell" x="420" y="40" width="140" height="178" rx="3"></rect>
+          {bldB.map((w) => (
+            <rect class="par__win" x={w.x} y={w.y} width="22" height="14" rx="1.5"></rect>
+          ))}
+          <rect class="par__panel" x="482" y="190" width="16" height="20"></rect>
+          <g class="par__box" id="par-box-b">
+            <rect class="par__box-body" x="446" y="176" width="26" height="22" rx="3"></rect>
+            <line class="par__box-line" x1="451" y1="184" x2="467" y2="184"></line>
+            <line class="par__box-line" x1="451" y1="190" x2="467" y2="190"></line>
+          </g>
+        </g>
+        <text class="par__meter" id="par-meter-b" x="490" y="252" text-anchor="middle">&nbsp;</text>
+        <text class="par__tag" x="490" y="272" text-anchor="middle">wrong patient</text>
+
+        <text class="par__same" x="340" y="296" text-anchor="middle">the same box, installed the same way</text>
+      </svg>
+      <figcaption class="par__closer">
+        Same box, different buildings. The difference was never the medicine.
+        It was the missing exam.
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<script is:inline>
+  (() => {
+    const fig = document.getElementById("par-fig");
+    if (!fig) return;
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const meterA = document.getElementById("par-meter-a");
+    const meterB = document.getElementById("par-meter-b");
+
+    const finish = (animate) => {
+      fig.classList.add("is-installed");
+      const settle = () => {
+        fig.classList.add("is-resolved");
+        meterB.textContent = "no change";
+        if (!animate) {
+          meterA.textContent = "-14%";
+          return;
+        }
+        const t0 = performance.now();
+        const dur = 1100;
+        meterA.textContent = "-14%";
+        const tick = (now) => {
+          const p = Math.min((now - t0) / dur, 1);
+          const e = 1 - Math.pow(1 - p, 4);
+          meterA.textContent = "-" + Math.round(14 * e) + "%";
+          if (p < 1) requestAnimationFrame(tick);
+          else meterA.textContent = "-14%";
+        };
+        requestAnimationFrame(tick);
+      };
+      if (animate) setTimeout(settle, 700);
+      else settle();
+    };
+
+    if (reduce || !("IntersectionObserver" in window)) {
+      finish(false);
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            io.disconnect();
+            finish(true);
+          }
+        }
+      },
+      { threshold: 0.5 },
+    );
+    io.observe(fig);
+  })();
+</script>
+
+<style>
+  .par {
+    border-top: 1px solid var(--line);
+    background:
+      radial-gradient(ellipse 55% 45% at 90% 0%, rgba(194, 163, 104, 0.05), transparent 70%),
+      var(--bg);
+  }
+  .par__head { max-width: 56rem; }
+  .par__title { font-size: var(--step-3); max-width: 24ch; }
+  .par__body {
+    margin-top: var(--space-m);
+    font-size: var(--step-1);
+    line-height: 1.55;
+    color: var(--body);
+    max-width: 60ch;
+  }
+  .par__bet {
+    margin-top: var(--space-l);
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: var(--step-1);
+    color: var(--gold-text);
+    max-width: 48ch;
+  }
+
+  .par__fig { margin: var(--space-xl) 0 0; }
+  .par__svg { width: 100%; max-width: 720px; height: auto; display: block; margin-inline: auto; }
+
+  .par__ground { stroke: var(--line-strong); stroke-width: 1.5; stroke-dasharray: 5 6; }
+  .par__shell { fill: rgba(255, 255, 255, 0.02); stroke: var(--line-strong); stroke-width: 1.5; }
+  .par__win {
+    fill: rgba(226, 216, 196, 0.07);
+    stroke: var(--line);
+    stroke-width: 0.6;
+    transition: fill 0.7s ease, stroke 0.7s ease;
+  }
+  .par__fig.is-resolved .par__win--a {
+    fill: rgba(216, 190, 134, 0.5);
+    stroke: var(--gold-text);
+  }
+  .par__panel { fill: rgba(226, 216, 196, 0.08); stroke: var(--line); stroke-width: 1; }
+
+  .par__box {
+    opacity: 0;
+    transform: translateY(-46px);
+    transition: transform 0.6s var(--ease-out-quart), opacity 0.4s ease;
+  }
+  .par__fig.is-installed .par__box {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .par__box-body { fill: var(--surface-2); stroke: var(--gold); stroke-width: 1.4; }
+  .par__box-line { stroke: var(--gold-text); stroke-width: 1.2; }
+
+  .par__meter {
+    font-family: var(--font-serif);
+    font-size: 26px;
+    fill: var(--muted);
+    font-variant-numeric: tabular-nums;
+    transition: fill 0.5s ease;
+  }
+  .par__fig.is-resolved .par__meter--a { fill: var(--mint); }
+  .par__tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    fill: var(--muted);
+  }
+  .par__same {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.05em;
+    fill: var(--muted);
+    opacity: 0.8;
+  }
+
+  .par__closer {
+    margin-top: var(--space-l);
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: var(--step-1);
+    color: var(--ink);
+    max-width: 50ch;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .par__box { transition: none; opacity: 1; transform: none; }
+  }
+</style>
