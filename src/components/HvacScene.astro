@@ -1,0 +1,314 @@
+---
+// "Act Two: the second lever." Same building as the healing scene, already
+// healed (windows warm, mint shell, meter at 9,000). HVAC is the biggest
+// load and it's on a timer: service-life bars appear on the rooftop unit
+// and PTAC fleet. The fork plays out: PTACs (runway left) get optimized,
+// their draw shrinks and life extends; the rooftop unit (end of life) is
+// swapped on our schedule, calmly, in gold. The meter falls a second time:
+// 9,000 -> 8,300, the spec's cooling floor applied to the cooling pool.
+const winRows = [270, 230, 190, 150, 110];
+const winCols = [436, 468, 500, 532, 564];
+const ptacs = [244, 204, 164];
+---
+
+<section class="h2x" aria-labelledby="h2x-title">
+  <div class="h2x__sticky">
+    <div class="container h2x__inner">
+      <div class="h2x__head">
+        <h2 class="h2x__title" id="h2x-title">
+          The biggest load in the building is on a timer.
+        </h2>
+        <p class="h2x__caption" id="h2x-caption" aria-live="polite">
+          The power is clean now. But HVAC is still the largest load you own,
+          and every unit is aging toward a failure date it picks, not you.
+        </p>
+      </div>
+
+      <figure class="h2x__figure">
+        <svg
+          class="h2x__svg"
+          viewBox="0 0 760 360"
+          role="img"
+          aria-label="The healed hotel cross-section. Service-life bars appear on the rooftop HVAC unit, nearly depleted, and the PTAC fleet, half depleted. The PTAC fleet is optimized: its power draw shrinks and its life bar extends. The worn rooftop unit is replaced on schedule with a right-sized unit, and the kilowatt-hour meter falls a second time, from 9,000 to 8,300."
+        >
+          <line class="h2x__ground" x1="80" y1="330" x2="752" y2="330"></line>
+
+          <!-- left: the second meter drop -->
+          <g class="h2x__meterblk" transform="translate(80,72)">
+            <text class="h2x__lbl" x="0" y="0">kWh meter, after lever one</text>
+            <text class="h2x__kwh" id="h2x-kwh" x="0" y="38">9,000</text>
+            <text class="h2x__lbl" x="0" y="74">Lever two</text>
+            <text class="h2x__lever" id="h2x-lever" x="0" y="96">waiting</text>
+          </g>
+
+          <!-- the healed building -->
+          <g class="h2x__bld">
+            <rect class="h2x__shell" x="420" y="40" width="240" height="290" rx="3"></rect>
+            {[100, 140, 180, 220, 260, 300].map((y) => (
+              <line class="h2x__floor" x1="420" y1={y} x2="660" y2={y}></line>
+            ))}
+            <rect class="h2x__shaft" x="614" y="100" width="36" height="230"></rect>
+            {winRows.map((y) => (
+              <g class="h2x__winrow">
+                {winCols.map((x) => (
+                  <rect class="h2x__win" x={x} y={y} width="20" height="12" rx="1.5"></rect>
+                ))}
+              </g>
+            ))}
+
+            <!-- rooftop unit: old (worn) and new (gold) -->
+            <g class="h2x__rtu-old" id="h2x-rtu-old">
+              <rect class="h2x__unit" x="510" y="20" width="56" height="20" rx="3"></rect>
+              <circle class="h2x__unit" cx="527" cy="30" r="6"></circle>
+              <path class="h2x__unit" d="M527 30 l4 -4"></path>
+              <line class="h2x__unit" x1="544" y1="25" x2="558" y2="25"></line>
+              <line class="h2x__unit" x1="544" y1="31" x2="558" y2="31"></line>
+            </g>
+            <g class="h2x__rtu-new" id="h2x-rtu-new">
+              <rect class="h2x__unit" x="510" y="20" width="56" height="20" rx="3"></rect>
+              <circle class="h2x__unit" cx="527" cy="30" r="6"></circle>
+              <path class="h2x__unit" d="M527 30 l4 -4"></path>
+              <line class="h2x__unit" x1="544" y1="25" x2="558" y2="25"></line>
+              <line class="h2x__unit" x1="544" y1="31" x2="558" y2="31"></line>
+            </g>
+
+            <!-- PTAC fleet with draw bars -->
+            {ptacs.map((y, i) => (
+              <g class="h2x__ptac" id={`h2x-ptac${i}`}>
+                <rect class="h2x__unit" x="584" y={y} width="22" height="12" rx="2"></rect>
+                <line class="h2x__unit" x1="588" y1={y + 4} x2="598" y2={y + 4}></line>
+                <circle class="h2x__unit" cx="601" cy={y + 8} r="2.4"></circle>
+                <rect class="h2x__drawtrack" x="552" y={y + 3} width="26" height="6" rx="2"></rect>
+                <rect class="h2x__drawfill" id={`h2x-draw${i}`} x="552" y={y + 3} width="22" height="6" rx="2"></rect>
+              </g>
+            ))}
+          </g>
+
+          <!-- right column: labels + service-life bars + tags -->
+          <g class="h2x__labels">
+            <line class="h2x__leader" x1="568" y1="30" x2="664" y2="30"></line>
+            <text class="h2x__lbl" x="668" y="26">Rooftop unit</text>
+            <g class="h2x__lifebar" id="h2x-life-rtu">
+              <rect class="h2x__lifetrack" x="668" y="32" width="50" height="5" rx="2"></rect>
+              <rect class="h2x__lifefill h2x__lifefill--low" id="h2x-lifefill-rtu" x="668" y="32" width="5" height="5" rx="2"></rect>
+            </g>
+            <text class="h2x__tag" id="h2x-tag-rtu" x="668" y="50">strategic upgrade · your schedule</text>
+
+            <line class="h2x__leader" x1="608" y1="210" x2="664" y2="210"></line>
+            <text class="h2x__lbl" x="668" y="206">PTAC fleet</text>
+            <g class="h2x__lifebar" id="h2x-life-ptac">
+              <rect class="h2x__lifetrack" x="668" y="212" width="50" height="5" rx="2"></rect>
+              <rect class="h2x__lifefill h2x__lifefill--mid" id="h2x-lifefill-ptac" x="668" y="212" width="25" height="5" rx="2"></rect>
+            </g>
+            <text class="h2x__tag" id="h2x-tag-ptac" x="668" y="230">optimized · no capital event</text>
+          </g>
+        </svg>
+      </figure>
+
+      <div class="h2x__progress" aria-hidden="true">
+        <span class="h2x__progress-fill" id="h2x-progress"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  (() => {
+    const sec = document.querySelector(".h2x");
+    if (!sec) return;
+    const $ = (id) => document.getElementById(id);
+    const caption = $("h2x-caption");
+    const kwh = $("h2x-kwh");
+    const lever = $("h2x-lever");
+    const prog = $("h2x-progress");
+    const drawF = [0, 1, 2].map((i) => $("h2x-draw" + i));
+    const lifePtac = $("h2x-lifefill-ptac");
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const KWH_HI = 9000, KWH_LO = 8300;
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+    const smooth = (p, a, b) => {
+      const t = clamp((p - a) / (b - a), 0, 1);
+      return t * t * (3 - 2 * t);
+    };
+    const fmtK = (n) => Math.round(n).toLocaleString("en-US");
+
+    const captions = [
+      "The power is clean now. But HVAC is still the largest load you own, and every unit is aging toward a failure date it picks, not you. Usually a Friday in July, with a full house.",
+      "The PTAC fleet has runway left, so we optimize it: clean power, tuned controls, maximum savings from the equipment you already own. No capital event.",
+      "The rooftop unit is near the end, so we replace it on your schedule: right-sized for your building, in shoulder season, at planned cost. The crisis purchase never happens.",
+      "Lever two, same meter. The biggest load in the building is now also on your terms.",
+    ];
+    let lastPhase = -1;
+
+    const apply = (p) => {
+      const establish = smooth(p, 0, 0.16);
+      const optimize = smooth(p, 0.2, 0.42);
+      const swap = smooth(p, 0.46, 0.7);
+      const fall = smooth(p, 0.72, 0.86);
+
+      sec.classList.toggle("is-aware", p > 0.04);
+      // PTAC optimize: draw bars shrink, life bar extends
+      drawF.forEach((el) => el.setAttribute("width", (22 - 12 * optimize).toFixed(1)));
+      lifePtac.setAttribute("width", (25 + 18 * optimize).toFixed(1));
+      sec.classList.toggle("is-optimized", optimize > 0.85);
+      // rooftop swap: old lifts and fades, gold settles from above
+      sec.classList.toggle("is-swapping", swap > 0.02);
+      $("h2x-rtu-old").style.transform = "translateY(" + (-34 * swap).toFixed(1) + "px)";
+      $("h2x-rtu-old").style.opacity = (1 - swap).toFixed(2);
+      $("h2x-rtu-new").style.transform = "translateY(" + (-34 * (1 - swap)).toFixed(1) + "px)";
+      $("h2x-rtu-new").style.opacity = swap.toFixed(2);
+      sec.classList.toggle("is-swapped", swap > 0.95);
+      // the second drop
+      kwh.textContent = fmtK(KWH_HI - (KWH_HI - KWH_LO) * fall);
+      kwh.classList.toggle("is-better", fall > 0.5);
+      lever.textContent = p < 0.2 ? "waiting" : p < 0.72 ? "engaging" : "engaged";
+      lever.classList.toggle("is-better", p > 0.72);
+      if (prog) prog.style.transform = "scaleX(" + p.toFixed(3) + ")";
+
+      const phase = p < 0.2 ? 0 : p < 0.46 ? 1 : p < 0.72 ? 2 : 3;
+      if (phase !== lastPhase && caption) {
+        caption.textContent = captions[phase];
+        lastPhase = phase;
+      }
+    };
+
+    if (reduce) {
+      sec.classList.add("is-static", "is-aware", "is-optimized", "is-swapping", "is-swapped");
+      drawF.forEach((el) => el.setAttribute("width", "10"));
+      lifePtac.setAttribute("width", "43");
+      $("h2x-rtu-old").style.opacity = "0";
+      $("h2x-rtu-new").style.opacity = "1";
+      $("h2x-rtu-new").style.transform = "none";
+      kwh.textContent = fmtK(KWH_LO);
+      kwh.classList.add("is-better");
+      lever.textContent = "engaged";
+      lever.classList.add("is-better");
+      caption.textContent = captions[3];
+      return;
+    }
+
+    let ticking = false;
+    const onScroll = () => {
+      const total = sec.offsetHeight - window.innerHeight;
+      const p = clamp(-sec.getBoundingClientRect().top / total, 0, 1);
+      apply(p);
+      ticking = false;
+    };
+    addEventListener("scroll", () => {
+      if (!ticking) { ticking = true; requestAnimationFrame(onScroll); }
+    }, { passive: true });
+    addEventListener("resize", onScroll, { passive: true });
+    apply(0);
+  })();
+</script>
+
+<style>
+  .h2x { position: relative; height: 260vh; border-top: 1px solid var(--line); }
+  .h2x__sticky {
+    position: sticky; top: 0; height: 100vh;
+    display: flex; align-items: center; overflow: hidden;
+  }
+  .h2x__inner { width: 100%; }
+  .h2x__head { max-width: 60rem; margin-bottom: clamp(1rem, 3vh, 2.5rem); }
+  .h2x__title { font-size: var(--step-3); max-width: 22ch; }
+  .h2x__caption {
+    margin-top: var(--space-m); font-size: var(--step-1); line-height: 1.5;
+    color: var(--body); max-width: 58ch; min-height: 3em;
+  }
+  .h2x__figure { margin: 0; }
+  .h2x__svg { width: 100%; height: auto; max-height: 56vh; }
+
+  .h2x__ground { stroke: var(--line-strong); stroke-width: 1.5; stroke-dasharray: 5 6; }
+
+  /* the healed state is the baseline */
+  .h2x__shell {
+    fill: rgba(255, 255, 255, 0.02); stroke: var(--mint); stroke-width: 1.5;
+    filter: drop-shadow(0 0 8px rgba(91, 194, 162, 0.25));
+  }
+  .h2x__floor { stroke: var(--line); stroke-width: 1; }
+  .h2x__shaft { fill: rgba(226, 216, 196, 0.04); stroke: var(--line); stroke-width: 1; }
+  .h2x__win {
+    fill: rgba(216, 190, 134, 0.55); stroke: var(--gold-text); stroke-width: 0.6;
+    filter: drop-shadow(0 0 4px rgba(216, 190, 134, 0.4));
+  }
+
+  .h2x__unit {
+    stroke: #5b9dc2; fill: rgba(91, 157, 194, 0.1);
+    stroke-width: 1.6; stroke-linecap: round;
+  }
+  .h2x__unit[d], line.h2x__unit { fill: none; }
+
+  /* the worn rooftop unit reads amber once the wear is revealed */
+  .h2x__rtu-old, .h2x__rtu-new { transition: none; }
+  .h2x.is-aware .h2x__rtu-old .h2x__unit {
+    stroke: #d99a3d; fill: rgba(217, 154, 61, 0.1);
+    filter: drop-shadow(0 0 5px rgba(217, 154, 61, 0.45));
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .h2x.is-aware:not(.is-swapping) .h2x__rtu-old { animation: h2xWheeze 0.9s ease-in-out infinite; }
+    @keyframes h2xWheeze {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-0.8px); }
+    }
+  }
+  .h2x__rtu-new .h2x__unit {
+    stroke: var(--gold); fill: rgba(194, 163, 104, 0.12);
+    filter: drop-shadow(0 0 6px rgba(194, 163, 104, 0.5));
+  }
+  .h2x__rtu-new { opacity: 0; }
+
+  .h2x__drawtrack { fill: rgba(226, 216, 196, 0.1); stroke: none; }
+  .h2x__drawfill { fill: #d99a3d; stroke: none; transition: fill 0.5s ease; }
+  .h2x.is-optimized .h2x__drawfill { fill: #5b9dc2; }
+
+  .h2x__lbl {
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.05em; fill: var(--muted);
+  }
+  .h2x__leader { stroke: var(--line); stroke-width: 0.7; stroke-dasharray: 2 3; }
+  .h2x__lifebar { opacity: 0; transition: opacity 0.6s ease; }
+  .h2x.is-aware .h2x__lifebar { opacity: 1; }
+  .h2x__lifetrack { fill: rgba(226, 216, 196, 0.1); }
+  .h2x__lifefill--low { fill: #e05a2b; }
+  .h2x__lifefill--mid { fill: #d99a3d; transition: fill 0.5s ease; }
+  .h2x.is-optimized .h2x__lifefill--mid { fill: var(--mint); }
+  .h2x.is-swapped .h2x__lifefill--low { fill: var(--gold); width: 50px; }
+
+  .h2x__tag {
+    font-family: var(--font-mono); font-size: 9px;
+    letter-spacing: 0.04em; fill: var(--gold-text);
+    opacity: 0; transition: opacity 0.6s ease;
+  }
+  .h2x.is-optimized #h2x-tag-ptac { opacity: 1; }
+  .h2x.is-swapped #h2x-tag-rtu { opacity: 1; }
+
+  .h2x__kwh {
+    font-family: var(--font-mono); font-size: 26px; font-weight: 500;
+    fill: var(--mint); transition: fill 0.5s ease;
+    font-variant-numeric: tabular-nums;
+  }
+  .h2x__kwh.is-better { fill: var(--gold-text); }
+  .h2x__lever {
+    font-family: var(--font-serif); font-size: 20px; font-style: italic;
+    fill: var(--muted); transition: fill 0.5s ease;
+  }
+  .h2x__lever.is-better { fill: var(--gold-text); }
+
+  .h2x__progress {
+    margin-top: clamp(1rem, 3vh, 2rem); height: 2px;
+    background: var(--line); border-radius: 2px; overflow: hidden;
+  }
+  .h2x__progress-fill {
+    display: block; height: 100%;
+    background: linear-gradient(90deg, var(--mint), var(--gold));
+    transform: scaleX(0); transform-origin: 0 50%;
+  }
+
+  .h2x.is-static { height: auto; }
+  .h2x.is-static .h2x__sticky { position: static; height: auto; padding-block: clamp(4rem, 9vw, 9rem); }
+  @media (prefers-reduced-motion: reduce) {
+    .h2x { height: auto; }
+    .h2x__sticky { position: static; height: auto; padding-block: clamp(4rem, 9vw, 9rem); }
+  }
+</style>
