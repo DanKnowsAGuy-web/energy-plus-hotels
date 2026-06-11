@@ -72,15 +72,27 @@ const team = [
 
 <style>
   .team { border-top: 1px solid var(--line); }
+  /* the team gets a wider stage than the prose sections */
+  .team :global(.container),
+  .team .container {
+    max-width: 88rem;
+  }
   .team__head { max-width: 54rem; }
   .team__title { font-size: var(--step-3); max-width: 16ch; }
   .team__lede { margin-top: var(--space-m); }
 
+  /* explicit 1 / 2 / 4 columns: a 3+1 orphan row is never allowed */
   .team__grid {
     margin-top: var(--space-xl);
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: 1fr;
     gap: clamp(1.25rem, 3vw, 2rem);
+  }
+  @media (min-width: 620px) {
+    .team__grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (min-width: 1280px) {
+    .team__grid { grid-template-columns: repeat(4, 1fr); }
   }
   .team__card {
     background: var(--surface);
