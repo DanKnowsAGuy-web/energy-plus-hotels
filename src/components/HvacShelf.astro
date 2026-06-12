@@ -16,20 +16,21 @@ const stations = [
   <div class="hvs__sticky">
     <div class="container hvs__inner">
       <div class="hvs__head">
-        <h2 class="hvs__title" id="hvs-title">The right fix for the unit you have.</h2>
+        <h2 class="hvs__title" id="hvs-title">Lower the load, then optimize what's left.</h2>
         <p class="hvs__lede">
-          HVAC is the biggest load, so it's the biggest opportunity. We carry
-          four ways to take it. Underwriting groups, Hartford Steam Boiler
-          among them, tie 40 to 60 percent of equipment failures to power
-          quality, so the clean power from lever one makes whatever we
-          optimize here last longer too.
+          HVAC is the biggest load you own, so it's the biggest opportunity. We
+          work it in two moves: first shrink how hard it has to work, then
+          optimize the equipment itself. Underwriting groups, Hartford Steam
+          Boiler among them, tie 40 to 60 percent of equipment failures to
+          power quality, so clean power makes all of it last longer.
         </p>
         <div class="hvs__card" id="hvs-card" aria-live="polite">
-          <span class="hvs__card-num" id="hvs-card-num">1 / 4</span>
+          <span class="hvs__card-num" id="hvs-card-num">1 / 5</span>
           <p class="hvs__card-text" id="hvs-card-text">
-            Often the unit isn't worn out, it's clogged. A cryogenic clean
-            strips years of fouling off the coils and brings a tired unit back,
-            over 20 percent more efficient.
+            First, we shrink the job. An antimicrobial spray indoors pulls about
+            10 degrees off the heat load. A cool roof shield outside rejects
+            more: 10 degrees cooler by day, 20 by evening. The exam picks which
+            your building needs.
           </p>
         </div>
       </div>
@@ -42,6 +43,14 @@ const stations = [
           aria-label="Four HVAC prescriptions in a row: a cryogenic clean restoring over 20 percent efficiency, a compressor retrofit at 15 to 30 percent, an inverter and solar-thermal upgrade at 30 to 40 percent, and a gold-standard replacement rated IEER 31 and COP 6. The exam decides which the building needs."
         >
           <line class="hvs__floor" x1="40" y1="120" x2="720" y2="120"></line>
+
+          <!-- lever three: the building's heat load, lowered before the tools -->
+          <g class="hvs__load" id="hvs-load">
+            <text class="hvs__loadlbl" x="40" y="29">Building heat load</text>
+            <rect class="hvs__loadtrack" x="186" y="20" width="320" height="11" rx="5"></rect>
+            <rect class="hvs__loadfill" id="hvs-loadfill" x="186" y="20" width="272" height="11" rx="5"></rect>
+            <text class="hvs__loadval" id="hvs-loadval" x="522" y="30">90&#176;F</text>
+          </g>
           {
             stations.map((s, i) => (
               <g class={`hvs__st hvs__st--${s.key}`} id={`hvs-st${i}`}>
@@ -115,6 +124,7 @@ const stations = [
     const sts = [0, 1, 2, 3].map((i) => $("hvs-st" + i));
 
     const cards = [
+      "First, we shrink the job. An antimicrobial spray indoors pulls about 10 degrees off the heat load. A cool roof shield outside rejects more: 10 degrees cooler by day, 20 by evening. The exam picks which your building needs.",
       "Often the unit isn't worn out, it's clogged. A cryogenic clean strips years of fouling off the coils and brings a tired unit back, over 20 percent more efficient.",
       "Running basic single-compressor systems? We retrofit the working parts. Same cabinet, new efficiency: 15 to 30 percent less energy for the same cooling.",
       "On large systems we add inverter drives and solar-thermal assist, so the unit eases up and down instead of slamming on and off. 30 to 40 percent more efficient.",
@@ -123,7 +133,7 @@ const stations = [
     const setCard = (phase) => {
       const swap = () => {
         cardText.textContent = cards[phase];
-        cardNum.textContent = (phase + 1) + " / 4";
+        cardNum.textContent = (phase + 1) + " / " + cards.length;
       };
       if (reduce) { swap(); return; }
       card.classList.add("is-exit");
@@ -136,20 +146,31 @@ const stations = [
     };
 
     const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-    const onAt = [0.1, 0.32, 0.54, 0.74];
+    const smooth = (p, a, b) => { const t = clamp((p - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+    const loadFill = $("hvs-loadfill");
+    const loadVal = $("hvs-loadval");
+    const onAt = [0.32, 0.5, 0.68, 0.84]; // the four tools, after the load beat
     let lastPhase = -1;
 
+    const setLoad = (f) => {
+      loadFill.setAttribute("width", (272 - 86 * f).toFixed(1));
+      loadVal.innerHTML = Math.round(90 - 10 * f) + "&#176;F";
+      sec.classList.toggle("is-cooled", f > 0.5);
+    };
+
     const apply = (p) => {
+      setLoad(smooth(p, 0.03, 0.2));
       sts.forEach((el, i) => el.classList.toggle("is-on", p > onAt[i]));
       if (prog) prog.style.transform = "scaleX(" + p.toFixed(3) + ")";
-      const phase = p < 0.24 ? 0 : p < 0.46 ? 1 : p < 0.68 ? 2 : 3;
+      const phase = p < 0.2 ? 0 : p < 0.4 ? 1 : p < 0.6 ? 2 : p < 0.8 ? 3 : 4;
       if (phase !== lastPhase) { setCard(phase); lastPhase = phase; }
     };
 
     if (reduce) {
       sec.classList.add("is-static");
+      setLoad(1);
       sts.forEach((el) => el.classList.add("is-on"));
-      setCard(3);
+      setCard(4);
       return;
     }
 
@@ -169,7 +190,7 @@ const stations = [
 </script>
 
 <style>
-  .hvs { position: relative; height: 300vh; border-top: 1px solid var(--line); }
+  .hvs { position: relative; height: 360vh; border-top: 1px solid var(--line); }
   .hvs__sticky {
     position: sticky; top: 0; height: 100vh;
     display: flex; align-items: center; overflow: hidden;
@@ -212,6 +233,20 @@ const stations = [
   .hvs__figure { margin: 0; }
   .hvs__svg { width: 100%; height: auto; max-height: 46vh; }
   .hvs__floor { stroke: var(--line); stroke-width: 1; stroke-dasharray: 4 6; }
+
+  /* lever three: building heat load, lowered before the tools engage */
+  .hvs__loadlbl {
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.05em; fill: var(--muted);
+  }
+  .hvs__loadtrack { fill: rgba(226, 216, 196, 0.1); }
+  .hvs__loadfill { fill: #e0903b; transition: fill 0.6s ease; }
+  .hvs.is-cooled .hvs__loadfill { fill: #5b9dc2; }
+  .hvs__loadval {
+    font-family: var(--font-serif); font-size: 20px; fill: #e0903b;
+    font-variant-numeric: tabular-nums; transition: fill 0.6s ease;
+  }
+  .hvs.is-cooled .hvs__loadval { fill: #5b9dc2; }
 
   /* stations: dim at rest, light up when prescribed */
   .hvs__unit, .hvs__fin {
