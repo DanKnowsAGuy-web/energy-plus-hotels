@@ -8,23 +8,23 @@
 const steps = [
   {
     n: "Before", key: "intro", title: "How it used to flow", meaning: "the even pour",
-    body: "Your building once ran mostly linear loads: power arrived in one smooth, even pour, almost all of it useful.",
+    body: "Your building used to run linear loads: one smooth, even pour, almost all useful.",
   },
   {
     n: "01", key: "foam", title: "The foam", meaning: "power you can't use",
-    body: "Modern equipment pulses instead. Variable loads froth the pour into harmonics and reactive power that drive no equipment.",
+    body: "Modern equipment pulses. That froth is harmonics and reactive power you can't use.",
   },
   {
     n: "02", key: "spills", title: "The spills", meaning: "energy lost as heat",
-    body: "Useful energy bleeds off as heat in your wires, motors, and transformers.",
+    body: "Useful energy bleeds off as heat in your wires and motors.",
   },
   {
     n: "03", key: "mess", title: "The mess", meaning: "utility penalties",
-    body: "Penalties on your bill for poor power factor, demand, and power quality.",
+    body: "Utility penalties for poor power factor and demand.",
   },
   {
     n: "04", key: "mug", title: "The mug", meaning: "early equipment wear",
-    body: "Distortion wears your breakers, electronics, and transformers out years early.",
+    body: "Distortion wears your breakers and transformers out years early.",
   },
 ];
 
@@ -45,13 +45,9 @@ const lines = [
       <h2 class="pq__title" id="pq-title">
         You ordered the full beer. Why pay for the foam?
       </h2>
-      <p class="pq__lede lede">
-        Here's the irony: the very gear you installed to save energy is part of
-        what's costing you. Every variable-speed drive, LED driver, and
-        controller pulls power in sharp, irregular bursts. Those nonlinear loads
-        distort the current across your building, and the meter pours it like a
-        bad tap: the price stays the same, but much of what lands in the glass
-        was never energy you could use.
+      <p class="pq__sub">
+        Nonlinear loads distort your power and pour it like a bad tap. Scroll
+        the pour.
       </p>
     </div>
   </div>
@@ -258,7 +254,7 @@ const lines = [
     };
 
     // Static fallback: no pin, all cards listed, glass foamy, bill at peak.
-    const narrow = matchMedia("(max-width: 820px)").matches;
+    const narrow = matchMedia("(max-width: 560px)").matches;
     if (reduce || narrow || !("IntersectionObserver" in window)) {
       stage.classList.add("is-static");
       track.classList.add("is-static");
@@ -333,7 +329,12 @@ const lines = [
     margin-bottom: var(--space-s);
   }
   .pq__title { font-size: var(--step-3); max-width: 22ch; }
-  .pq__lede { margin-top: var(--space-m); max-width: 64ch; }
+  .pq__sub {
+    margin-top: var(--space-s);
+    font-size: var(--step-0);
+    color: var(--muted);
+    max-width: 44ch;
+  }
 
   /* scroll track: tall so the pinned scene has room to step through */
   .pq__track.is-pinned { height: 420vh; }
@@ -350,19 +351,19 @@ const lines = [
   .pq__track.is-static .pq__stage { margin-top: var(--space-xl); }
 
   /* narration cards: one at a time, stacked in place */
+  /* all cards share one grid cell: the box auto-sizes to the tallest,
+     no fixed height to overflow, and they cross-slide in place */
   .pq__cards {
-    position: relative;
-    min-height: 11rem;
-    margin-bottom: var(--space-l);
+    display: grid;
+    margin-bottom: var(--space-m);
     max-width: 38rem;
   }
   .pq__card {
-    position: absolute;
-    inset: 0;
+    grid-area: 1 / 1;
     background: rgba(255, 255, 255, 0.022);
     border: 1px solid var(--line-strong);
     border-radius: 12px;
-    padding: 1.1rem 1.35rem;
+    padding: 1rem 1.3rem;
     opacity: 0;
     transform: translateX(46px);
     transition: opacity 0.4s ease, transform 0.55s var(--ease-out-quart);
@@ -395,24 +396,21 @@ const lines = [
     color: var(--body);
     max-width: 46ch;
   }
-  .pq__stage.is-static .pq__cards { min-height: 0; }
+  .pq__stage.is-static .pq__cards { display: block; }
   .pq__stage.is-static .pq__card {
-    position: static;
     opacity: 1;
     transform: none;
     margin-bottom: var(--space-m);
   }
 
+  /* card, beer, and bill stay together and side by side at every width */
   .pq__cols {
     display: grid;
-    grid-template-columns: 0.9fr 1.1fr;
-    gap: clamp(1.5rem, 4vw, 3rem);
+    grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+    gap: clamp(0.75rem, 3vw, 2.5rem);
     align-items: end;
   }
-  @media (max-width: 820px) {
-    .pq__cols { grid-template-columns: 1fr; gap: var(--space-l); align-items: stretch; }
-  }
-  .pq__col { margin: 0; display: flex; flex-direction: column; }
+  .pq__col { margin: 0; display: flex; flex-direction: column; min-width: 0; }
   .pq__glass-col { align-items: center; position: relative; }
 
   /* the load label floats over the pour, clear of the narration cards */
@@ -437,7 +435,14 @@ const lines = [
   .pq__stage[data-active="clean"] .pq__load,
   .pq__stage[data-active="intro"] .pq__load { color: var(--mint); }
 
-  .pq__glass { width: 100%; max-width: 250px; height: auto; display: block; }
+  .pq__glass {
+    width: 100%;
+    max-width: 220px;
+    max-height: 46vh;
+    height: auto;
+    display: block;
+    margin-inline: auto;
+  }
 
   .pq__tap { fill: var(--surface-2); stroke: var(--line-strong); stroke-width: 1.5; }
 
@@ -638,5 +643,14 @@ const lines = [
     font-size: var(--step-1);
     color: var(--ink);
     max-width: 48ch;
+  }
+
+  /* tighten the bill on small screens so it stays legible beside the glass */
+  @media (max-width: 620px) {
+    .pq__bill { padding: 0.7rem 0.85rem; }
+    .pq__line { font-size: var(--step--1); padding: 0.4rem 0; gap: 0.5rem; }
+    .pq__line-part { font-size: 0.82em; }
+    .pq__total { font-size: var(--step-2); }
+    .pq__card-body { font-size: var(--step-0); }
   }
 </style>
