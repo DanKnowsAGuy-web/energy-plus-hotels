@@ -185,8 +185,10 @@ const lines = [
     const track = document.getElementById("pq-track");
     if (!stage || !track) return;
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const cardsWrap = document.getElementById("pq-cards");
     const cards = Array.from(stage.querySelectorAll(".pq__card"));
     const dots = Array.from(stage.querySelectorAll(".pq__dot"));
+    let prevShown = 0;
     const bill = document.getElementById("pq-bill");
     const totalEl = document.getElementById("pq-total");
     const loadEl = document.getElementById("pq-load");
@@ -214,12 +216,30 @@ const lines = [
     };
 
     const wasteKeys = ["foam", "spills", "mess", "mug"];
+    const pulse = (el) => {
+      if (!el) return;
+      el.classList.remove("is-just");
+      void el.offsetWidth; // restart the animation
+      el.classList.add("is-just");
+    };
+
     const show = (idx, animate) => {
       const key = order[idx];
+      cardsWrap.dataset.dir = idx >= prevShown ? "fwd" : "back";
+      prevShown = idx;
       stage.dataset.active = key;
       loadEl.textContent = (key === "clean" || key === "intro") ? "Linear load" : "Nonlinear load";
       cards.forEach((c) => c.classList.toggle("is-active", Number(c.dataset.i) === idx));
       dots.forEach((d) => d.classList.toggle("is-active", Number(d.dataset.go) === idx));
+
+      // flash what just changed, to draw the eye
+      if (animate) {
+        if (key !== "intro" && key !== "clean") {
+          pulse(stage.querySelector(`.pq__part[data-part="${key}"]`));
+          pulse(bill.querySelector(`[data-bill="${key}"]`));
+        }
+        pulse(totalEl);
+      }
 
       if (key === "clean") {
         wasteKeys.forEach((k) => bill.querySelector(`[data-bill="${k}"]`).classList.add("is-on", "is-cut"));
@@ -332,19 +352,26 @@ const lines = [
   /* narration cards: one at a time, stacked in place */
   .pq__cards {
     position: relative;
-    min-height: 8rem;
+    min-height: 11rem;
     margin-bottom: var(--space-l);
-    max-width: 52rem;
+    max-width: 38rem;
   }
   .pq__card {
     position: absolute;
     inset: 0;
+    background: rgba(255, 255, 255, 0.022);
+    border: 1px solid var(--line-strong);
+    border-radius: 12px;
+    padding: 1.1rem 1.35rem;
     opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.45s ease, transform 0.45s var(--ease-out-quart);
+    transform: translateX(46px);
+    transition: opacity 0.4s ease, transform 0.55s var(--ease-out-quart);
     pointer-events: none;
   }
-  .pq__card.is-active { opacity: 1; transform: none; }
+  .pq__card.is-active { opacity: 1; transform: translateX(0); }
+  /* scroll back and the cards slide in from the other side */
+  .pq__cards[data-dir="back"] .pq__card { transform: translateX(-46px); }
+  .pq__cards[data-dir="back"] .pq__card.is-active { transform: translateX(0); }
   .pq__card-num {
     font-family: var(--font-mono);
     font-size: var(--step--1);
@@ -386,10 +413,15 @@ const lines = [
     .pq__cols { grid-template-columns: 1fr; gap: var(--space-l); align-items: stretch; }
   }
   .pq__col { margin: 0; display: flex; flex-direction: column; }
-  .pq__glass-col { align-items: center; }
+  .pq__glass-col { align-items: center; position: relative; }
 
+  /* the load label floats over the pour, clear of the narration cards */
   .pq__load {
-    align-self: center;
+    position: absolute;
+    top: 30%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
     font-family: var(--font-mono);
     font-size: var(--step--2);
     letter-spacing: 0.08em;
@@ -397,8 +429,9 @@ const lines = [
     color: #e0894a;
     border: 1px solid currentColor;
     border-radius: 999px;
-    padding: 0.25em 0.8em;
-    margin-bottom: var(--space-s);
+    padding: 0.3em 0.85em;
+    background: rgba(12, 26, 20, 0.86);
+    white-space: nowrap;
     transition: color 0.5s ease;
   }
   .pq__stage[data-active="clean"] .pq__load,
@@ -490,6 +523,23 @@ const lines = [
     }
     .pq__stage[data-active="clean"] .pq__splat,
     .pq__stage[data-active="intro"] .pq__splat { animation: none; opacity: 0; }
+
+    /* on each step change, flash what just changed */
+    .pq__part.is-just { animation: pqPartPulse 0.7s ease; }
+    @keyframes pqPartPulse {
+      0%, 100% { filter: none; }
+      40% { filter: drop-shadow(0 0 7px rgba(224, 137, 74, 0.85)) brightness(1.35); }
+    }
+    .pq__line.is-just { animation: pqLineFlash 0.75s ease; }
+    @keyframes pqLineFlash {
+      0% { background: rgba(224, 137, 74, 0.24); }
+      100% { background: transparent; }
+    }
+    .pq__total.is-just { animation: pqTotalPop 0.5s ease; }
+    @keyframes pqTotalPop {
+      0%, 100% { transform: scale(1); }
+      45% { transform: scale(1.13); }
+    }
   }
 
   /* utility bill */
@@ -557,6 +607,7 @@ const lines = [
     color: var(--body);
   }
   .pq__total {
+    display: inline-block;
     font-family: var(--font-serif);
     font-size: var(--step-3);
     letter-spacing: -0.01em;
