@@ -1,0 +1,302 @@
+---
+// "Open the cabinet." Four HVAC prescriptions on a row, sorted least to most
+// intervention. Sliding-card narration (same style as the dirty-power scene)
+// drives each station to light up with its figure as you scroll. The point:
+// we carry all four; the exam decides which the building gets.
+const centers = [125, 305, 485, 665];
+const stations = [
+  { key: "clean", label: "Cryogenic clean", sub: "fouled, not finished", fig: "+20%" },
+  { key: "retrofit", label: "Compressor retrofit", sub: "simple systems", fig: "15–30%" },
+  { key: "inverter", label: "Inverter + solar-thermal", sub: "large systems", fig: "30–40%" },
+  { key: "replace", label: "Gold-standard replace", sub: "end of life", fig: "IEER 31 · COP 6" },
+];
+---
+
+<section class="hvs" aria-labelledby="hvs-title">
+  <div class="hvs__sticky">
+    <div class="container hvs__inner">
+      <div class="hvs__head">
+        <h2 class="hvs__title" id="hvs-title">The right fix for the unit you have.</h2>
+        <p class="hvs__lede">
+          HVAC is the biggest load, so it's the biggest opportunity. We carry
+          four ways to take it. Underwriting groups, Hartford Steam Boiler
+          among them, tie 40 to 60 percent of equipment failures to power
+          quality, so the clean power from lever one makes whatever we
+          optimize here last longer too.
+        </p>
+        <div class="hvs__card" id="hvs-card" aria-live="polite">
+          <span class="hvs__card-num" id="hvs-card-num">1 / 4</span>
+          <p class="hvs__card-text" id="hvs-card-text">
+            Often the unit isn't worn out, it's clogged. A cryogenic clean
+            strips years of fouling off the coils and brings a tired unit back,
+            over 20 percent more efficient.
+          </p>
+        </div>
+      </div>
+
+      <figure class="hvs__figure">
+        <svg
+          class="hvs__svg"
+          viewBox="0 0 760 232"
+          role="img"
+          aria-label="Four HVAC prescriptions in a row: a cryogenic clean restoring over 20 percent efficiency, a compressor retrofit at 15 to 30 percent, an inverter and solar-thermal upgrade at 30 to 40 percent, and a gold-standard replacement rated IEER 31 and COP 6. The exam decides which the building needs."
+        >
+          <line class="hvs__floor" x1="40" y1="120" x2="720" y2="120"></line>
+          {
+            stations.map((s, i) => (
+              <g class={`hvs__st hvs__st--${s.key}`} id={`hvs-st${i}`}>
+                <rect class="hvs__unit" x={centers[i] - 38} y="58" width="76" height="56" rx="5" />
+                <line class="hvs__fin" x1={centers[i] - 22} y1="66" x2={centers[i] - 22} y2="106" />
+                <line class="hvs__fin" x1={centers[i] - 8} y1="66" x2={centers[i] - 8} y2="106" />
+                <line class="hvs__fin" x1={centers[i] + 6} y1="66" x2={centers[i] + 6} y2="106" />
+                <line class="hvs__fin" x1={centers[i] + 20} y1="66" x2={centers[i] + 20} y2="106" />
+
+                {s.key === "clean" && (
+                  <g class="hvs__foul">
+                    <circle cx={centers[i] - 18} cy="74" r="2.4" />
+                    <circle cx={centers[i] - 2} cy="92" r="2" />
+                    <circle cx={centers[i] + 14} cy="78" r="2.6" />
+                    <circle cx={centers[i] + 4} cy="102" r="1.8" />
+                    <circle cx={centers[i] - 24} cy="98" r="2" />
+                  </g>
+                )}
+                {s.key === "retrofit" && (
+                  <g class="hvs__comp">
+                    <circle cx={centers[i]} cy="86" r="11" />
+                    <circle cx={centers[i]} cy="86" r="4" />
+                  </g>
+                )}
+                {s.key === "inverter" && (
+                  <g class="hvs__sun">
+                    <circle cx={centers[i] + 30} cy="50" r="6" />
+                    <line x1={centers[i] + 30} y1="38" x2={centers[i] + 30} y2="42" />
+                    <line x1={centers[i] + 30} y1="58" x2={centers[i] + 30} y2="62" />
+                    <line x1={centers[i] + 18} y1="50" x2={centers[i] + 22} y2="50" />
+                    <line x1={centers[i] + 38} y1="50" x2={centers[i] + 42} y2="50" />
+                  </g>
+                )}
+                {s.key === "replace" && (
+                  <text class="hvs__newtag" x={centers[i]} y="50" text-anchor="middle">NEW</text>
+                )}
+
+                <text class="hvs__label" x={centers[i]} y="138" text-anchor="middle">{s.label}</text>
+                <text class="hvs__sub" x={centers[i]} y="151" text-anchor="middle">{s.sub}</text>
+                <text class={`hvs__fig${s.key === "replace" ? " hvs__fig--spec" : ""}`} x={centers[i]} y="182" text-anchor="middle">{s.fig}</text>
+              </g>
+            ))
+          }
+        </svg>
+        <figcaption class="hvs__note">
+          These are the tools' ranges. Your number stays the floor we measure.
+        </figcaption>
+      </figure>
+
+      <p class="hvs__closer">
+        We don't sell one of these. The exam decides which your building needs.
+      </p>
+
+      <div class="hvs__progress" aria-hidden="true">
+        <span class="hvs__progress-fill" id="hvs-progress"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  (() => {
+    const sec = document.querySelector(".hvs");
+    if (!sec) return;
+    const $ = (id) => document.getElementById(id);
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const card = $("hvs-card");
+    const cardText = $("hvs-card-text");
+    const cardNum = $("hvs-card-num");
+    const prog = $("hvs-progress");
+    const sts = [0, 1, 2, 3].map((i) => $("hvs-st" + i));
+
+    const cards = [
+      "Often the unit isn't worn out, it's clogged. A cryogenic clean strips years of fouling off the coils and brings a tired unit back, over 20 percent more efficient.",
+      "Running basic single-compressor systems? We retrofit the working parts. Same cabinet, new efficiency: 15 to 30 percent less energy for the same cooling.",
+      "On large systems we add inverter drives and solar-thermal assist, so the unit eases up and down instead of slamming on and off. 30 to 40 percent more efficient.",
+      "When a unit is truly done, we replace it with the best built: 10-ton units rated IEER 31 and COP 6, roughly twice a standard unit's efficiency, and most hotels have never been offered it.",
+    ];
+    const setCard = (phase) => {
+      const swap = () => {
+        cardText.textContent = cards[phase];
+        cardNum.textContent = (phase + 1) + " / 4";
+      };
+      if (reduce) { swap(); return; }
+      card.classList.add("is-exit");
+      setTimeout(() => {
+        swap();
+        card.classList.remove("is-exit");
+        card.classList.add("is-enter");
+        requestAnimationFrame(() => requestAnimationFrame(() => card.classList.remove("is-enter")));
+      }, 240);
+    };
+
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+    const onAt = [0.1, 0.32, 0.54, 0.74];
+    let lastPhase = -1;
+
+    const apply = (p) => {
+      sts.forEach((el, i) => el.classList.toggle("is-on", p > onAt[i]));
+      if (prog) prog.style.transform = "scaleX(" + p.toFixed(3) + ")";
+      const phase = p < 0.24 ? 0 : p < 0.46 ? 1 : p < 0.68 ? 2 : 3;
+      if (phase !== lastPhase) { setCard(phase); lastPhase = phase; }
+    };
+
+    if (reduce) {
+      sec.classList.add("is-static");
+      sts.forEach((el) => el.classList.add("is-on"));
+      setCard(3);
+      return;
+    }
+
+    let ticking = false;
+    const onScroll = () => {
+      const total = sec.offsetHeight - window.innerHeight;
+      const p = clamp(-sec.getBoundingClientRect().top / total, 0, 1);
+      apply(p);
+      ticking = false;
+    };
+    addEventListener("scroll", () => {
+      if (!ticking) { ticking = true; requestAnimationFrame(onScroll); }
+    }, { passive: true });
+    addEventListener("resize", onScroll, { passive: true });
+    apply(0);
+  })();
+</script>
+
+<style>
+  .hvs { position: relative; height: 300vh; border-top: 1px solid var(--line); }
+  .hvs__sticky {
+    position: sticky; top: 0; height: 100vh;
+    display: flex; align-items: center; overflow: hidden;
+  }
+  .hvs__inner { width: 100%; }
+  .hvs__head { max-width: 60rem; margin-bottom: clamp(1rem, 3vh, 2.5rem); }
+  .hvs__title { font-size: var(--step-3); max-width: 22ch; }
+  .hvs__lede {
+    margin-top: var(--space-m);
+    font-size: var(--step-0);
+    line-height: 1.55;
+    color: var(--body);
+    max-width: 64ch;
+  }
+
+  .hvs__card {
+    position: relative;
+    margin-top: var(--space-m);
+    max-width: 56ch;
+    min-height: 5.4em;
+    padding: 0.9rem 1.1rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-s);
+    transition: transform 0.24s var(--ease-out-quart), opacity 0.24s ease;
+  }
+  .hvs__card.is-exit { transform: translateX(-26px); opacity: 0; }
+  .hvs__card.is-enter { transition: none; transform: translateX(26px); opacity: 0; }
+  .hvs__card-num {
+    position: absolute; top: 0.7rem; right: 0.9rem;
+    font-family: var(--font-mono); font-size: 0.66rem;
+    letter-spacing: 0.08em; color: var(--gold-text);
+  }
+  .hvs__card-text {
+    font-size: var(--step-0); line-height: 1.55; color: var(--body);
+    padding-right: 2.6rem;
+  }
+  @media (prefers-reduced-motion: reduce) { .hvs__card { transition: none; } }
+
+  .hvs__figure { margin: 0; }
+  .hvs__svg { width: 100%; height: auto; max-height: 46vh; }
+  .hvs__floor { stroke: var(--line); stroke-width: 1; stroke-dasharray: 4 6; }
+
+  /* stations: dim at rest, light up when prescribed */
+  .hvs__unit, .hvs__fin {
+    stroke: var(--muted); fill: none; stroke-width: 1.5;
+    opacity: 0.4; transition: stroke 0.5s ease, opacity 0.5s ease, filter 0.5s ease;
+  }
+  .hvs__unit { fill: rgba(255, 255, 255, 0.015); }
+  .hvs__st.is-on .hvs__unit, .hvs__st.is-on .hvs__fin {
+    stroke: var(--mint); opacity: 1;
+  }
+  .hvs__st.is-on .hvs__unit {
+    fill: rgba(91, 194, 162, 0.08);
+    filter: drop-shadow(0 0 6px rgba(91, 194, 162, 0.3));
+  }
+  /* replace station lights gold (new equipment), not mint */
+  .hvs__st--replace.is-on .hvs__unit, .hvs__st--replace.is-on .hvs__fin {
+    stroke: var(--gold);
+  }
+  .hvs__st--replace.is-on .hvs__unit {
+    fill: rgba(194, 163, 104, 0.1);
+    filter: drop-shadow(0 0 6px rgba(194, 163, 104, 0.4));
+  }
+
+  /* treatment glyphs */
+  .hvs__foul circle { fill: #e0903b; opacity: 0.85; transition: opacity 0.5s ease; }
+  .hvs__st.is-on .hvs__foul circle { opacity: 0; }
+  .hvs__comp circle { fill: none; stroke: var(--muted); stroke-width: 1.5; opacity: 0.4; transition: stroke 0.5s ease, opacity 0.5s ease; }
+  .hvs__st.is-on .hvs__comp circle { stroke: var(--mint); opacity: 1; }
+  @media (prefers-reduced-motion: no-preference) {
+    .hvs__st.is-on .hvs__comp { animation: hvsSpin 3s linear infinite; transform-box: fill-box; transform-origin: center; }
+    @keyframes hvsSpin { to { transform: rotate(360deg); } }
+  }
+  .hvs__sun { opacity: 0; transition: opacity 0.5s ease; }
+  .hvs__sun circle { fill: rgba(216, 190, 134, 0.5); stroke: var(--gold-text); stroke-width: 1.2; }
+  .hvs__sun line { stroke: var(--gold-text); stroke-width: 1.2; stroke-linecap: round; }
+  .hvs__st.is-on .hvs__sun { opacity: 1; }
+  .hvs__newtag {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.12em;
+    fill: var(--gold-text); opacity: 0; transition: opacity 0.5s ease;
+  }
+  .hvs__st.is-on .hvs__newtag { opacity: 1; }
+
+  .hvs__label {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.04em;
+    fill: var(--muted); transition: fill 0.5s ease;
+  }
+  .hvs__st.is-on .hvs__label { fill: var(--ink); }
+  .hvs__sub { font-family: var(--font-mono); font-size: 8.5px; fill: var(--muted); }
+  .hvs__fig {
+    font-family: var(--font-serif); font-size: 24px; letter-spacing: -0.02em;
+    fill: var(--mint); opacity: 0; transform-box: fill-box; transform-origin: center;
+    transform: scale(0.8); transition: opacity 0.45s ease, transform 0.45s var(--ease-out-quart);
+  }
+  .hvs__fig--spec { font-size: 13px; fill: var(--gold-text); }
+  .hvs__st.is-on .hvs__fig { opacity: 1; transform: scale(1); }
+  .hvs__st--replace.is-on .hvs__fig { fill: var(--gold-text); }
+
+  .hvs__note {
+    margin-top: var(--space-m); font-size: var(--step--1);
+    color: var(--muted); max-width: 52ch;
+  }
+  .hvs__closer {
+    margin-top: var(--space-m);
+    font-family: var(--font-serif); font-style: italic;
+    font-size: var(--step-1); color: var(--ink); max-width: 46ch;
+  }
+
+  .hvs__progress {
+    margin-top: clamp(0.75rem, 2vh, 1.5rem); height: 2px;
+    background: var(--line); border-radius: 2px; overflow: hidden;
+  }
+  .hvs__progress-fill {
+    display: block; height: 100%;
+    background: linear-gradient(90deg, var(--mint), var(--gold));
+    transform: scaleX(0); transform-origin: 0 50%;
+  }
+
+  .hvs.is-static { height: auto; }
+  .hvs.is-static .hvs__sticky { position: static; height: auto; padding-block: clamp(4rem, 9vw, 9rem); }
+  @media (prefers-reduced-motion: reduce) {
+    .hvs { height: auto; }
+    .hvs__sticky { position: static; height: auto; padding-block: clamp(4rem, 9vw, 9rem); }
+  }
+
+  @media (max-width: 640px) {
+    .hvs__svg { max-height: none; }
+  }
+</style>
