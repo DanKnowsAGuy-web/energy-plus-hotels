@@ -5,10 +5,10 @@
 // we carry all four; the exam decides which the building gets.
 const centers = [110, 290, 470, 650];
 const stations = [
-  { key: "clean", label: "Cryogenic clean", sub: "fouled, not finished", fig: "+20%" },
-  { key: "retrofit", label: "Compressor retrofit", sub: "simple systems", fig: "15–30%" },
-  { key: "inverter", label: "Inverter + solar-thermal", sub: "large systems", fig: "30–40%" },
-  { key: "replace", label: "Gold-standard replace", sub: "end of life", fig: "IEER 31 · COP 6" },
+  { key: "clean", label: "One-time treatment", fig: "up to 36%" },
+  { key: "retrofit", label: "Compressor retrofit", fig: "15–30%" },
+  { key: "inverter", label: "Solar-thermal assist", fig: "30–40%" },
+  { key: "replace", label: "Gold-standard replace", fig: "up to 50%", spec: "IEER 31 · COP 6" },
 ];
 ---
 
@@ -27,10 +27,8 @@ const stations = [
         <div class="hvs__card" id="hvs-card" aria-live="polite">
           <span class="hvs__card-num" id="hvs-card-num">1 / 5</span>
           <p class="hvs__card-text" id="hvs-card-text">
-            First, we shrink the job. An antimicrobial spray indoors pulls about
-            10 degrees off the heat load. A cool roof shield outside rejects
-            more: 10 degrees cooler by day, 20 by evening. The exam picks which
-            your building needs.
+            First, we shrink the job. A cool roof shield keeps the heat off the
+            building, so your HVAC doesn't have to work as hard.
           </p>
         </div>
       </div>
@@ -44,10 +42,10 @@ const stations = [
         >
           <!-- lever three: rooftop heat with a cool roof shield sweeping the
                surface; the units sit on the roof, muted until their turn -->
-          <text class="hvs__loadlbl" x="40" y="22">Rooftop heat</text>
-          <circle class="hvs__rm-face" cx="49" cy="42" r="9"></circle>
-          <line class="hvs__rm-needle" x1="49" y1="42" x2="54" y2="37"></line>
-          <text class="hvs__loadval" id="hvs-loadval" x="67" y="48">90&#176;F</text>
+          <text class="hvs__loadlbl" x="724" y="22" text-anchor="end">Rooftop heat</text>
+          <circle class="hvs__rm-face" cx="636" cy="46" r="12"></circle>
+          <line class="hvs__rm-needle" x1="636" y1="46" x2="643" y2="39"></line>
+          <text class="hvs__loadval" id="hvs-loadval" x="724" y="56" text-anchor="end">90&#176;F</text>
 
           <!-- partial building beneath the roof -->
           <rect class="hvs__bldgface" x="104" y="170" width="552" height="58"></rect>
@@ -58,12 +56,15 @@ const stations = [
           )}
           <!-- the roof the units sit on, and the shield that coats it -->
           <rect class="hvs__roof" x="80" y="156" width="600" height="14" rx="2"></rect>
-          <rect class="hvs__shield" id="hvs-shield" x="82" y="153" width="0" height="6" rx="3"></rect>
+          <rect class="hvs__shield" id="hvs-shield" x="82" y="148" width="0" height="11" rx="3"></rect>
 
           {
             stations.map((s, i) => (
               <g class={`hvs__st hvs__st--${s.key}`} id={`hvs-st${i}`}>
-                <text class={`hvs__fig${s.key === "replace" ? " hvs__fig--spec" : ""}`} x={centers[i]} y="80" text-anchor="middle">{s.fig}</text>
+                {s.spec && (
+                  <text class="hvs__spec" x={centers[i]} y="64" text-anchor="middle">{s.spec}</text>
+                )}
+                <text class="hvs__fig" x={centers[i]} y="82" text-anchor="middle">{s.fig}</text>
                 <text class="hvs__label" x={centers[i]} y="98" text-anchor="middle">{s.label}</text>
                 <rect class="hvs__unit" x={centers[i] - 28} y="104" width="56" height="50" rx="4" />
                 <line class="hvs__fin" x1={centers[i] - 20} y1="112" x2={centers[i] - 20} y2="148" />
@@ -88,11 +89,13 @@ const stations = [
                 )}
                 {s.key === "inverter" && (
                   <g class="hvs__sun">
-                    <circle cx={centers[i] + 15} cy="118" r="5" />
-                    <line x1={centers[i] + 15} y1="108" x2={centers[i] + 15} y2="111" />
-                    <line x1={centers[i] + 15} y1="125" x2={centers[i] + 15} y2="128" />
-                    <line x1={centers[i] + 5} y1="118" x2={centers[i] + 8} y2="118" />
-                    <line x1={centers[i] + 22} y1="118" x2={centers[i] + 25} y2="118" />
+                    <rect class="hvs__panel" x={centers[i] - 17} y="110" width="34" height="6" rx="1" />
+                    <line class="hvs__panelgrid" x1={centers[i] - 6} y1="110" x2={centers[i] - 6} y2="116" />
+                    <line class="hvs__panelgrid" x1={centers[i] + 6} y1="110" x2={centers[i] + 6} y2="116" />
+                    <circle cx={centers[i]} cy="134" r="5" />
+                    <line x1={centers[i]} y1="124" x2={centers[i]} y2="127" />
+                    <line x1={centers[i] - 10} y1="134" x2={centers[i] - 7} y2="134" />
+                    <line x1={centers[i] + 7} y1="134" x2={centers[i] + 10} y2="134" />
                   </g>
                 )}
                 {s.key === "replace" && (
@@ -102,9 +105,6 @@ const stations = [
             ))
           }
         </svg>
-        <figcaption class="hvs__note">
-          These are the tools' ranges. Your number stays the floor we measure.
-        </figcaption>
       </figure>
 
       <p class="hvs__closer">
@@ -131,10 +131,10 @@ const stations = [
     const sts = [0, 1, 2, 3].map((i) => $("hvs-st" + i));
 
     const cards = [
-      "First, we shrink the job. An antimicrobial spray indoors pulls about 10 degrees off the heat load. A cool roof shield outside rejects more: 10 degrees cooler by day, 20 by evening. The exam picks which your building needs.",
-      "Often the unit isn't worn out, it's clogged. A cryogenic clean strips years of fouling off the coils and brings a tired unit back, over 20 percent more efficient.",
-      "Running basic single-compressor systems? We retrofit the working parts. Same cabinet, new efficiency: 15 to 30 percent less energy for the same cooling.",
-      "On large systems we add inverter drives and solar-thermal assist, so the unit eases up and down instead of slamming on and off. 30 to 40 percent more efficient.",
+      "First, we shrink the job. A cool roof shield keeps the heat off the building, so your HVAC doesn't have to work as hard.",
+      "A one-time treatment strips years of fouling off the coils and brings a tired unit back to life. The older the unit, the more it gains, up to 36 percent.",
+      "On simple systems, we retrofit the compressor to run only as hard as the moment needs, instead of full-blast or off. 15 to 30 percent less energy.",
+      "Already running inverter-drive systems? We add solar-thermal assist on top, so the sun helps carry the cooling load. 30 to 40 percent more efficient.",
       "When a unit is truly done, we replace it with the best built: 10-ton units rated IEER 31 and COP 6, roughly twice a standard unit's efficiency, and most hotels have never been offered it.",
     ];
     const setCard = (phase) => {
@@ -156,20 +156,22 @@ const stations = [
     const smooth = (p, a, b) => { const t = clamp((p - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
     const shield = $("hvs-shield");
     const loadVal = $("hvs-loadval");
-    const onAt = [0.32, 0.5, 0.68, 0.84]; // the four tools, after the load beat
+    const onAt = [0.34, 0.5, 0.66, 0.82]; // the four tools, after a longer load beat
     let lastPhase = -1;
 
     const setLoad = (f) => {
+      // the shield lays down onto the roof (drops in) while it spreads
       shield.setAttribute("width", (596 * f).toFixed(1));
+      shield.setAttribute("y", (148 + 6 * f).toFixed(1));
       loadVal.innerHTML = Math.round(90 - 10 * f) + "&#176;F";
       sec.classList.toggle("is-cooled", f > 0.5);
     };
 
     const apply = (p) => {
-      setLoad(smooth(p, 0.03, 0.2));
+      setLoad(smooth(p, 0.05, 0.24));
       sts.forEach((el, i) => el.classList.toggle("is-on", p > onAt[i]));
       if (prog) prog.style.transform = "scaleX(" + p.toFixed(3) + ")";
-      const phase = p < 0.2 ? 0 : p < 0.4 ? 1 : p < 0.6 ? 2 : p < 0.8 ? 3 : 4;
+      const phase = p < 0.26 ? 0 : p < 0.44 ? 1 : p < 0.6 ? 2 : p < 0.78 ? 3 : 4;
       if (phase !== lastPhase) { setCard(phase); lastPhase = phase; }
     };
 
@@ -248,14 +250,17 @@ const stations = [
   .hvs__rm-needle { stroke: var(--muted); stroke-width: 1.4; stroke-linecap: round; transition: stroke 0.6s ease; }
   .hvs.is-cooled .hvs__rm-face, .hvs.is-cooled .hvs__rm-needle { stroke: #5b9dc2; }
   .hvs__loadval {
-    font-family: var(--font-serif); font-size: 20px; fill: #e0903b;
+    font-family: var(--font-serif); font-size: 30px; fill: #e0903b;
     font-variant-numeric: tabular-nums; transition: fill 0.6s ease;
   }
   .hvs.is-cooled .hvs__loadval { fill: #5b9dc2; }
 
-  /* the roof surface (warm) and the cool shield sweeping across it */
+  /* the roof surface (warm) and the cool shield laid down over it */
   .hvs__roof { fill: rgba(224, 144, 59, 0.16); stroke: var(--line-strong); stroke-width: 1; }
-  .hvs__shield { fill: rgba(91, 157, 194, 0.6); }
+  .hvs__shield {
+    fill: rgba(91, 157, 194, 0.7);
+    filter: drop-shadow(0 1px 4px rgba(91, 157, 194, 0.5));
+  }
   .hvs__bldgface { fill: rgba(255, 255, 255, 0.012); stroke: var(--line); stroke-width: 1; }
   .hvs__bldgwin { fill: rgba(226, 216, 196, 0.05); }
 
@@ -293,6 +298,8 @@ const stations = [
   .hvs__sun { opacity: 0; transition: opacity 0.5s ease; }
   .hvs__sun circle { fill: rgba(216, 190, 134, 0.5); stroke: var(--gold-text); stroke-width: 1.2; }
   .hvs__sun line { stroke: var(--gold-text); stroke-width: 1.2; stroke-linecap: round; }
+  .hvs__panel { fill: rgba(91, 157, 194, 0.25); stroke: var(--gold-text); stroke-width: 1.2; }
+  .hvs__panelgrid { stroke: var(--gold-text); stroke-width: 0.8; }
   .hvs__st.is-on .hvs__sun { opacity: 1; }
   .hvs__newtag {
     font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.12em;
@@ -311,9 +318,12 @@ const stations = [
     fill: var(--mint); opacity: 0; transform-box: fill-box; transform-origin: center;
     transform: scale(0.8); transition: opacity 0.45s ease, transform 0.45s var(--ease-out-quart);
   }
-  .hvs__fig--spec { font-size: 13px; fill: var(--gold-text); }
   .hvs__st.is-on .hvs__fig { opacity: 1; transform: scale(1); }
-  .hvs__st--replace.is-on .hvs__fig { fill: var(--gold-text); }
+  .hvs__spec {
+    font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.06em;
+    fill: var(--gold-text); opacity: 0; transition: opacity 0.5s ease;
+  }
+  .hvs__st.is-on .hvs__spec { opacity: 1; }
 
   .hvs__note {
     margin-top: var(--space-m); font-size: var(--step--1);
