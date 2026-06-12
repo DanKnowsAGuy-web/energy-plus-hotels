@@ -1,0 +1,109 @@
+---
+// "Meet your procurement officer." The guide-authority payoff to the insulin
+// parable: the abstract promise (someone independent does the exam and buys
+// for you) becomes a concrete person with an unimpeachable record. Ends on a
+// transitional CTA so a convinced reader can book before the mechanism act.
+//
+// PLACEHOLDER credential wording below: confirm Cliff's exact Sandia language
+// before publishing. He was the sole source they trusted for all technologies
+// under DOD/DOE oversight; swap in his precise phrasing if it differs.
+---
+
+<section class="section proc" id="procurement" aria-labelledby="proc-title">
+  <div class="container container--narrow">
+    <div class="proc__inner reveal">
+      <p class="proc__kicker">The exam needs an examiner</p>
+      <h2 class="proc__title" id="proc-title">Meet your procurement officer.</h2>
+
+      <p class="proc__body">
+        Every dollar of equipment your building needs, someone buys it for you.
+        That someone is <strong>Cliff Suljak</strong>, the sole source Sandia
+        National Laboratories trusted for every technology, under Department of
+        Defense and Department of Energy oversight, where buying the wrong thing
+        was never an option. He ran more than $600&nbsp;million in projects at
+        the Salt River Project. Now he runs the exam on your building and buys
+        on your behalf.
+      </p>
+      <p class="proc__body">
+        The people who can't afford to be sold the wrong box don't let a vendor
+        decide. Neither should you.
+      </p>
+
+      <p class="proc__refrain">That's the whole idea.</p>
+
+      <div class="proc__cta">
+        <a href="#book" class="btn">
+          Book a verified pilot
+          <span class="btn__arrow" aria-hidden="true">&rarr;</span>
+        </a>
+        <a href="#power" class="proc__more">
+          or keep reading to see what the exam finds
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .proc {
+    border-top: 1px solid var(--line);
+    background:
+      radial-gradient(
+        ellipse 50% 50% at 12% 0%,
+        rgba(194, 163, 104, 0.06),
+        transparent 70%
+      ),
+      var(--bg);
+  }
+  .proc__kicker {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold-text);
+    margin-bottom: var(--space-s);
+  }
+  .proc__title {
+    font-size: var(--step-3);
+    max-width: 18ch;
+  }
+  .proc__body {
+    margin-top: var(--space-m);
+    font-size: var(--step-1);
+    line-height: 1.55;
+    color: var(--body);
+    max-width: 60ch;
+  }
+  .proc__body strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .proc__refrain {
+    margin-top: var(--space-l);
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: var(--step-2);
+    letter-spacing: -0.01em;
+    color: var(--gold-text);
+  }
+  .proc__cta {
+    margin-top: var(--space-l);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-m);
+  }
+  .proc__more {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: var(--step-0);
+    color: var(--muted);
+    border-bottom: 1px dotted var(--line-strong);
+    padding-bottom: 1px;
+    transition: color 0.3s ease, border-color 0.3s ease;
+  }
+  .proc__more:hover {
+    color: var(--gold-text);
+    border-color: var(--gold-text);
+  }
+</style>

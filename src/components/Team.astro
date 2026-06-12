@@ -2,20 +2,16 @@
 // Bios mirrored from yourenergyplus.com (team section), restyled to the
 // grand-hotel system. Photos are forest-tinted grayscale that warm on hover.
 import daniel from "../assets/daniel.jpeg";
-import cliff from "../assets/cliff.jpeg";
 import ronson from "../assets/ronson.jpeg";
 import cj from "../assets/cj.jpeg";
 
+// Cliff Suljak leads the "Meet your procurement officer" section earlier on
+// the page, so he is intentionally not repeated in this roster.
 const team = [
   {
     photo: daniel, name: "Daniel Gutierrez", role: "CEO + Founder",
     bio: "19 years connecting people, capital, and opportunity across 14+ industries and 70+ specialized markets. Former director of FDA-registered clinical trials. Works fee-for-performance, and is committed to deploying profits toward American infrastructure.",
     tags: ["14+ Industries", "Fee for Performance"],
-  },
-  {
-    photo: cliff, name: "Clifford Suljak", role: "Chief Engineer",
-    bio: "42+ years managing large-scale infrastructure. Ran projects exceeding $600M at Salt River Project. Awarded an exclusive sole-source consulting contract by Sandia National Laboratories (DOE/DOD). Member: EPRI, AWS, ASNT, ASM, ASTM.",
-    tags: ["Sandia National Labs", "$600M+ Projects"],
   },
   {
     photo: ronson, name: "Ronson Provido", role: "Principal Engineering Advisor",
@@ -130,8 +126,8 @@ const team = [
   @media (min-width: 620px) {
     .team__grid { grid-template-columns: 1fr 1fr; }
   }
-  @media (min-width: 1280px) {
-    .team__grid { grid-template-columns: repeat(4, 1fr); }
+  @media (min-width: 1000px) {
+    .team__grid { grid-template-columns: repeat(3, 1fr); }
   }
   .team__card {
     background: var(--surface);

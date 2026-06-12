@@ -1,0 +1,497 @@
+---
+// Power-quality, explained as a foamy pour. Replaces the water-pipe analogy:
+// one image that carries all four costs of poor power quality at once.
+//
+// Layout: switching cards on top narrate one cost at a time; below, a beer
+// glass (left) and a utility bill (right) animate in lockstep, so the foam in
+// the glass and the charge on the bill light up together. A final "clean pour"
+// collapses the foam and drops the bill. Bill figures are illustrative.
+const steps = [
+  {
+    n: "01", key: "foam", title: "The foam",
+    body: "You pay for what you can't use: harmonics, reactive power, and noise that power no equipment.",
+  },
+  {
+    n: "02", key: "spills", title: "The spills",
+    body: "Useful energy bleeds off as heat in your wires, motors, and transformers.",
+  },
+  {
+    n: "03", key: "mess", title: "The mess",
+    body: "Utility penalties for poor power factor, demand, and power quality.",
+  },
+  {
+    n: "04", key: "mug", title: "The mug",
+    body: "Distortion wears your breakers, electronics, and transformers out years early.",
+  },
+];
+
+// Illustrative bill lines. useful is the beer; the four wastes are the foam.
+const lines = [
+  { key: "useful", label: "Useful energy", amt: 1000, useful: true },
+  { key: "foam", label: "Power you can't use", amt: 140 },
+  { key: "spills", label: "Heat lost in the lines", amt: 95 },
+  { key: "mess", label: "Power-factor penalty", amt: 70 },
+  { key: "mug", label: "Early equipment wear", amt: 55 },
+];
+---
+
+<section class="section pq" id="power" aria-labelledby="pq-title">
+  <div class="container">
+    <div class="pq__head reveal">
+      <p class="pq__kicker">So what does the exam find?</p>
+      <h2 class="pq__title" id="pq-title">
+        You ordered the full beer. Why pay for the foam?
+      </h2>
+      <p class="pq__lede lede">
+        Here's the irony: the very gear you installed to save energy is part of
+        what's costing you. Every variable-speed drive, LED driver, and
+        controller pulls power in sharp, irregular bursts. Bolted on with
+        nothing coordinating them, those variable loads distort the current
+        across your building. Poor power quality is a foamy pour: the price
+        stays the same, but much of what lands in the glass was never energy you
+        could use.
+      </p>
+    </div>
+
+    <div class="pq__stage reveal" id="pq-stage" data-active="foam">
+      <div class="pq__cards" id="pq-cards">
+        {steps.map((s, i) => (
+          <article class="pq__card" data-card={s.key} data-i={i}>
+            <span class="pq__card-num">{s.n}</span>
+            <h3 class="pq__card-title">{s.title}</h3>
+            <p class="pq__card-body">{s.body}</p>
+          </article>
+        ))}
+        <article class="pq__card pq__card--clean" data-card="clean" data-i="4">
+          <span class="pq__card-num">&#10003;</span>
+          <h3 class="pq__card-title">A cleaner pour</h3>
+          <p class="pq__card-body">
+            Cut the distortion and the same bill buys a full mug of useful
+            energy: no spill, no mess fee, and a glass that lasts.
+          </p>
+        </article>
+      </div>
+
+      <div class="pq__cols">
+        <figure class="pq__col pq__glass-col">
+          <svg class="pq__glass" viewBox="0 0 200 300" role="img"
+            aria-label="A tall glass poured with a thick head of foam over a smaller amount of useful beer, dripping and pooling at the base.">
+            <!-- spill drips + puddle: the lost beer -->
+            <g class="pq__part" data-part="spills">
+              <path class="pq__drip" d="M150 120 q6 30 2 60"></path>
+              <path class="pq__drip" d="M52 150 q-6 24 -1 44"></path>
+            </g>
+            <g class="pq__part" data-part="mess">
+              <ellipse class="pq__puddle" cx="100" cy="280" rx="62" ry="8"></ellipse>
+            </g>
+
+            <!-- liquid, clipped to the glass interior -->
+            <clipPath id="pq-clip">
+              <path d="M58 40 L142 40 L130 262 L70 262 Z"></path>
+            </clipPath>
+            <g clip-path="url(#pq-clip)">
+              <rect class="pq__beer" x="50" y="120" width="100" height="150"></rect>
+              <rect class="pq__beer-top" x="50" y="44" width="100" height="80"></rect>
+              <g class="pq__part" data-part="foam">
+                <rect class="pq__foam" x="50" y="44" width="100" height="80"></rect>
+                <circle class="pq__bub" cx="78" cy="70" r="9"></circle>
+                <circle class="pq__bub" cx="112" cy="62" r="7"></circle>
+                <circle class="pq__bub" cx="96" cy="92" r="6"></circle>
+                <circle class="pq__bub" cx="124" cy="86" r="5"></circle>
+                <circle class="pq__bub" cx="70" cy="98" r="5"></circle>
+              </g>
+            </g>
+
+            <!-- the mug itself -->
+            <g class="pq__part" data-part="mug">
+              <path class="pq__glass-out" d="M58 40 L142 40 L130 262 L70 262 Z"></path>
+              <line class="pq__rim" x1="56" y1="40" x2="144" y2="40"></line>
+            </g>
+          </svg>
+          <figcaption class="pq__cap">The pour</figcaption>
+        </figure>
+
+        <figure class="pq__col pq__bill-col">
+          <div class="pq__bill" id="pq-bill">
+            <div class="pq__bill-head">
+              <span class="pq__bill-name">Utility Statement</span>
+              <span class="pq__bill-tag">illustrative</span>
+            </div>
+            <ul class="pq__bill-lines">
+              {lines.map((l) => (
+                <li class={`pq__line${l.useful ? " is-useful" : ""}`} data-bill={l.key}>
+                  <span class="pq__line-label">{l.label}</span>
+                  <span class="pq__line-amt" data-amt={l.amt}>${l.amt.toLocaleString()}</span>
+                </li>
+              ))}
+            </ul>
+            <div class="pq__bill-total">
+              <span>Total</span>
+              <span class="pq__total" id="pq-total">$1,000</span>
+            </div>
+          </div>
+          <figcaption class="pq__cap">The bill</figcaption>
+        </figure>
+      </div>
+
+      <div class="pq__dots" id="pq-dots" role="tablist" aria-label="Power-quality costs">
+        {steps.map((s, i) => (
+          <button class="pq__dot" data-go={i} aria-label={s.title} type="button"></button>
+        ))}
+        <button class="pq__dot pq__dot--clean" data-go="4" aria-label="A cleaner pour" type="button"></button>
+      </div>
+    </div>
+
+    <p class="pq__close reveal">
+      A cleaner pour fixes all four at once. Cut the distortion and the same bill
+      buys a full mug of useful energy.
+    </p>
+  </div>
+</section>
+
+<script is:inline>
+  (() => {
+    const stage = document.getElementById("pq-stage");
+    if (!stage) return;
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const cards = Array.from(stage.querySelectorAll(".pq__card"));
+    const dots = Array.from(stage.querySelectorAll(".pq__dot"));
+    const bill = document.getElementById("pq-bill");
+    const totalEl = document.getElementById("pq-total");
+    const order = ["foam", "spills", "mess", "mug", "clean"];
+
+    const BASE = 1000;
+    const waste = { foam: 140, spills: 95, mess: 70, mug: 55 };
+    const PEAK = BASE + waste.foam + waste.spills + waste.mess + waste.mug;
+    const fmt = (n) => "$" + Math.round(n).toLocaleString();
+
+    let totalTimer = null;
+    const countTo = (target) => {
+      if (totalTimer) cancelAnimationFrame(totalTimer);
+      const start = parseInt(totalEl.textContent.replace(/[^0-9]/g, ""), 10) || BASE;
+      const t0 = performance.now();
+      const dur = 600;
+      const tick = (now) => {
+        const p = Math.min((now - t0) / dur, 1);
+        const e = 1 - Math.pow(1 - p, 3);
+        totalEl.textContent = fmt(start + (target - start) * e);
+        if (p < 1) totalTimer = requestAnimationFrame(tick);
+      };
+      totalTimer = requestAnimationFrame(tick);
+    };
+
+    const show = (idx, animate) => {
+      const key = order[idx];
+      stage.dataset.active = key;
+      cards.forEach((c) => c.classList.toggle("is-active", Number(c.dataset.i) === idx));
+      dots.forEach((d) => d.classList.toggle("is-active", Number(d.dataset.go) === idx));
+
+      // bill: light each waste line as its step arrives; cut them all on clean
+      const wasteKeys = ["foam", "spills", "mess", "mug"];
+      if (key === "clean") {
+        wasteKeys.forEach((k) => {
+          const li = bill.querySelector(`[data-bill="${k}"]`);
+          li.classList.add("is-on", "is-cut");
+        });
+        animate ? countTo(BASE) : (totalEl.textContent = fmt(BASE));
+      } else {
+        let running = BASE;
+        wasteKeys.forEach((k) => {
+          const li = bill.querySelector(`[data-bill="${k}"]`);
+          li.classList.remove("is-cut");
+          const reached = order.indexOf(k) <= idx;
+          li.classList.toggle("is-on", reached);
+          if (reached) running += waste[k];
+        });
+        animate ? countTo(running) : (totalEl.textContent = fmt(running));
+      }
+    };
+
+    // static fallback: reveal all cards, park the glass foamy, bill at peak
+    if (reduce || !("IntersectionObserver" in window)) {
+      stage.classList.add("is-static");
+      cards.forEach((c) => c.classList.add("is-active"));
+      ["foam", "spills", "mess", "mug"].forEach((k) =>
+        bill.querySelector(`[data-bill="${k}"]`).classList.add("is-on"),
+      );
+      totalEl.textContent = fmt(PEAK);
+      stage.dataset.active = "all";
+      return;
+    }
+
+    let i = 0;
+    let auto = null;
+    const go = (idx, animate) => {
+      i = idx;
+      show(i, animate);
+    };
+    const advance = () => {
+      go((i + 1) % order.length, true);
+    };
+    const start = () => {
+      if (auto) return;
+      go(0, true);
+      auto = setInterval(advance, 2600);
+    };
+    // let a viewer scrub; pause the auto-run once they take control
+    dots.forEach((d) =>
+      d.addEventListener("click", () => {
+        if (auto) { clearInterval(auto); auto = null; }
+        go(Number(d.dataset.go), true);
+      }),
+    );
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            io.disconnect();
+            start();
+          }
+        }
+      },
+      { threshold: 0.4 },
+    );
+    io.observe(stage);
+  })();
+</script>
+
+<style>
+  .pq {
+    border-top: 1px solid var(--line);
+    background:
+      radial-gradient(ellipse 55% 45% at 88% 0%, rgba(194, 163, 104, 0.055), transparent 70%),
+      var(--bg);
+  }
+  .pq__head { max-width: 60rem; }
+  .pq__kicker {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold-text);
+    margin-bottom: var(--space-s);
+  }
+  .pq__title { font-size: var(--step-3); max-width: 22ch; }
+  .pq__lede { margin-top: var(--space-m); max-width: 64ch; }
+
+  .pq__stage { margin-top: var(--space-xl); }
+
+  /* narration cards: one at a time, stacked in place */
+  .pq__cards {
+    position: relative;
+    min-height: 8.5rem;
+    margin-bottom: var(--space-l);
+    max-width: 52rem;
+  }
+  .pq__card {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.45s ease, transform 0.45s var(--ease-out-quart);
+    pointer-events: none;
+  }
+  .pq__card.is-active {
+    opacity: 1;
+    transform: none;
+  }
+  .pq__card-num {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.1em;
+    color: var(--gold-text);
+  }
+  .pq__card--clean .pq__card-num { color: var(--mint); }
+  .pq__card-title {
+    margin-top: 0.3rem;
+    font-size: var(--step-2);
+    letter-spacing: -0.01em;
+  }
+  .pq__card-body {
+    margin-top: var(--space-2xs);
+    font-size: var(--step-1);
+    line-height: 1.5;
+    color: var(--body);
+    max-width: 46ch;
+  }
+
+  /* static fallback: cards flow as a list */
+  .pq__stage.is-static .pq__cards { min-height: 0; }
+  .pq__stage.is-static .pq__card {
+    position: static;
+    opacity: 1;
+    transform: none;
+    margin-bottom: var(--space-m);
+  }
+
+  .pq__cols {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    align-items: stretch;
+  }
+  @media (max-width: 720px) {
+    .pq__cols { grid-template-columns: 1fr; gap: var(--space-l); }
+  }
+  .pq__col { margin: 0; display: flex; flex-direction: column; }
+  .pq__cap {
+    margin-top: var(--space-s);
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .pq__glass { width: 100%; max-width: 200px; height: auto; display: block; margin-inline: auto; }
+
+  /* dim every part, then spotlight the active one */
+  .pq__part { transition: opacity 0.45s ease; }
+  .pq__stage[data-active] .pq__part { opacity: 0.32; }
+  .pq__stage[data-active="foam"] .pq__part[data-part="foam"],
+  .pq__stage[data-active="spills"] .pq__part[data-part="spills"],
+  .pq__stage[data-active="mess"] .pq__part[data-part="mess"],
+  .pq__stage[data-active="mug"] .pq__part[data-part="mug"],
+  .pq__stage[data-active="all"] .pq__part { opacity: 1; }
+
+  .pq__beer { fill: var(--gold); }
+  .pq__beer-top {
+    fill: var(--gold);
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+  .pq__foam { fill: #ece3d0; }
+  .pq__bub { fill: #fbf6ea; opacity: 0.85; }
+  .pq__drip {
+    fill: none;
+    stroke: var(--gold);
+    stroke-width: 3;
+    stroke-linecap: round;
+    opacity: 0.7;
+  }
+  .pq__puddle { fill: var(--gold); opacity: 0.5; }
+  .pq__glass-out {
+    fill: none;
+    stroke: var(--line-strong);
+    stroke-width: 2;
+  }
+  .pq__rim { stroke: var(--line-strong); stroke-width: 3; stroke-linecap: round; }
+
+  .pq__stage[data-active="mug"] .pq__glass-out,
+  .pq__stage[data-active="mug"] .pq__rim { stroke: #e0894a; }
+
+  /* clean pour: foam gone, beer to the rim, spill + puddle wiped, glass crisp */
+  .pq__stage[data-active="clean"] .pq__part[data-part="foam"],
+  .pq__stage[data-active="clean"] .pq__part[data-part="spills"],
+  .pq__stage[data-active="clean"] .pq__part[data-part="mess"] { opacity: 0; }
+  .pq__stage[data-active="clean"] .pq__beer-top { opacity: 1; }
+  .pq__stage[data-active="clean"] .pq__glass-out,
+  .pq__stage[data-active="clean"] .pq__rim { stroke: var(--gold-text); opacity: 1; }
+  .pq__stage[data-active="clean"] .pq__part { opacity: 1; }
+
+  /* utility bill */
+  .pq__bill {
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.014);
+    padding: clamp(1rem, 2.5vw, 1.6rem);
+    flex: 1;
+  }
+  .pq__bill-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-bottom: var(--space-s);
+    border-bottom: 1px solid var(--line);
+  }
+  .pq__bill-name {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--body);
+  }
+  .pq__bill-tag {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    opacity: 0.7;
+  }
+  .pq__bill-lines { list-style: none; margin: var(--space-s) 0 0; padding: 0; }
+  .pq__line {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    font-size: var(--step-0);
+    color: var(--muted);
+    opacity: 0.4;
+    transition: opacity 0.4s ease, color 0.4s ease;
+  }
+  .pq__line.is-useful { opacity: 1; color: var(--body); }
+  .pq__line.is-on { opacity: 1; color: var(--body); }
+  .pq__line.is-on .pq__line-label { color: #e0894a; }
+  .pq__line-amt { font-variant-numeric: tabular-nums; font-family: var(--font-mono); }
+  .pq__line.is-cut {
+    color: var(--muted);
+    opacity: 0.55;
+  }
+  .pq__line.is-cut .pq__line-label,
+  .pq__line.is-cut .pq__line-amt {
+    text-decoration: line-through;
+    color: var(--muted);
+  }
+  .pq__bill-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-top: var(--space-s);
+    padding-top: var(--space-s);
+    border-top: 1px solid var(--line-strong);
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: var(--step--1);
+    color: var(--body);
+  }
+  .pq__total {
+    font-family: var(--font-serif);
+    font-size: var(--step-3);
+    letter-spacing: -0.01em;
+    color: var(--gold-text);
+    text-transform: none;
+    font-variant-numeric: tabular-nums;
+  }
+  .pq__stage[data-active="clean"] .pq__total { color: var(--mint); }
+
+  .pq__dots {
+    display: flex;
+    gap: 0.55rem;
+    margin-top: var(--space-l);
+    justify-content: center;
+  }
+  .pq__dot {
+    width: 9px; height: 9px;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+  }
+  .pq__dot.is-active { background: var(--gold-text); border-color: var(--gold-text); transform: scale(1.15); }
+  .pq__dot--clean.is-active { background: var(--mint); border-color: var(--mint); }
+
+  .pq__close {
+    margin-top: var(--space-xl);
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: var(--step-1);
+    color: var(--ink);
+    max-width: 48ch;
+  }
+</style>
