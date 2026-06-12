@@ -1,37 +1,36 @@
 ---
-// Power-quality, explained as a foamy pour. Replaces the water-pipe analogy:
-// one image that carries all four costs of poor power quality at once.
-//
-// Layout: switching cards on top narrate one cost at a time; below, a beer
-// glass (left) and a utility bill (right) animate in lockstep, so the foam in
-// the glass and the charge on the bill light up together. A final "clean pour"
-// collapses the foam and drops the bill. Bill figures are illustrative.
+// Power-quality, explained as a foamy pour. Scroll-driven: the scene pins and
+// each scroll step advances one cost; scrolling back reverses it. A tap pours
+// the "load" into the glass: a chaotic, nonlinear pour throws foam (the four
+// costs); a clean, linear pour fills the glass with useful energy. The glass
+// and the utility bill animate in lockstep so each cost lights up on both.
+// Bill figures are illustrative.
 const steps = [
   {
-    n: "01", key: "foam", title: "The foam",
+    n: "01", key: "foam", title: "The foam", part: "the foam",
     body: "You pay for what you can't use: harmonics, reactive power, and noise that power no equipment.",
   },
   {
-    n: "02", key: "spills", title: "The spills",
+    n: "02", key: "spills", title: "The spills", part: "the spills",
     body: "Useful energy bleeds off as heat in your wires, motors, and transformers.",
   },
   {
-    n: "03", key: "mess", title: "The mess",
+    n: "03", key: "mess", title: "The mess", part: "the mess",
     body: "Utility penalties for poor power factor, demand, and power quality.",
   },
   {
-    n: "04", key: "mug", title: "The mug",
+    n: "04", key: "mug", title: "The mug", part: "the mug",
     body: "Distortion wears your breakers, electronics, and transformers out years early.",
   },
 ];
 
-// Illustrative bill lines. useful is the beer; the four wastes are the foam.
+// Bill lines, each tagged with the beer part it represents.
 const lines = [
-  { key: "useful", label: "Useful energy", amt: 1000, useful: true },
-  { key: "foam", label: "Power you can't use", amt: 140 },
-  { key: "spills", label: "Heat lost in the lines", amt: 95 },
-  { key: "mess", label: "Power-factor penalty", amt: 70 },
-  { key: "mug", label: "Early equipment wear", amt: 55 },
+  { key: "useful", label: "Useful energy", part: "the beer", amt: 1000, useful: true },
+  { key: "foam", label: "Power you can't use", part: "the foam", amt: 140 },
+  { key: "spills", label: "Heat lost in the lines", part: "the spills", amt: 95 },
+  { key: "mess", label: "Power-factor penalty", part: "the mess", amt: 70 },
+  { key: "mug", label: "Early equipment wear", part: "the mug", amt: 55 },
 ];
 ---
 
@@ -45,103 +44,128 @@ const lines = [
       <p class="pq__lede lede">
         Here's the irony: the very gear you installed to save energy is part of
         what's costing you. Every variable-speed drive, LED driver, and
-        controller pulls power in sharp, irregular bursts. Bolted on with
-        nothing coordinating them, those variable loads distort the current
-        across your building. Poor power quality is a foamy pour: the price
-        stays the same, but much of what lands in the glass was never energy you
-        could use.
+        controller pulls power in sharp, irregular bursts. Those nonlinear loads
+        distort the current across your building, and the meter pours it like a
+        bad tap: the price stays the same, but much of what lands in the glass
+        was never energy you could use.
       </p>
     </div>
+  </div>
 
-    <div class="pq__stage reveal" id="pq-stage" data-active="foam">
-      <div class="pq__cards" id="pq-cards">
-        {steps.map((s, i) => (
-          <article class="pq__card" data-card={s.key} data-i={i}>
-            <span class="pq__card-num">{s.n}</span>
-            <h3 class="pq__card-title">{s.title}</h3>
-            <p class="pq__card-body">{s.body}</p>
+  <div class="pq__track" id="pq-track">
+    <div class="pq__sticky">
+      <div class="container pq__stage" id="pq-stage" data-active="foam">
+        <div class="pq__cards" id="pq-cards">
+          {steps.map((s, i) => (
+            <article class="pq__card" data-card={s.key} data-i={i}>
+              <span class="pq__card-num">{s.n}</span>
+              <h3 class="pq__card-title">{s.title}</h3>
+              <p class="pq__card-body">{s.body}</p>
+            </article>
+          ))}
+          <article class="pq__card pq__card--clean" data-card="clean" data-i="4">
+            <span class="pq__card-num">&#10003;</span>
+            <h3 class="pq__card-title">A cleaner pour</h3>
+            <p class="pq__card-body">
+              Cut the distortion and the same bill buys a full mug of useful
+              energy: no spill, no mess fee, and a glass that lasts.
+            </p>
           </article>
-        ))}
-        <article class="pq__card pq__card--clean" data-card="clean" data-i="4">
-          <span class="pq__card-num">&#10003;</span>
-          <h3 class="pq__card-title">A cleaner pour</h3>
-          <p class="pq__card-body">
-            Cut the distortion and the same bill buys a full mug of useful
-            energy: no spill, no mess fee, and a glass that lasts.
-          </p>
-        </article>
-      </div>
+        </div>
 
-      <div class="pq__cols">
-        <figure class="pq__col pq__glass-col">
-          <svg class="pq__glass" viewBox="0 0 200 300" role="img"
-            aria-label="A tall glass poured with a thick head of foam over a smaller amount of useful beer, dripping and pooling at the base.">
-            <!-- spill drips + puddle: the lost beer -->
-            <g class="pq__part" data-part="spills">
-              <path class="pq__drip" d="M150 120 q6 30 2 60"></path>
-              <path class="pq__drip" d="M52 150 q-6 24 -1 44"></path>
-            </g>
-            <g class="pq__part" data-part="mess">
-              <ellipse class="pq__puddle" cx="100" cy="280" rx="62" ry="8"></ellipse>
-            </g>
-
-            <!-- liquid, clipped to the glass interior -->
-            <clipPath id="pq-clip">
-              <path d="M58 40 L142 40 L130 262 L70 262 Z"></path>
-            </clipPath>
-            <g clip-path="url(#pq-clip)">
-              <rect class="pq__beer" x="50" y="120" width="100" height="150"></rect>
-              <rect class="pq__beer-top" x="50" y="44" width="100" height="80"></rect>
-              <g class="pq__part" data-part="foam">
-                <rect class="pq__foam" x="50" y="44" width="100" height="80"></rect>
-                <circle class="pq__bub" cx="78" cy="70" r="9"></circle>
-                <circle class="pq__bub" cx="112" cy="62" r="7"></circle>
-                <circle class="pq__bub" cx="96" cy="92" r="6"></circle>
-                <circle class="pq__bub" cx="124" cy="86" r="5"></circle>
-                <circle class="pq__bub" cx="70" cy="98" r="5"></circle>
+        <div class="pq__cols">
+          <div class="pq__col pq__glass-col">
+            <span class="pq__load" id="pq-load">Nonlinear load</span>
+            <svg class="pq__glass" viewBox="0 0 240 440" role="img"
+              aria-label="A tap pours into a tall glass. A chaotic pour throws a thick head of foam and spills down the side; a clean, even pour fills the glass with useful beer.">
+              <!-- tap -->
+              <g class="pq__tap">
+                <rect x="22" y="24" width="98" height="13" rx="4"></rect>
+                <rect x="58" y="10" width="12" height="16" rx="3"></rect>
+                <rect x="106" y="24" width="22" height="46" rx="4"></rect>
               </g>
-            </g>
 
-            <!-- the mug itself -->
-            <g class="pq__part" data-part="mug">
-              <path class="pq__glass-out" d="M58 40 L142 40 L130 262 L70 262 Z"></path>
-              <line class="pq__rim" x1="56" y1="40" x2="144" y2="40"></line>
-            </g>
-          </svg>
-          <figcaption class="pq__cap">The pour</figcaption>
-        </figure>
+              <!-- the pour: chaotic (nonlinear) vs smooth (linear) -->
+              <g class="pq__stream pq__stream--chaotic">
+                <path class="pq__jet" d="M117 70 q-12 26 3 50 q13 22 -4 46 q-9 14 2 22"></path>
+                <circle class="pq__splat" cx="104" cy="120" r="3.4"></circle>
+                <circle class="pq__splat" cx="132" cy="150" r="2.8"></circle>
+                <circle class="pq__splat" cx="112" cy="168" r="3"></circle>
+              </g>
+              <g class="pq__stream pq__stream--smooth">
+                <rect class="pq__jet-smooth" x="113" y="70" width="9" height="118" rx="4"></rect>
+              </g>
 
-        <figure class="pq__col pq__bill-col">
-          <div class="pq__bill" id="pq-bill">
-            <div class="pq__bill-head">
-              <span class="pq__bill-name">Utility Statement</span>
-              <span class="pq__bill-tag">illustrative</span>
-            </div>
-            <ul class="pq__bill-lines">
-              {lines.map((l) => (
-                <li class={`pq__line${l.useful ? " is-useful" : ""}`} data-bill={l.key}>
-                  <span class="pq__line-label">{l.label}</span>
-                  <span class="pq__line-amt" data-amt={l.amt}>${l.amt.toLocaleString()}</span>
-                </li>
-              ))}
-            </ul>
-            <div class="pq__bill-total">
-              <span>Total</span>
-              <span class="pq__total" id="pq-total">$1,000</span>
+              <!-- spill drips + puddle -->
+              <g class="pq__part" data-part="spills">
+                <path class="pq__drip" d="M168 196 q7 36 2 70"></path>
+                <path class="pq__drip" d="M74 214 q-7 28 -1 52"></path>
+              </g>
+              <g class="pq__part" data-part="mess">
+                <ellipse class="pq__puddle" cx="120" cy="418" rx="74" ry="9"></ellipse>
+              </g>
+
+              <!-- liquid, clipped to glass interior -->
+              <clipPath id="pq-clip">
+                <path d="M70 186 L170 186 L156 404 L84 404 Z"></path>
+              </clipPath>
+              <g clip-path="url(#pq-clip)">
+                <rect class="pq__beer" x="64" y="262" width="112" height="150"></rect>
+                <rect class="pq__beer-top" x="64" y="190" width="112" height="90"></rect>
+                <g class="pq__part" data-part="foam">
+                  <rect class="pq__foam" x="64" y="190" width="112" height="78"></rect>
+                  <circle class="pq__bub" cx="92" cy="218" r="10" style="--bd:0s"></circle>
+                  <circle class="pq__bub" cx="128" cy="208" r="8" style="--bd:-1.1s"></circle>
+                  <circle class="pq__bub" cx="110" cy="242" r="7" style="--bd:-2.2s"></circle>
+                  <circle class="pq__bub" cx="146" cy="232" r="6" style="--bd:-0.6s"></circle>
+                  <circle class="pq__bub" cx="80" cy="246" r="6" style="--bd:-1.7s"></circle>
+                  <circle class="pq__bub" cx="156" cy="216" r="5" style="--bd:-2.8s"></circle>
+                </g>
+              </g>
+
+              <!-- the mug itself -->
+              <g class="pq__part" data-part="mug">
+                <path class="pq__glass-out" d="M70 186 L170 186 L156 404 L84 404 Z"></path>
+                <line class="pq__rim" x1="66" y1="186" x2="174" y2="186"></line>
+              </g>
+            </svg>
+          </div>
+
+          <div class="pq__col pq__bill-col">
+            <div class="pq__bill" id="pq-bill">
+              <div class="pq__bill-head">
+                <span class="pq__bill-name">Utility Statement</span>
+                <span class="pq__bill-tag">illustrative</span>
+              </div>
+              <ul class="pq__bill-lines">
+                {lines.map((l) => (
+                  <li class={`pq__line${l.useful ? " is-useful" : ""}`} data-bill={l.key}>
+                    <span class="pq__line-label">
+                      {l.label} <span class="pq__line-part">({l.part})</span>
+                    </span>
+                    <span class="pq__line-amt" data-amt={l.amt}>${l.amt.toLocaleString()}</span>
+                  </li>
+                ))}
+              </ul>
+              <div class="pq__bill-total">
+                <span>Total</span>
+                <span class="pq__total" id="pq-total">$1,000</span>
+              </div>
             </div>
           </div>
-          <figcaption class="pq__cap">The bill</figcaption>
-        </figure>
-      </div>
+        </div>
 
-      <div class="pq__dots" id="pq-dots" role="tablist" aria-label="Power-quality costs">
-        {steps.map((s, i) => (
-          <button class="pq__dot" data-go={i} aria-label={s.title} type="button"></button>
-        ))}
-        <button class="pq__dot pq__dot--clean" data-go="4" aria-label="A cleaner pour" type="button"></button>
+        <div class="pq__dots" id="pq-dots" role="tablist" aria-label="Power-quality costs">
+          {steps.map((s, i) => (
+            <button class="pq__dot" data-go={i} aria-label={s.title} type="button"></button>
+          ))}
+          <button class="pq__dot pq__dot--clean" data-go="4" aria-label="A cleaner pour" type="button"></button>
+        </div>
       </div>
     </div>
+  </div>
 
+  <div class="container">
     <p class="pq__close reveal">
       A cleaner pour fixes all four at once. Cut the distortion and the same bill
       buys a full mug of useful energy.
@@ -152,13 +176,16 @@ const lines = [
 <script is:inline>
   (() => {
     const stage = document.getElementById("pq-stage");
-    if (!stage) return;
+    const track = document.getElementById("pq-track");
+    if (!stage || !track) return;
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const cards = Array.from(stage.querySelectorAll(".pq__card"));
     const dots = Array.from(stage.querySelectorAll(".pq__dot"));
     const bill = document.getElementById("pq-bill");
     const totalEl = document.getElementById("pq-total");
+    const loadEl = document.getElementById("pq-load");
     const order = ["foam", "spills", "mess", "mug", "clean"];
+    const STEPS = order.length;
 
     const BASE = 1000;
     const waste = { foam: 140, spills: 95, mess: 70, mug: 55 };
@@ -170,7 +197,7 @@ const lines = [
       if (totalTimer) cancelAnimationFrame(totalTimer);
       const start = parseInt(totalEl.textContent.replace(/[^0-9]/g, ""), 10) || BASE;
       const t0 = performance.now();
-      const dur = 600;
+      const dur = 500;
       const tick = (now) => {
         const p = Math.min((now - t0) / dur, 1);
         const e = 1 - Math.pow(1 - p, 3);
@@ -180,19 +207,16 @@ const lines = [
       totalTimer = requestAnimationFrame(tick);
     };
 
+    const wasteKeys = ["foam", "spills", "mess", "mug"];
     const show = (idx, animate) => {
       const key = order[idx];
       stage.dataset.active = key;
+      loadEl.textContent = key === "clean" ? "Linear load" : "Nonlinear load";
       cards.forEach((c) => c.classList.toggle("is-active", Number(c.dataset.i) === idx));
       dots.forEach((d) => d.classList.toggle("is-active", Number(d.dataset.go) === idx));
 
-      // bill: light each waste line as its step arrives; cut them all on clean
-      const wasteKeys = ["foam", "spills", "mess", "mug"];
       if (key === "clean") {
-        wasteKeys.forEach((k) => {
-          const li = bill.querySelector(`[data-bill="${k}"]`);
-          li.classList.add("is-on", "is-cut");
-        });
+        wasteKeys.forEach((k) => bill.querySelector(`[data-bill="${k}"]`).classList.add("is-on", "is-cut"));
         animate ? countTo(BASE) : (totalEl.textContent = fmt(BASE));
       } else {
         let running = BASE;
@@ -207,52 +231,62 @@ const lines = [
       }
     };
 
-    // static fallback: reveal all cards, park the glass foamy, bill at peak
-    if (reduce || !("IntersectionObserver" in window)) {
+    // Static fallback: no pin, all cards listed, glass foamy, bill at peak.
+    const narrow = matchMedia("(max-width: 820px)").matches;
+    if (reduce || narrow || !("IntersectionObserver" in window)) {
       stage.classList.add("is-static");
+      track.classList.add("is-static");
       cards.forEach((c) => c.classList.add("is-active"));
-      ["foam", "spills", "mess", "mug"].forEach((k) =>
-        bill.querySelector(`[data-bill="${k}"]`).classList.add("is-on"),
-      );
+      wasteKeys.forEach((k) => bill.querySelector(`[data-bill="${k}"]`).classList.add("is-on"));
       totalEl.textContent = fmt(PEAK);
       stage.dataset.active = "all";
+      dots.forEach((d) =>
+        d.addEventListener("click", () => show(Number(d.dataset.go), true)),
+      );
       return;
     }
 
-    let i = 0;
-    let auto = null;
-    const go = (idx, animate) => {
-      i = idx;
-      show(i, animate);
+    // Scroll-driven: map progress through the pinned track to a step index.
+    track.classList.add("is-pinned");
+    let current = -1;
+    let ticking = false;
+    const measure = () => {
+      const span = track.offsetHeight - window.innerHeight;
+      const passed = Math.min(Math.max(-track.getBoundingClientRect().top, 0), span);
+      const p = span > 0 ? passed / span : 0;
+      const idx = Math.max(0, Math.min(STEPS - 1, Math.floor(p * STEPS - 1e-6)));
+      if (idx !== current) {
+        current = idx;
+        show(idx, true);
+      }
     };
-    const advance = () => {
-      go((i + 1) % order.length, true);
-    };
-    const start = () => {
-      if (auto) return;
-      go(0, true);
-      auto = setInterval(advance, 2600);
-    };
-    // let a viewer scrub; pause the auto-run once they take control
+    addEventListener(
+      "scroll",
+      () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(() => {
+            measure();
+            ticking = false;
+          });
+        }
+      },
+      { passive: true },
+    );
+    addEventListener("resize", measure, { passive: true });
+
+    // Dots scroll the page to the matching step.
     dots.forEach((d) =>
       d.addEventListener("click", () => {
-        if (auto) { clearInterval(auto); auto = null; }
-        go(Number(d.dataset.go), true);
+        const span = track.offsetHeight - window.innerHeight;
+        const idx = Number(d.dataset.go);
+        const y = track.offsetTop + ((idx + 0.5) / STEPS) * span;
+        scrollTo({ top: y, behavior: "smooth" });
       }),
     );
 
-    const io = new IntersectionObserver(
-      (entries) => {
-        for (const e of entries) {
-          if (e.isIntersecting) {
-            io.disconnect();
-            start();
-          }
-        }
-      },
-      { threshold: 0.4 },
-    );
-    io.observe(stage);
+    show(0, false);
+    measure();
   })();
 </script>
 
@@ -260,7 +294,7 @@ const lines = [
   .pq {
     border-top: 1px solid var(--line);
     background:
-      radial-gradient(ellipse 55% 45% at 88% 0%, rgba(194, 163, 104, 0.055), transparent 70%),
+      radial-gradient(ellipse 55% 35% at 88% 0%, rgba(194, 163, 104, 0.055), transparent 70%),
       var(--bg);
   }
   .pq__head { max-width: 60rem; }
@@ -275,12 +309,24 @@ const lines = [
   .pq__title { font-size: var(--step-3); max-width: 22ch; }
   .pq__lede { margin-top: var(--space-m); max-width: 64ch; }
 
-  .pq__stage { margin-top: var(--space-xl); }
+  /* scroll track: tall so the pinned scene has room to step through */
+  .pq__track.is-pinned { height: 360vh; }
+  .pq__track.is-static { height: auto; }
+  .pq__track.is-pinned .pq__sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+  }
+  .pq__stage { width: 100%; }
+  .pq__stage:not(.is-static) { margin-top: 0; }
+  .pq__track.is-static .pq__stage { margin-top: var(--space-xl); }
 
   /* narration cards: one at a time, stacked in place */
   .pq__cards {
     position: relative;
-    min-height: 8.5rem;
+    min-height: 8rem;
     margin-bottom: var(--space-l);
     max-width: 52rem;
   }
@@ -288,14 +334,11 @@ const lines = [
     position: absolute;
     inset: 0;
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(10px);
     transition: opacity 0.45s ease, transform 0.45s var(--ease-out-quart);
     pointer-events: none;
   }
-  .pq__card.is-active {
-    opacity: 1;
-    transform: none;
-  }
+  .pq__card.is-active { opacity: 1; transform: none; }
   .pq__card-num {
     font-family: var(--font-mono);
     font-size: var(--step--1);
@@ -303,11 +346,7 @@ const lines = [
     color: var(--gold-text);
   }
   .pq__card--clean .pq__card-num { color: var(--mint); }
-  .pq__card-title {
-    margin-top: 0.3rem;
-    font-size: var(--step-2);
-    letter-spacing: -0.01em;
-  }
+  .pq__card-title { margin-top: 0.3rem; font-size: var(--step-2); letter-spacing: -0.01em; }
   .pq__card-body {
     margin-top: var(--space-2xs);
     font-size: var(--step-1);
@@ -315,8 +354,6 @@ const lines = [
     color: var(--body);
     max-width: 46ch;
   }
-
-  /* static fallback: cards flow as a list */
   .pq__stage.is-static .pq__cards { min-height: 0; }
   .pq__stage.is-static .pq__card {
     position: static;
@@ -327,28 +364,53 @@ const lines = [
 
   .pq__cols {
     display: grid;
-    grid-template-columns: 0.85fr 1.15fr;
+    grid-template-columns: 0.9fr 1.1fr;
     gap: clamp(1.5rem, 4vw, 3rem);
-    align-items: stretch;
+    align-items: end;
   }
-  @media (max-width: 720px) {
-    .pq__cols { grid-template-columns: 1fr; gap: var(--space-l); }
+  @media (max-width: 820px) {
+    .pq__cols { grid-template-columns: 1fr; gap: var(--space-l); align-items: stretch; }
   }
   .pq__col { margin: 0; display: flex; flex-direction: column; }
-  .pq__cap {
-    margin-top: var(--space-s);
+  .pq__glass-col { align-items: center; }
+
+  .pq__load {
+    align-self: center;
     font-family: var(--font-mono);
     font-size: var(--step--2);
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: #e0894a;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    padding: 0.25em 0.8em;
+    margin-bottom: var(--space-s);
+    transition: color 0.5s ease;
   }
+  .pq__stage[data-active="clean"] .pq__load { color: var(--mint); }
 
-  .pq__glass { width: 100%; max-width: 200px; height: auto; display: block; margin-inline: auto; }
+  .pq__glass { width: 100%; max-width: 250px; height: auto; display: block; }
 
-  /* dim every part, then spotlight the active one */
+  .pq__tap { fill: var(--surface-2); stroke: var(--line-strong); stroke-width: 1.5; }
+
+  /* the pour */
+  .pq__stream { transition: opacity 0.5s ease; }
+  .pq__stream--smooth { opacity: 0; }
+  .pq__jet {
+    fill: none;
+    stroke: var(--gold);
+    stroke-width: 6;
+    stroke-linecap: round;
+    opacity: 0.9;
+  }
+  .pq__splat { fill: var(--gold); opacity: 0.8; }
+  .pq__jet-smooth { fill: var(--gold-text); opacity: 0.92; }
+  .pq__stage[data-active="clean"] .pq__stream--chaotic { opacity: 0; }
+  .pq__stage[data-active="clean"] .pq__stream--smooth { opacity: 1; }
+
+  /* spotlight: dim every part, brighten the active one */
   .pq__part { transition: opacity 0.45s ease; }
-  .pq__stage[data-active] .pq__part { opacity: 0.32; }
+  .pq__stage[data-active] .pq__part { opacity: 0.3; }
   .pq__stage[data-active="foam"] .pq__part[data-part="foam"],
   .pq__stage[data-active="spills"] .pq__part[data-part="spills"],
   .pq__stage[data-active="mess"] .pq__part[data-part="mess"],
@@ -356,28 +418,17 @@ const lines = [
   .pq__stage[data-active="all"] .pq__part { opacity: 1; }
 
   .pq__beer { fill: var(--gold); }
-  .pq__beer-top {
-    fill: var(--gold);
-    opacity: 0;
-    transition: opacity 0.6s ease;
+  .pq__beer-top { fill: var(--gold); opacity: 0; transition: opacity 0.6s ease; }
+  .pq__foam { fill: #e3d8c0; }
+  .pq__bub {
+    fill: #fffaf0;
+    stroke: rgba(120, 100, 60, 0.45);
+    stroke-width: 1.3;
   }
-  .pq__foam { fill: #ece3d0; }
-  .pq__bub { fill: #fbf6ea; opacity: 0.85; }
-  .pq__drip {
-    fill: none;
-    stroke: var(--gold);
-    stroke-width: 3;
-    stroke-linecap: round;
-    opacity: 0.7;
-  }
+  .pq__drip { fill: none; stroke: var(--gold); stroke-width: 3.5; stroke-linecap: round; opacity: 0.75; }
   .pq__puddle { fill: var(--gold); opacity: 0.5; }
-  .pq__glass-out {
-    fill: none;
-    stroke: var(--line-strong);
-    stroke-width: 2;
-  }
-  .pq__rim { stroke: var(--line-strong); stroke-width: 3; stroke-linecap: round; }
-
+  .pq__glass-out { fill: none; stroke: var(--line-strong); stroke-width: 2.4; }
+  .pq__rim { stroke: var(--line-strong); stroke-width: 3.5; stroke-linecap: round; }
   .pq__stage[data-active="mug"] .pq__glass-out,
   .pq__stage[data-active="mug"] .pq__rim { stroke: #e0894a; }
 
@@ -390,13 +441,38 @@ const lines = [
   .pq__stage[data-active="clean"] .pq__rim { stroke: var(--gold-text); opacity: 1; }
   .pq__stage[data-active="clean"] .pq__part { opacity: 1; }
 
+  @media (prefers-reduced-motion: no-preference) {
+    .pq__bub {
+      animation: pqRise 3.4s ease-in-out infinite;
+      animation-delay: var(--bd, 0s);
+    }
+    @keyframes pqRise {
+      0% { transform: translateY(4px); opacity: 0.55; }
+      50% { transform: translateY(-5px); opacity: 1; }
+      100% { transform: translateY(4px); opacity: 0.55; }
+    }
+    .pq__stream--chaotic .pq__jet { animation: pqJet 0.5s ease-in-out infinite alternate; }
+    @keyframes pqJet {
+      from { transform: translateX(-3px) scaleY(0.98); }
+      to { transform: translateX(3px) scaleY(1.02); }
+    }
+    .pq__splat { animation: pqSplat 0.9s ease-in infinite; }
+    .pq__splat:nth-of-type(3) { animation-delay: -0.3s; }
+    .pq__splat:nth-of-type(4) { animation-delay: -0.6s; }
+    @keyframes pqSplat {
+      0% { transform: translate(0, -8px); opacity: 0; }
+      30% { opacity: 0.9; }
+      100% { transform: translate(6px, 14px); opacity: 0; }
+    }
+    .pq__stage[data-active="clean"] .pq__splat { animation: none; opacity: 0; }
+  }
+
   /* utility bill */
   .pq__bill {
     border: 1px solid var(--line-strong);
     border-radius: 10px;
     background: rgba(255, 255, 255, 0.014);
     padding: clamp(1rem, 2.5vw, 1.6rem);
-    flex: 1;
   }
   .pq__bill-head {
     display: flex;
@@ -432,19 +508,16 @@ const lines = [
     opacity: 0.4;
     transition: opacity 0.4s ease, color 0.4s ease;
   }
+  .pq__line-part { color: var(--muted); font-style: italic; font-size: 0.88em; }
   .pq__line.is-useful { opacity: 1; color: var(--body); }
   .pq__line.is-on { opacity: 1; color: var(--body); }
   .pq__line.is-on .pq__line-label { color: #e0894a; }
+  .pq__line.is-on .pq__line-part { color: #e0894a; opacity: 0.8; }
   .pq__line-amt { font-variant-numeric: tabular-nums; font-family: var(--font-mono); }
-  .pq__line.is-cut {
-    color: var(--muted);
-    opacity: 0.55;
-  }
+  .pq__line.is-cut { color: var(--muted); opacity: 0.55; }
   .pq__line.is-cut .pq__line-label,
-  .pq__line.is-cut .pq__line-amt {
-    text-decoration: line-through;
-    color: var(--muted);
-  }
+  .pq__line.is-cut .pq__line-amt { text-decoration: line-through; color: var(--muted); }
+  .pq__line.is-cut .pq__line-part { text-decoration: none; }
   .pq__bill-total {
     display: flex;
     justify-content: space-between;
@@ -465,15 +538,11 @@ const lines = [
     color: var(--gold-text);
     text-transform: none;
     font-variant-numeric: tabular-nums;
+    transition: color 0.5s ease;
   }
   .pq__stage[data-active="clean"] .pq__total { color: var(--mint); }
 
-  .pq__dots {
-    display: flex;
-    gap: 0.55rem;
-    margin-top: var(--space-l);
-    justify-content: center;
-  }
+  .pq__dots { display: flex; gap: 0.55rem; margin-top: var(--space-l); justify-content: center; }
   .pq__dot {
     width: 9px; height: 9px;
     border-radius: 999px;
