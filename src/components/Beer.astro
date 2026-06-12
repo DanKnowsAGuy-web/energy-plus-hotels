@@ -58,16 +58,17 @@ const lines = [
         <div class="pq__cards" id="pq-cards">
           {steps.map((s, i) => (
             <article class="pq__card" data-card={s.key} data-i={i}>
-              <span class="pq__card-num">{s.n}</span>
               <h3 class="pq__card-title">
-                {s.title} <span class="pq__card-meaning">({s.meaning})</span>
+                <span class="pq__card-num">{s.n}</span>{s.title}
+                <span class="pq__card-meaning">({s.meaning})</span>
               </h3>
               <p class="pq__card-body">{s.body}</p>
             </article>
           ))}
           <article class="pq__card pq__card--clean" data-card="clean" data-i={steps.length}>
-            <span class="pq__card-num">&#10003;</span>
-            <h3 class="pq__card-title">A cleaner pour</h3>
+            <h3 class="pq__card-title">
+              <span class="pq__card-num">&#10003;</span>A cleaner pour
+            </h3>
             <p class="pq__card-body">
               Cut the distortion and the same bill buys a full mug of useful
               energy: no spill, no mess fee, and a glass that lasts.
@@ -356,7 +357,6 @@ const lines = [
   .pq__cards {
     display: grid;
     margin-bottom: var(--space-m);
-    max-width: 38rem;
   }
   .pq__card {
     grid-area: 1 / 1;
@@ -374,13 +374,16 @@ const lines = [
   .pq__cards[data-dir="back"] .pq__card { transform: translateX(-46px); }
   .pq__cards[data-dir="back"] .pq__card.is-active { transform: translateX(0); }
   .pq__card-num {
+    display: inline-block;
+    margin-right: 0.55em;
     font-family: var(--font-mono);
-    font-size: var(--step--1);
+    font-size: 0.6em;
     letter-spacing: 0.1em;
+    vertical-align: middle;
     color: var(--gold-text);
   }
   .pq__card--clean .pq__card-num { color: var(--mint); }
-  .pq__card-title { margin-top: 0.3rem; font-size: var(--step-2); letter-spacing: -0.01em; }
+  .pq__card-title { font-size: var(--step-2); letter-spacing: -0.01em; }
   .pq__card-meaning {
     font-family: var(--font-serif);
     font-style: italic;
