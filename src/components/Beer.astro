@@ -7,19 +7,23 @@
 // Bill figures are illustrative.
 const steps = [
   {
-    n: "01", key: "foam", title: "The foam", part: "the foam",
-    body: "You pay for what you can't use: harmonics, reactive power, and noise that power no equipment.",
+    n: "Before", key: "intro", title: "How it used to flow", meaning: "the even pour",
+    body: "Your building once ran mostly linear loads: power arrived in one smooth, even pour, almost all of it useful.",
   },
   {
-    n: "02", key: "spills", title: "The spills", part: "the spills",
+    n: "01", key: "foam", title: "The foam", meaning: "power you can't use",
+    body: "Modern equipment pulses instead. Variable loads froth the pour into harmonics and reactive power that drive no equipment.",
+  },
+  {
+    n: "02", key: "spills", title: "The spills", meaning: "energy lost as heat",
     body: "Useful energy bleeds off as heat in your wires, motors, and transformers.",
   },
   {
-    n: "03", key: "mess", title: "The mess", part: "the mess",
-    body: "Utility penalties for poor power factor, demand, and power quality.",
+    n: "03", key: "mess", title: "The mess", meaning: "utility penalties",
+    body: "Penalties on your bill for poor power factor, demand, and power quality.",
   },
   {
-    n: "04", key: "mug", title: "The mug", part: "the mug",
+    n: "04", key: "mug", title: "The mug", meaning: "early equipment wear",
     body: "Distortion wears your breakers, electronics, and transformers out years early.",
   },
 ];
@@ -54,16 +58,18 @@ const lines = [
 
   <div class="pq__track" id="pq-track">
     <div class="pq__sticky">
-      <div class="container pq__stage" id="pq-stage" data-active="foam">
+      <div class="container pq__stage" id="pq-stage" data-active="intro">
         <div class="pq__cards" id="pq-cards">
           {steps.map((s, i) => (
             <article class="pq__card" data-card={s.key} data-i={i}>
               <span class="pq__card-num">{s.n}</span>
-              <h3 class="pq__card-title">{s.title}</h3>
+              <h3 class="pq__card-title">
+                {s.title} <span class="pq__card-meaning">({s.meaning})</span>
+              </h3>
               <p class="pq__card-body">{s.body}</p>
             </article>
           ))}
-          <article class="pq__card pq__card--clean" data-card="clean" data-i="4">
+          <article class="pq__card pq__card--clean" data-card="clean" data-i={steps.length}>
             <span class="pq__card-num">&#10003;</span>
             <h3 class="pq__card-title">A cleaner pour</h3>
             <p class="pq__card-body">
@@ -159,7 +165,7 @@ const lines = [
           {steps.map((s, i) => (
             <button class="pq__dot" data-go={i} aria-label={s.title} type="button"></button>
           ))}
-          <button class="pq__dot pq__dot--clean" data-go="4" aria-label="A cleaner pour" type="button"></button>
+          <button class="pq__dot pq__dot--clean" data-go={steps.length} aria-label="A cleaner pour" type="button"></button>
         </div>
       </div>
     </div>
@@ -184,7 +190,7 @@ const lines = [
     const bill = document.getElementById("pq-bill");
     const totalEl = document.getElementById("pq-total");
     const loadEl = document.getElementById("pq-load");
-    const order = ["foam", "spills", "mess", "mug", "clean"];
+    const order = ["intro", "foam", "spills", "mess", "mug", "clean"];
     const STEPS = order.length;
 
     const BASE = 1000;
@@ -211,7 +217,7 @@ const lines = [
     const show = (idx, animate) => {
       const key = order[idx];
       stage.dataset.active = key;
-      loadEl.textContent = key === "clean" ? "Linear load" : "Nonlinear load";
+      loadEl.textContent = (key === "clean" || key === "intro") ? "Linear load" : "Nonlinear load";
       cards.forEach((c) => c.classList.toggle("is-active", Number(c.dataset.i) === idx));
       dots.forEach((d) => d.classList.toggle("is-active", Number(d.dataset.go) === idx));
 
@@ -310,7 +316,7 @@ const lines = [
   .pq__lede { margin-top: var(--space-m); max-width: 64ch; }
 
   /* scroll track: tall so the pinned scene has room to step through */
-  .pq__track.is-pinned { height: 360vh; }
+  .pq__track.is-pinned { height: 420vh; }
   .pq__track.is-static { height: auto; }
   .pq__track.is-pinned .pq__sticky {
     position: sticky;
@@ -347,6 +353,14 @@ const lines = [
   }
   .pq__card--clean .pq__card-num { color: var(--mint); }
   .pq__card-title { margin-top: 0.3rem; font-size: var(--step-2); letter-spacing: -0.01em; }
+  .pq__card-meaning {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: 0.78em;
+    color: var(--gold-text);
+    letter-spacing: 0;
+  }
+  .pq__card--clean .pq__card-meaning { color: var(--mint); }
   .pq__card-body {
     margin-top: var(--space-2xs);
     font-size: var(--step-1);
@@ -387,7 +401,8 @@ const lines = [
     margin-bottom: var(--space-s);
     transition: color 0.5s ease;
   }
-  .pq__stage[data-active="clean"] .pq__load { color: var(--mint); }
+  .pq__stage[data-active="clean"] .pq__load,
+  .pq__stage[data-active="intro"] .pq__load { color: var(--mint); }
 
   .pq__glass { width: 100%; max-width: 250px; height: auto; display: block; }
 
@@ -405,8 +420,10 @@ const lines = [
   }
   .pq__splat { fill: var(--gold); opacity: 0.8; }
   .pq__jet-smooth { fill: var(--gold-text); opacity: 0.92; }
-  .pq__stage[data-active="clean"] .pq__stream--chaotic { opacity: 0; }
-  .pq__stage[data-active="clean"] .pq__stream--smooth { opacity: 1; }
+  .pq__stage[data-active="clean"] .pq__stream--chaotic,
+  .pq__stage[data-active="intro"] .pq__stream--chaotic { opacity: 0; }
+  .pq__stage[data-active="clean"] .pq__stream--smooth,
+  .pq__stage[data-active="intro"] .pq__stream--smooth { opacity: 1; }
 
   /* spotlight: dim every part, brighten the active one */
   .pq__part { transition: opacity 0.45s ease; }
@@ -432,14 +449,21 @@ const lines = [
   .pq__stage[data-active="mug"] .pq__glass-out,
   .pq__stage[data-active="mug"] .pq__rim { stroke: #e0894a; }
 
-  /* clean pour: foam gone, beer to the rim, spill + puddle wiped, glass crisp */
+  /* clean / before: foam gone, beer to the rim, spill + puddle wiped, glass crisp */
   .pq__stage[data-active="clean"] .pq__part[data-part="foam"],
   .pq__stage[data-active="clean"] .pq__part[data-part="spills"],
-  .pq__stage[data-active="clean"] .pq__part[data-part="mess"] { opacity: 0; }
-  .pq__stage[data-active="clean"] .pq__beer-top { opacity: 1; }
+  .pq__stage[data-active="clean"] .pq__part[data-part="mess"],
+  .pq__stage[data-active="intro"] .pq__part[data-part="foam"],
+  .pq__stage[data-active="intro"] .pq__part[data-part="spills"],
+  .pq__stage[data-active="intro"] .pq__part[data-part="mess"] { opacity: 0; }
+  .pq__stage[data-active="clean"] .pq__beer-top,
+  .pq__stage[data-active="intro"] .pq__beer-top { opacity: 1; }
   .pq__stage[data-active="clean"] .pq__glass-out,
-  .pq__stage[data-active="clean"] .pq__rim { stroke: var(--gold-text); opacity: 1; }
-  .pq__stage[data-active="clean"] .pq__part { opacity: 1; }
+  .pq__stage[data-active="clean"] .pq__rim,
+  .pq__stage[data-active="intro"] .pq__glass-out,
+  .pq__stage[data-active="intro"] .pq__rim { stroke: var(--gold-text); opacity: 1; }
+  .pq__stage[data-active="clean"] .pq__part,
+  .pq__stage[data-active="intro"] .pq__part { opacity: 1; }
 
   @media (prefers-reduced-motion: no-preference) {
     .pq__bub {
@@ -464,7 +488,8 @@ const lines = [
       30% { opacity: 0.9; }
       100% { transform: translate(6px, 14px); opacity: 0; }
     }
-    .pq__stage[data-active="clean"] .pq__splat { animation: none; opacity: 0; }
+    .pq__stage[data-active="clean"] .pq__splat,
+    .pq__stage[data-active="intro"] .pq__splat { animation: none; opacity: 0; }
   }
 
   /* utility bill */
