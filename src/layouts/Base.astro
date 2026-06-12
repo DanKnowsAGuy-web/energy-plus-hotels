@@ -93,6 +93,14 @@ const tlClean = tlPath(false);
     <slot />
 
     <script>
+      // Open at the top: override the browser restoring a prior scroll
+      // position on reload or back/forward. Honor an explicit #anchor so
+      // deep links still land on their section.
+      if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+      window.addEventListener("pageshow", () => {
+        if (!location.hash) window.scrollTo(0, 0);
+      });
+
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
 
       // Reveal-on-scroll: content is visible by default (see .reveal in CSS);

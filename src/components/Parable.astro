@@ -31,6 +31,14 @@ const bldB = bldWins(420);
         custom-modify equipment so it works the way your building actually
         needs. We prescribe only after the exam.
       </p>
+      <p class="par__body">
+        We don't manufacture equipment and we don't sell a box, so there's no
+        product hiding behind the diagnosis. The verification is the product;
+        the equipment is just whatever it points to.
+      </p>
+      <p class="par__refrain reveal">
+        We don't work for the vendors. We work for you.
+      </p>
       <p class="par__bet reveal">
         If someone shows us a solution we don't have access to, we'll pay them
         a finder's fee.
@@ -156,12 +164,21 @@ const bldB = bldWins(420);
     color: var(--body);
     max-width: 60ch;
   }
-  .par__bet {
+  .par__refrain {
     margin-top: var(--space-l);
     font-family: var(--font-serif);
     font-style: italic;
-    font-size: var(--step-1);
+    font-size: var(--step-2);
+    letter-spacing: -0.01em;
     color: var(--gold-text);
+    max-width: 28ch;
+  }
+  .par__bet {
+    margin-top: var(--space-m);
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: var(--step-1);
+    color: var(--muted);
     max-width: 48ch;
   }
 
