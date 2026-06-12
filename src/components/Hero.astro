@@ -21,12 +21,6 @@
       <span class="em">No projection. No upfront cost. No box to buy.</span>
     </p>
 
-    <p class="hero__cash reveal">
-      Financed against the savings we verify first, it's built to run
-      cash-flow positive from month one. You stay net positive even while you
-      pay it off.
-    </p>
-
     <div class="hero__actions reveal">
       <a href="#book" class="btn">
         Book a verified pilot
@@ -36,13 +30,6 @@
         Model your building's floor
       </a>
     </div>
-
-    <p class="hero__trust reveal">
-      The diagnosis is designed by <strong>Cliff Suljak</strong>, an engineer
-      the Department of Defense and Department of Energy trusted on sole-source
-      work at Sandia National Laboratories and on $600&nbsp;million in
-      utility-scale projects at the Salt River Project.
-    </p>
   </div>
 </section>
 
@@ -197,35 +184,11 @@
     max-width: 56ch;
   }
 
-  .hero__cash {
-    margin-top: var(--space-m);
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-size: var(--step-0);
-    line-height: 1.5;
-    color: var(--gold-text);
-    max-width: 52ch;
-  }
-
   .hero__actions {
     margin-top: var(--space-l);
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-s);
-  }
-
-  .hero__trust {
-    margin-top: var(--space-xl);
-    padding-top: var(--space-m);
-    border-top: 1px solid var(--line);
-    font-size: var(--step--1);
-    line-height: 1.6;
-    color: var(--muted);
-    max-width: 64ch;
-  }
-  .hero__trust strong {
-    color: var(--body);
-    font-weight: 600;
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -237,9 +200,6 @@
     }
     .hero__actions.reveal {
       transition-delay: 0.18s;
-    }
-    .hero__trust.reveal {
-      transition-delay: 0.24s;
     }
   }
 </style>

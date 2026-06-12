@@ -2,19 +2,16 @@
 // "You don't give insulin to someone who isn't diabetic." The parable of the
 // prescription without the exam, illustrated as a tale of two buildings: the
 // same box installed in both, a big result in one, nothing in the other.
-const wins = [0, 1, 2];
-const winRows = [60, 96, 132];
-function bldWins(x0: number) {
-  const out: { x: number; y: number }[] = [];
-  for (const ry of winRows) for (const c of wins) out.push({ x: x0 + 18 + c * 36, y: ry });
-  return out;
-}
-const bldA = bldWins(80);
-const bldB = bldWins(420);
+// The two buildings stack in a right rail beside the text; meters and labels
+// live in HTML so they stay legible at the rail's narrow width.
+const cols = [40, 55, 70];
+const rows = [36, 62, 88];
+const owins: { x: number; y: number }[] = [];
+for (const y of rows) for (const x of cols) owins.push({ x, y });
 ---
 
 <section class="section par" id="parable" aria-labelledby="par-title">
-  <div class="container">
+  <div class="container par__grid">
     <div class="par__head reveal">
       <h2 class="par__title" id="par-title">
         You don't give insulin to someone who isn't diabetic.
@@ -26,15 +23,12 @@ const bldB = bldWins(420);
         just never diagnosed whether it was the right medicine for yours.
       </p>
       <p class="par__body">
-        We sit on your side of the table instead. We purchase on your behalf,
-        direct from HVAC manufacturers and retrofit makers, and our engineers
-        custom-modify equipment so it works the way your building actually
-        needs. We prescribe only after the exam.
-      </p>
-      <p class="par__body">
-        We don't manufacture equipment and we don't sell a box, so there's no
-        product hiding behind the diagnosis. The verification is the product;
-        the equipment is just whatever it points to.
+        We sit on your side of the table instead. We don't manufacture
+        equipment and we don't sell a box, so there's no product hiding behind
+        the diagnosis. We purchase on your behalf, and our engineers modify
+        equipment so it fits your building. The verification is the product;
+        the equipment is just whatever it points to. We prescribe only after
+        the exam.
       </p>
       <p class="par__refrain reveal">
         We don't work for the vendors. We work for you.
@@ -45,49 +39,51 @@ const bldB = bldWins(420);
       </p>
     </div>
 
-    <figure class="par__fig reveal" id="par-fig" style="--i: 1">
-      <svg
-        class="par__svg"
-        viewBox="0 0 680 300"
-        role="img"
-        aria-label="Two identical buildings receive the same energy-savings box. One building's bill falls 14 percent and its windows warm; the other shows no change. Same box, different buildings; the difference was the missing exam."
-      >
-        <line class="par__ground" x1="40" y1="218" x2="640" y2="218"></line>
+    <figure class="par__fig reveal" id="par-fig">
+      <p class="par__same">The same box, installed the same way.</p>
 
-        <!-- building A -->
-        <g class="par__bld">
-          <rect class="par__shell" x="80" y="40" width="140" height="178" rx="3"></rect>
-          {bldA.map((w) => (
-            <rect class="par__win par__win--a" x={w.x} y={w.y} width="22" height="14" rx="1.5"></rect>
+      <div class="par__case">
+        <svg class="par__b" viewBox="0 0 120 150" role="img"
+          aria-label="The right building for the box: its bill falls 14 percent and its windows warm.">
+          <line class="par__ground" x1="14" y1="132" x2="106" y2="132"></line>
+          <rect class="par__shell" x="30" y="22" width="60" height="110" rx="2"></rect>
+          {owins.map((w) => (
+            <rect class="par__win par__win--a" x={w.x} y={w.y} width="11" height="9" rx="1"></rect>
           ))}
-          <rect class="par__panel" x="142" y="190" width="16" height="20"></rect>
+          <rect class="par__panel" x="54" y="108" width="12" height="22"></rect>
           <g class="par__box" id="par-box-a">
-            <rect class="par__box-body" x="106" y="176" width="26" height="22" rx="3"></rect>
-            <line class="par__box-line" x1="111" y1="184" x2="127" y2="184"></line>
-            <line class="par__box-line" x1="111" y1="190" x2="127" y2="190"></line>
+            <rect class="par__box-body" x="45" y="8" width="30" height="16" rx="2"></rect>
+            <line class="par__box-line" x1="51" y1="14" x2="69" y2="14"></line>
+            <line class="par__box-line" x1="51" y1="18" x2="69" y2="18"></line>
           </g>
-        </g>
-        <text class="par__meter par__meter--a" id="par-meter-a" x="150" y="252" text-anchor="middle">0%</text>
-        <text class="par__tag" x="150" y="272" text-anchor="middle">right building for it</text>
+        </svg>
+        <div class="par__info">
+          <span class="par__meter par__meter--a" id="par-meter-a">0%</span>
+          <span class="par__tag">Right building for it</span>
+        </div>
+      </div>
 
-        <!-- building B -->
-        <g class="par__bld">
-          <rect class="par__shell" x="420" y="40" width="140" height="178" rx="3"></rect>
-          {bldB.map((w) => (
-            <rect class="par__win" x={w.x} y={w.y} width="22" height="14" rx="1.5"></rect>
+      <div class="par__case">
+        <svg class="par__b" viewBox="0 0 120 150" role="img"
+          aria-label="The wrong building for the box: the same install, no change at the meter.">
+          <line class="par__ground" x1="14" y1="132" x2="106" y2="132"></line>
+          <rect class="par__shell" x="30" y="22" width="60" height="110" rx="2"></rect>
+          {owins.map((w) => (
+            <rect class="par__win" x={w.x} y={w.y} width="11" height="9" rx="1"></rect>
           ))}
-          <rect class="par__panel" x="482" y="190" width="16" height="20"></rect>
+          <rect class="par__panel" x="54" y="108" width="12" height="22"></rect>
           <g class="par__box" id="par-box-b">
-            <rect class="par__box-body" x="446" y="176" width="26" height="22" rx="3"></rect>
-            <line class="par__box-line" x1="451" y1="184" x2="467" y2="184"></line>
-            <line class="par__box-line" x1="451" y1="190" x2="467" y2="190"></line>
+            <rect class="par__box-body" x="45" y="8" width="30" height="16" rx="2"></rect>
+            <line class="par__box-line" x1="51" y1="14" x2="69" y2="14"></line>
+            <line class="par__box-line" x1="51" y1="18" x2="69" y2="18"></line>
           </g>
-        </g>
-        <text class="par__meter" id="par-meter-b" x="490" y="252" text-anchor="middle">&nbsp;</text>
-        <text class="par__tag" x="490" y="272" text-anchor="middle">wrong patient</text>
+        </svg>
+        <div class="par__info">
+          <span class="par__meter" id="par-meter-b">&nbsp;</span>
+          <span class="par__tag">Wrong patient</span>
+        </div>
+      </div>
 
-        <text class="par__same" x="340" y="296" text-anchor="middle">the same box, installed the same way</text>
-      </svg>
       <figcaption class="par__closer">
         Same box, different buildings. The difference was never the medicine.
         It was the missing exam.
@@ -142,7 +138,7 @@ const bldB = bldWins(420);
           }
         }
       },
-      { threshold: 0.5 },
+      { threshold: 0.4 },
     );
     io.observe(fig);
   })();
@@ -155,7 +151,16 @@ const bldB = bldWins(420);
       radial-gradient(ellipse 55% 45% at 90% 0%, rgba(194, 163, 104, 0.05), transparent 70%),
       var(--bg);
   }
-  .par__head { max-width: 56rem; }
+  .par__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(230px, 1fr);
+    gap: clamp(2rem, 5vw, 4.5rem);
+    align-items: start;
+  }
+  @media (max-width: 820px) {
+    .par__grid { grid-template-columns: 1fr; }
+  }
+
   .par__title { font-size: var(--step-3); max-width: 24ch; }
   .par__body {
     margin-top: var(--space-m);
@@ -182,10 +187,52 @@ const bldB = bldWins(420);
     max-width: 48ch;
   }
 
-  .par__fig { margin: var(--space-xl) 0 0; }
-  .par__svg { width: 100%; max-width: 720px; height: auto; display: block; margin-inline: auto; }
+  /* Right rail: the two cases stacked, each a building + its readout. */
+  .par__fig {
+    margin: 0;
+    padding: var(--space-m);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.012);
+  }
+  @media (max-width: 820px) {
+    .par__fig { max-width: 22rem; }
+  }
+  .par__same {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    margin-bottom: var(--space-s);
+  }
+  .par__case {
+    display: flex;
+    align-items: center;
+    gap: var(--space-m);
+    padding: var(--space-s) 0;
+  }
+  .par__case + .par__case {
+    border-top: 1px solid var(--line);
+  }
+  .par__b { width: 68px; height: auto; flex: none; }
+  .par__info { display: flex; flex-direction: column; gap: 2px; }
+  .par__meter {
+    font-family: var(--font-serif);
+    font-size: var(--step-3);
+    line-height: 1;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+    transition: color 0.5s ease;
+  }
+  .par__fig.is-resolved .par__meter--a { color: var(--mint); }
+  .par__tag {
+    font-family: var(--font-mono);
+    font-size: var(--step--2);
+    letter-spacing: 0.05em;
+    color: var(--muted);
+  }
 
-  .par__ground { stroke: var(--line-strong); stroke-width: 1.5; stroke-dasharray: 5 6; }
+  .par__ground { stroke: var(--line-strong); stroke-width: 1.5; stroke-dasharray: 4 5; }
   .par__shell { fill: rgba(255, 255, 255, 0.02); stroke: var(--line-strong); stroke-width: 1.5; }
   .par__win {
     fill: rgba(226, 216, 196, 0.07);
@@ -201,7 +248,7 @@ const bldB = bldWins(420);
 
   .par__box {
     opacity: 0;
-    transform: translateY(-46px);
+    transform: translateY(-34px);
     transition: transform 0.6s var(--ease-out-quart), opacity 0.4s ease;
   }
   .par__fig.is-installed .par__box {
@@ -211,35 +258,15 @@ const bldB = bldWins(420);
   .par__box-body { fill: var(--surface-2); stroke: var(--gold); stroke-width: 1.4; }
   .par__box-line { stroke: var(--gold-text); stroke-width: 1.2; }
 
-  .par__meter {
-    font-family: var(--font-serif);
-    font-size: 26px;
-    fill: var(--muted);
-    font-variant-numeric: tabular-nums;
-    transition: fill 0.5s ease;
-  }
-  .par__fig.is-resolved .par__meter--a { fill: var(--mint); }
-  .par__tag {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.05em;
-    fill: var(--muted);
-  }
-  .par__same {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    letter-spacing: 0.05em;
-    fill: var(--muted);
-    opacity: 0.8;
-  }
-
   .par__closer {
-    margin-top: var(--space-l);
+    margin-top: var(--space-m);
+    padding-top: var(--space-s);
+    border-top: 1px solid var(--line);
     font-family: var(--font-serif);
     font-style: italic;
-    font-size: var(--step-1);
+    font-size: var(--step-0);
+    line-height: 1.5;
     color: var(--ink);
-    max-width: 50ch;
   }
   @media (prefers-reduced-motion: reduce) {
     .par__box { transition: none; opacity: 1; transform: none; }
