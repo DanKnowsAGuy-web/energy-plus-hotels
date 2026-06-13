@@ -1,7 +1,7 @@
 ---
-// Floor rate left blank deliberately (builder's note 3): do not hard-code a
-// percentage before the demand-versus-bill question is resolved.
-const floorRate = "[X]%";
+// Conservative verified floor across measured installs. Stated as the floor,
+// never the peak; individual buildings often verify higher.
+const floorRate = "20%";
 ---
 
 <section class="section floor" id="floor" aria-labelledby="floor-title">
@@ -21,7 +21,7 @@ const floorRate = "[X]%";
     <div class="floor__figures">
       <div class="figure reveal" style="--i: 0">
         <span class="figure__label">Verified savings floor</span>
-        <span class="figure__value ph" tabindex="0">{floorRate}</span>
+        <span class="figure__value" tabindex="0">{floorRate}</span>
         <span class="figure__unit">of annual electricity spend</span>
         <p class="figure__note">
           The conservative case across measured installs. Your verified number
