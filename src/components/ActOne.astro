@@ -21,19 +21,32 @@
           Here's the irony: the upgrades you bought to cut your energy use may
           be quietly fighting each other.
         </p>
-        <p>
-          You added lighting. Maybe controls, maybe solar. Each vendor optimized
-          the one thing they sell, then left. But a hotel isn't a stack of
-          separate upgrades; it's one electrical system. Bolt pieces on without
-          anyone designing how they fit together and they interfere: power
-          quality degrades, equipment runs harder and fails sooner, and the
-          savings on the brochure quietly leak away.
-        </p>
+        <ul class="actone__chain">
+          <li>
+            <span class="actone__cause">Each vendor optimized the one thing they sell</span>
+            <span class="actone__arr" aria-hidden="true">&rarr;</span>
+            <span class="actone__effect">then left.</span>
+          </li>
+          <li>
+            <span class="actone__cause">The pieces were never designed to work together</span>
+            <span class="actone__arr" aria-hidden="true">&rarr;</span>
+            <span class="actone__effect">so they interfere.</span>
+          </li>
+          <li>
+            <span class="actone__cause">Power quality degrades</span>
+            <span class="actone__arr" aria-hidden="true">&rarr;</span>
+            <span class="actone__effect">equipment runs harder and fails years sooner.</span>
+          </li>
+          <li>
+            <span class="actone__cause">The savings on the brochure</span>
+            <span class="actone__arr" aria-hidden="true">&rarr;</span>
+            <span class="actone__effect">quietly leak away.</span>
+          </li>
+        </ul>
         <p class="actone__turn">
           That isn't bad luck. Every vendor gets paid to install their box, so
-          each one optimizes their own piece and none of them owns the result.
-          Your building wasn't left incoherent by accident. It was left
-          incoherent by incentive.
+          none of them owns the result. Your building wasn't left incoherent by
+          accident. It was left incoherent by incentive.
         </p>
       </div>
     </div>
@@ -85,8 +98,34 @@
     line-height: 1.6;
     max-width: var(--measure);
   }
+  .actone__chain {
+    list-style: none;
+    margin: var(--space-l) 0 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-s);
+    max-width: var(--measure);
+  }
+  .actone__chain li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding-bottom: var(--space-s);
+    border-bottom: 1px solid var(--line);
+    font-size: var(--step-0);
+    line-height: 1.45;
+  }
+  .actone__chain li:last-child { border-bottom: none; padding-bottom: 0; }
+  .actone__cause { color: var(--ink); }
+  .actone__arr {
+    flex: none;
+    font-family: var(--font-mono);
+    color: #e0894a;
+  }
+  .actone__effect { color: var(--muted); }
   .actone__turn {
-    margin-top: var(--space-m);
+    margin-top: var(--space-l);
     color: var(--ink) !important;
     font-family: var(--font-serif);
     font-style: italic;

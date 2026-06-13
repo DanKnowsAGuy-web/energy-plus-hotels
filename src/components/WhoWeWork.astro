@@ -1,46 +1,91 @@
 ---
+// "Who it's for," as two self-qualifying cards: a portfolio path (fully funded)
+// and a single-property path (still risk-reversed). Lets the reader place
+// themselves in two seconds.
 ---
 
 <section class="section who" id="who" aria-labelledby="who-title">
   <div class="container container--narrow">
-    <div class="who__inner reveal">
-      <h2 class="who__title" id="who-title">Who the fully-funded pilot is for.</h2>
-      <p class="who__body">
-        We pay for the diagnosis out of our own pocket, so we reserve the
-        fully-funded version for operators with the portfolio to make a
-        verified rollout worthwhile for both sides. As a rule of thumb, that's
-        around ten comparable properties for a small-scale demonstration, or
-        twenty or more for a full-facility build. If that's you, the risk of
-        finding out is entirely ours.
-      </p>
-      <p class="who__body who__body--single">
-        Operating a single property? We can still build you a risk-reversed
-        pilot. The structure looks a little different, but the principle
-        holds: you see a verified number at your meter before you commit to
-        the project. Tell us what you've got and we'll point you to the
-        version that fits.
-      </p>
+    <div class="who__head reveal">
+      <h2 class="who__title" id="who-title">Find the version that fits you.</h2>
     </div>
+
+    <div class="who__cards">
+      <article class="who__card who__card--lead reveal">
+        <p class="who__tag">Portfolio operators</p>
+        <p class="who__count">10+ properties</p>
+        <p class="who__copy">
+          We pay for the diagnosis out of our own pocket and fund the entire
+          pilot. Roughly ten comparable properties for a demonstration, twenty
+          or more for a full build. The risk of finding out is entirely ours.
+        </p>
+      </article>
+
+      <article class="who__card reveal" style="--i: 1">
+        <p class="who__tag">Single property</p>
+        <p class="who__count">One building</p>
+        <p class="who__copy">
+          We still build you a risk-reversed pilot. The structure looks a
+          little different, but the principle holds: you see a verified number
+          at your meter before you commit to the project.
+        </p>
+      </article>
+    </div>
+
+    <p class="who__foot reveal">
+      Tell us what you've got and we'll point you to the version that fits.
+    </p>
   </div>
 </section>
 
 <style>
-  .who {
-    border-top: 1px solid var(--line);
+  .who { border-top: 1px solid var(--line); }
+  .who__title { font-size: var(--step-2); max-width: 20ch; }
+
+  .who__cards {
+    margin-top: var(--space-xl);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(1rem, 3vw, 1.75rem);
   }
-  .who__title {
+  @media (max-width: 680px) {
+    .who__cards { grid-template-columns: 1fr; }
+  }
+  .who__card {
+    padding: clamp(1.3rem, 3.5vw, 2rem);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: rgba(255, 255, 255, 0.012);
+  }
+  .who__card--lead {
+    border-color: rgba(194, 163, 104, 0.4);
+    background: var(--gold-soft);
+  }
+  .who__tag {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--gold-text);
+  }
+  .who__count {
+    margin-top: 0.25rem;
+    font-family: var(--font-serif);
     font-size: var(--step-2);
+    letter-spacing: -0.01em;
+    color: var(--ink);
   }
-  .who__body {
-    margin-top: var(--space-m);
-    font-size: var(--step-1);
+  .who__copy {
+    margin-top: var(--space-s);
+    font-size: var(--step-0);
     line-height: 1.55;
     color: var(--body);
-    max-width: 58ch;
   }
-  .who__body--single {
-    padding-top: var(--space-m);
-    border-top: 1px solid var(--line);
-    font-size: var(--step-0);
+  .who__foot {
+    margin-top: var(--space-l);
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: var(--step-1);
+    color: var(--ink);
   }
 </style>
