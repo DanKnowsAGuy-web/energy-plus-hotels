@@ -311,37 +311,6 @@ a {
   background-size: 140px 140px;
 }
 
-/* --- Brushed-brass sheen: gold CTAs sweep a highlight on hover ---------- */
-.btn:not(.btn--ghost) {
-  position: relative;
-  isolation: isolate;
-}
-.btn:not(.btn--ghost)::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: linear-gradient(
-    115deg,
-    transparent 30%,
-    rgba(255, 248, 231, 0.5) 47%,
-    rgba(255, 255, 255, 0.16) 52%,
-    transparent 70%
-  );
-  transform: translateX(-130%);
-  transition: transform 0.75s var(--ease-out-quart);
-  clip-path: inset(0 round var(--radius-s));
-  pointer-events: none;
-}
-.btn:not(.btn--ghost):hover::before {
-  transform: translateX(130%);
-}
-@media (prefers-reduced-motion: reduce) {
-  .btn:not(.btn--ghost)::before {
-    display: none;
-  }
-}
-
 /* --- Schematic hairline dividers: a ruler tick at each section seam ------ */
 main > .section {
   position: relative;
