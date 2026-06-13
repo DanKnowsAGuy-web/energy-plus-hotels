@@ -148,6 +148,7 @@ const steps = [
           ))}
           <button class="pq__dot pq__dot--clean" data-go={steps.length} aria-label="A cleaner pour" type="button"></button>
         </div>
+        <p class="pq__hint" aria-hidden="true">Tap or swipe to pour</p>
       </div>
     </div>
   </div>
@@ -260,7 +261,39 @@ const steps = [
       return;
     }
 
-    // Scroll-driven: map progress through the pinned track to a step index.
+    // MOBILE: tap / swipe to advance, no scroll pin (scroll-jacking fights the
+    // address bar on phones). The scene is a fixed-height panel in normal flow;
+    // the reader taps, swipes, or uses the dots to walk card to card.
+    const mobile = matchMedia("(max-width: 640px)").matches;
+    if (mobile) {
+      stage.classList.add("is-tap");
+      let i = 0;
+      const go = (n) => {
+        i = Math.max(0, Math.min(STEPS - 1, n));
+        show(i, true);
+      };
+      show(0, false);
+      dots.forEach((d) =>
+        d.addEventListener("click", (e) => {
+          e.stopPropagation();
+          go(Number(d.dataset.go));
+        }),
+      );
+      // tap anywhere on the scene advances (clamped at the clean pour)
+      stage.addEventListener("click", () => go(i + 1));
+      // horizontal swipe: left = next, right = back
+      let x0 = null;
+      stage.addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+      stage.addEventListener("touchend", (e) => {
+        if (x0 === null) return;
+        const dx = e.changedTouches[0].clientX - x0;
+        if (Math.abs(dx) > 40) go(dx < 0 ? i + 1 : i - 1);
+        x0 = null;
+      }, { passive: true });
+      return;
+    }
+
+    // DESKTOP: scroll-driven. Map progress through the pinned track to a step.
     track.classList.add("is-pinned");
     let current = -1;
     let ticking = false;
@@ -627,17 +660,21 @@ const steps = [
     max-width: 48ch;
   }
 
-  /* MOBILE: stack into one column (card, then beer, then the meter) so the
-     three stay readable without the side-by-side squeeze. The pinned
-     scroll-step still drives it. */
-  /* MOBILE: the pinned viewport is an invisible segment (breathing room top
-     and bottom). The stage fills it as a flex column and the three rows divide
-     the height: card and meter take what they need, the beer grows to absorb
-     the rest, so the portrait space is always filled, never empty or clipped. */
+  /* the swipe hint only shows in the mobile tap scene (enabled in the query) */
+  .pq__hint { display: none; }
+
+  /* MOBILE: tap / swipe to advance, NOT scroll-pinned (scroll-jacking fights
+     the address bar on phones). The scene is a fixed-height panel in normal
+     flow: card on top, beer in the middle filling the space, meter at the
+     bottom. Cards cross-fade in place; the beer and bill never move. */
   @media (max-width: 640px) {
-    .pq__track.is-pinned .pq__sticky {
+    .pq__track { height: auto; }
+    .pq__sticky {
+      position: static;
+      height: 86svh;
+      display: flex;
       align-items: stretch;
-      padding-block: 4.5vh;
+      padding-block: 3vh;
     }
     .pq__stage {
       display: flex;
@@ -680,6 +717,21 @@ const steps = [
     .pq__total { font-size: var(--step-2); }
 
     .pq__title { font-size: var(--step-2); }
-    .pq__dots { display: none; }
+
+    /* tap mode affordances: the whole scene is tappable, dots are real
+       targets, and a one-time hint invites the gesture */
+    .pq__stage.is-tap { cursor: pointer; }
+    .pq__dots { display: flex; margin-top: var(--space-s); gap: 0.7rem; }
+    .pq__dot { width: 11px; height: 11px; }
+    .pq__hint {
+      display: block;
+      text-align: center;
+      margin-top: var(--space-2xs);
+      font-family: var(--font-mono);
+      font-size: var(--step--2);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
   }
 </style>
