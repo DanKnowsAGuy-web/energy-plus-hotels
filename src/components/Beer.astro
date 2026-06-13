@@ -33,7 +33,7 @@ const steps = [
 <section class="section pq" id="power" aria-labelledby="pq-title">
   <div class="container">
     <div class="pq__head reveal">
-      <p class="pq__kicker">So what does the exam find?</p>
+      <p class="pq__kicker">One bad pour. Four ways to pay.</p>
       <h2 class="pq__title" id="pq-title">
         You ordered the full beer. Why pay for the foam?
       </h2>
@@ -47,7 +47,11 @@ const steps = [
           {steps.map((s, i) => (
             <article class="pq__card" data-card={s.key} data-i={i}>
               <h3 class="pq__card-title">
-                {s.n && <span class="pq__card-num">{s.n}</span>}{s.title}
+                {s.n && (
+                  <span class="pq__card-num">
+                    {s.n}<span class="pq__card-of">{isNaN(s.n) ? "" : "/4"}</span>
+                  </span>
+                )}{s.title}
               </h3>
               <p class="pq__card-body">{s.body}</p>
             </article>
@@ -404,12 +408,19 @@ const steps = [
   .pq__cards[data-dir="back"] .pq__card.is-active { transform: translateX(0); }
   .pq__card-num {
     display: inline-block;
-    margin-right: 0.55em;
+    margin-right: 0.5em;
     font-family: var(--font-mono);
-    font-size: 0.6em;
-    letter-spacing: 0.1em;
-    vertical-align: middle;
+    font-size: 1.15em;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    vertical-align: baseline;
     color: var(--gold-text);
+  }
+  .pq__card-of {
+    font-size: 0.5em;
+    font-weight: 400;
+    color: var(--muted);
+    letter-spacing: 0;
   }
   .pq__card--clean .pq__card-num { color: var(--mint); }
   .pq__card-title { font-size: var(--step-2); letter-spacing: -0.01em; }
@@ -570,11 +581,11 @@ const steps = [
       45% { transform: scale(1.13); }
     }
 
-    /* the next arrow pulses subtly so it reads as "push me" */
-    .pq__nav--next:not(.is-off) { animation: pqNudge 1.8s ease-in-out infinite; }
+    /* the next arrow pulses subtly in size so it reads as "push me" */
+    .pq__nav--next:not(.is-off) { animation: pqNudge 2s ease-in-out infinite; }
     @keyframes pqNudge {
-      0%, 100% { transform: translateX(0); opacity: 0.85; }
-      50% { transform: translateX(3px); opacity: 1; }
+      0%, 100% { transform: scale(1); opacity: 0.88; }
+      50% { transform: scale(1.09); opacity: 1; }
     }
   }
 
@@ -771,9 +782,9 @@ const steps = [
 
     .pq__title { font-size: var(--step-2); }
 
-    /* the whole scene is tappable; dots are progress + jump targets */
+    /* the whole scene is tappable; dots are dropped on mobile (6 dots would
+       fight the "four ways" framing) — the big 0X/4 number carries progress */
     .pq__stage.is-tap { cursor: pointer; }
-    .pq__dots { display: flex; margin-top: var(--space-2xs); gap: 0.7rem; }
-    .pq__dot { width: 11px; height: 11px; }
+    .pq__dots { display: none; }
   }
 </style>
