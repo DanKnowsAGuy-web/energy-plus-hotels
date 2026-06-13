@@ -645,9 +645,13 @@ const steps = [
       gap: var(--space-s);
     }
 
-    /* row 1: card with its description (kept) */
-    .pq__cards { flex: 0 0 auto; max-width: none; margin: 0; }
-    .pq__card { padding: 0.7rem 1rem; }
+    /* row 1: card sized to ITS OWN content (not the tallest card). The active
+       card sits in flow and defines the height; the others overlay it
+       absolutely, so a short card leaves its slack to the beer instead of
+       padding out an oversized box. */
+    .pq__cards { flex: 0 0 auto; max-width: none; margin: 0; display: block; position: relative; }
+    .pq__card { position: absolute; top: 0; left: 0; right: 0; padding: 0.7rem 1rem; }
+    .pq__card.is-active { position: relative; }
     .pq__card-title { font-size: var(--step-1); }
     .pq__card-body { display: block; font-size: var(--step-0); margin-top: var(--space-2xs); }
 
