@@ -130,7 +130,6 @@ const steps = [
             <div class="pq__bill" id="pq-bill">
               <div class="pq__bill-head">
                 <span class="pq__bill-name">Utility Statement</span>
-                <span class="pq__bill-tag">illustrative</span>
               </div>
               <div class="pq__bill-active" id="pq-bill-active" data-kind="useful">
                 <span class="pq__bill-active-label" id="pq-bill-label">Useful energy</span>
@@ -566,22 +565,14 @@ const steps = [
     text-transform: uppercase;
     color: var(--body);
   }
-  .pq__bill-tag {
-    font-family: var(--font-mono);
-    font-size: var(--step--2);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--muted);
-    opacity: 0.7;
-  }
   /* the meter: one charge at a time, swapping in as you scroll */
   .pq__bill-active {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
     gap: 1rem;
-    margin: var(--space-s) 0;
-    padding: var(--space-s) 0.4rem;
+    margin: 0.5rem 0;
+    padding: 0.4rem;
     border-radius: 6px;
     font-size: var(--step-0);
     color: var(--body);
@@ -602,8 +593,8 @@ const steps = [
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    margin-top: var(--space-s);
-    padding-top: var(--space-s);
+    margin-top: 0.5rem;
+    padding-top: 0.55rem;
     border-top: 1px solid var(--line-strong);
     font-family: var(--font-mono);
     text-transform: uppercase;
@@ -651,17 +642,27 @@ const steps = [
   @media (max-width: 640px) {
     .pq__cols {
       grid-template-columns: 1fr;
-      gap: var(--space-m);
+      gap: var(--space-s);
       align-items: center;
       justify-items: center;
     }
     .pq__glass-col { width: auto; }
-    .pq__glass { max-width: 150px; max-height: 30vh; }
+    .pq__glass { max-width: 158px; max-height: 30vh; }
     .pq__bill-col { width: 100%; }
-    .pq__bill { width: 100%; max-width: 22rem; margin-inline: auto; padding: 0.8rem 1rem; }
-    .pq__cards { max-width: none; }
-    .pq__card-body { font-size: var(--step-0); }
+    .pq__bill { width: 100%; max-width: 22rem; margin-inline: auto; padding: 0.7rem 0.9rem; }
+
+    /* collapse the card to a single line: number + term + meaning, no body */
+    .pq__cards { max-width: none; margin-bottom: var(--space-s); }
+    .pq__card { padding: 0.6rem 0.95rem; }
+    .pq__card-title { font-size: var(--step-1); }
+    .pq__card-body { display: none; }
     .pq__title { font-size: var(--step-2); }
-    .pq__dots { margin-top: var(--space-m); }
+
+    /* tighten the meter and drop the dots so all three rows fit at once */
+    .pq__bill-head { padding-bottom: 0.4rem; }
+    .pq__bill-active { margin: 0.3rem 0; padding: 0.3rem 0.35rem; }
+    .pq__bill-total { margin-top: 0.3rem; padding-top: 0.45rem; }
+    .pq__total { font-size: var(--step-2); }
+    .pq__dots { display: none; }
   }
 </style>
