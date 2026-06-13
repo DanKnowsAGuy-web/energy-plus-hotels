@@ -33,9 +33,8 @@ const steps = [
 <section class="section pq" id="power" aria-labelledby="pq-title">
   <div class="container">
     <div class="pq__head reveal">
-      <p class="pq__kicker">One bad pour. Four ways to pay.</p>
       <h2 class="pq__title" id="pq-title">
-        You ordered the full beer. Why pay for the foam?
+        You ordered the full beer. So why is your power bill full of foam?
       </h2>
     </div>
   </div>
@@ -46,20 +45,12 @@ const steps = [
         <div class="pq__cards" id="pq-cards">
           {steps.map((s, i) => (
             <article class="pq__card" data-card={s.key} data-i={i}>
-              <h3 class="pq__card-title">
-                {s.n && (
-                  <span class="pq__card-num">
-                    {s.n}<span class="pq__card-of">{isNaN(s.n) ? "" : "/4"}</span>
-                  </span>
-                )}{s.title}
-              </h3>
+              <h3 class="pq__card-title">{s.title}</h3>
               <p class="pq__card-body">{s.body}</p>
             </article>
           ))}
           <article class="pq__card pq__card--clean" data-card="clean" data-i={steps.length}>
-            <h3 class="pq__card-title">
-              <span class="pq__card-num">&#10003;</span>A cleaner pour
-            </h3>
+            <h3 class="pq__card-title">A cleaner pour</h3>
             <p class="pq__card-body">
               Harmonize the power and the same bill fills a full, useful mug.
               No foam, no spills, no mess, no worn-out glass.
@@ -71,57 +62,57 @@ const steps = [
           <div class="pq__col pq__glass-col">
             <div class="pq__glass-row">
               <button class="pq__nav pq__nav--prev" type="button" aria-label="Previous pour">&lsaquo;</button>
-            <svg class="pq__glass" viewBox="0 0 240 440" role="img"
-              aria-label="A tap pours into a tall glass. A chaotic pour throws a thick head of foam and spills down the side; a clean, even pour fills the glass with useful beer.">
+            <svg class="pq__glass" viewBox="0 0 240 388" role="img"
+              aria-label="A tap pours into a stout glass. A chaotic pour throws a thick head of foam and spills down the side; a clean, even pour fills the glass with useful beer.">
               <!-- tap -->
               <g class="pq__tap">
-                <rect x="22" y="24" width="98" height="13" rx="4"></rect>
-                <rect x="58" y="10" width="12" height="16" rx="3"></rect>
-                <rect x="106" y="24" width="22" height="46" rx="4"></rect>
+                <rect x="22" y="22" width="98" height="13" rx="4"></rect>
+                <rect x="58" y="8" width="12" height="16" rx="3"></rect>
+                <rect x="106" y="22" width="22" height="46" rx="4"></rect>
               </g>
 
               <!-- the pour: chaotic (nonlinear) vs smooth (linear) -->
               <g class="pq__stream pq__stream--chaotic">
-                <path class="pq__jet" d="M117 70 q-12 26 3 50 q13 22 -4 46 q-9 14 2 22"></path>
-                <circle class="pq__splat" cx="104" cy="120" r="3.4"></circle>
-                <circle class="pq__splat" cx="132" cy="150" r="2.8"></circle>
-                <circle class="pq__splat" cx="112" cy="168" r="3"></circle>
+                <path class="pq__jet" d="M117 68 q-12 26 3 46 q13 20 -4 40 q-8 12 2 26"></path>
+                <circle class="pq__splat" cx="104" cy="112" r="3.4"></circle>
+                <circle class="pq__splat" cx="132" cy="142" r="2.8"></circle>
+                <circle class="pq__splat" cx="112" cy="162" r="3"></circle>
               </g>
               <g class="pq__stream pq__stream--smooth">
-                <rect class="pq__jet-smooth" x="113" y="70" width="9" height="118" rx="4"></rect>
+                <rect class="pq__jet-smooth" x="113" y="68" width="9" height="112" rx="4"></rect>
               </g>
 
               <!-- spill drips + puddle -->
               <g class="pq__part" data-part="spills">
-                <path class="pq__drip" d="M168 196 q7 36 2 70"></path>
-                <path class="pq__drip" d="M74 214 q-7 28 -1 52"></path>
+                <path class="pq__drip" d="M176 192 q7 30 2 54"></path>
+                <path class="pq__drip" d="M66 206 q-7 24 -1 42"></path>
               </g>
               <g class="pq__part" data-part="mess">
-                <ellipse class="pq__puddle" cx="120" cy="418" rx="74" ry="9"></ellipse>
+                <ellipse class="pq__puddle" cx="120" cy="366" rx="82" ry="9"></ellipse>
               </g>
 
               <!-- liquid, clipped to glass interior -->
               <clipPath id="pq-clip">
-                <path d="M70 186 L170 186 L156 404 L84 404 Z"></path>
+                <path d="M60 180 L180 180 L164 356 L76 356 Z"></path>
               </clipPath>
               <g clip-path="url(#pq-clip)">
-                <rect class="pq__beer" x="64" y="262" width="112" height="150"></rect>
-                <rect class="pq__beer-top" x="64" y="190" width="112" height="90"></rect>
+                <rect class="pq__beer" x="58" y="244" width="124" height="118"></rect>
+                <rect class="pq__beer-top" x="58" y="184" width="124" height="176"></rect>
                 <g class="pq__part" data-part="foam">
-                  <rect class="pq__foam" x="64" y="190" width="112" height="78"></rect>
-                  <circle class="pq__bub" cx="92" cy="218" r="10" style="--bd:0s"></circle>
-                  <circle class="pq__bub" cx="128" cy="208" r="8" style="--bd:-1.1s"></circle>
-                  <circle class="pq__bub" cx="110" cy="242" r="7" style="--bd:-2.2s"></circle>
-                  <circle class="pq__bub" cx="146" cy="232" r="6" style="--bd:-0.6s"></circle>
-                  <circle class="pq__bub" cx="80" cy="246" r="6" style="--bd:-1.7s"></circle>
-                  <circle class="pq__bub" cx="156" cy="216" r="5" style="--bd:-2.8s"></circle>
+                  <rect class="pq__foam" x="58" y="182" width="124" height="64"></rect>
+                  <circle class="pq__bub" cx="90" cy="212" r="11" style="--bd:0s"></circle>
+                  <circle class="pq__bub" cx="134" cy="204" r="9" style="--bd:-1.1s"></circle>
+                  <circle class="pq__bub" cx="112" cy="234" r="7" style="--bd:-2.2s"></circle>
+                  <circle class="pq__bub" cx="152" cy="226" r="6" style="--bd:-0.6s"></circle>
+                  <circle class="pq__bub" cx="76" cy="232" r="6" style="--bd:-1.7s"></circle>
+                  <circle class="pq__bub" cx="164" cy="210" r="5" style="--bd:-2.8s"></circle>
                 </g>
               </g>
 
               <!-- the mug itself -->
               <g class="pq__part" data-part="mug">
-                <path class="pq__glass-out" d="M70 186 L170 186 L156 404 L84 404 Z"></path>
-                <line class="pq__rim" x1="66" y1="186" x2="174" y2="186"></line>
+                <path class="pq__glass-out" d="M60 180 L180 180 L164 356 L76 356 Z"></path>
+                <line class="pq__rim" x1="55" y1="180" x2="185" y2="180"></line>
               </g>
             </svg>
               <button class="pq__nav pq__nav--next" type="button" aria-label="Next pour">&rsaquo;</button>
@@ -762,7 +753,7 @@ const steps = [
       min-height: 0;
       width: 100%;
     }
-    .pq__glass { width: auto; max-width: 50vw; max-height: 100%; }
+    .pq__glass { width: auto; max-width: 60vw; max-height: 100%; }
     /* hidden but space reserved, so the glass stays centered card to card */
     .pq__nav.is-off { visibility: hidden; animation: none; }
     .pq__load {

@@ -8,28 +8,29 @@
   <div class="hero__spot" aria-hidden="true"></div>
 
   <div class="container hero__inner">
-    <p class="hero__kicker reveal">For hotel owners and portfolio operators</p>
+    <p class="hero__kicker reveal">The smart operators don't guess. They measure.</p>
 
     <h1 class="hero__title reveal" id="hero-title">
       We cut your hotel's energy costs and
-      <span class="hero__title-accent">prove the savings before you pay a cent.</span>
+      <span class="hero__title-accent">prove it at your own meter.</span>
     </h1>
 
     <p class="hero__lede lede reveal">
-      We diagnose your whole building at our own expense, verify the savings at
-      your meter, and you commit nothing until the number is real.
-      <span class="em">No projection. No upfront cost. No box to buy.</span>
+      We diagnose your building, verify the savings at your meter, and your
+      cash flow is positive from day one.
     </p>
 
     <div class="hero__actions reveal">
       <a href="#book" class="btn">
-        Book a verified pilot
+        Get your building diagnosis
         <span class="btn__arrow" aria-hidden="true">&rarr;</span>
       </a>
-      <a href="#calculator" class="btn btn--ghost">
-        Model your building's floor
-      </a>
     </div>
+
+    <p class="hero__note reveal">
+      We start from your utility bills and equipment list, then measure from
+      there. The diagnosis is on us.
+    </p>
   </div>
 </section>
 
@@ -189,6 +190,14 @@
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-s);
+  }
+
+  .hero__note {
+    margin-top: var(--space-m);
+    font-size: var(--step--1);
+    line-height: 1.6;
+    color: var(--muted);
+    max-width: 52ch;
   }
 
   @media (prefers-reduced-motion: no-preference) {
