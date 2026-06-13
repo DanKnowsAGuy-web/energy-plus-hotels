@@ -65,7 +65,8 @@ const steps = [
 
         <div class="pq__cols">
           <div class="pq__col pq__glass-col">
-            <span class="pq__load" id="pq-load">Nonlinear load</span>
+            <div class="pq__glass-row">
+              <button class="pq__nav pq__nav--prev" type="button" aria-label="Previous pour">&lsaquo;</button>
             <svg class="pq__glass" viewBox="0 0 240 440" role="img"
               aria-label="A tap pours into a tall glass. A chaotic pour throws a thick head of foam and spills down the side; a clean, even pour fills the glass with useful beer.">
               <!-- tap -->
@@ -119,6 +120,9 @@ const steps = [
                 <line class="pq__rim" x1="66" y1="186" x2="174" y2="186"></line>
               </g>
             </svg>
+              <button class="pq__nav pq__nav--next" type="button" aria-label="Next pour">&rsaquo;</button>
+            </div>
+            <span class="pq__load" id="pq-load">Nonlinear load</span>
           </div>
 
           <div class="pq__col pq__bill-col">
@@ -144,8 +148,6 @@ const steps = [
           ))}
           <button class="pq__dot pq__dot--clean" data-go={steps.length} aria-label="A cleaner pour" type="button"></button>
         </div>
-        <p class="pq__hint" aria-hidden="true">Tap or swipe to pour</p>
-        <button class="pq__next" type="button" aria-label="Next pour">&rsaquo;</button>
       </div>
     </div>
   </div>
@@ -264,7 +266,8 @@ const steps = [
     const mobile = matchMedia("(max-width: 640px)").matches;
     if (mobile) {
       stage.classList.add("is-tap");
-      const nextBtn = stage.querySelector(".pq__next");
+      const prevBtn = stage.querySelector(".pq__nav--prev");
+      const nextBtn = stage.querySelector(".pq__nav--next");
       let i = 0;
       let auto = null;
       const stopAuto = () => {
@@ -306,6 +309,11 @@ const steps = [
         e.stopPropagation();
         stopAuto();
         go(i + 1);
+      });
+      prevBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        stopAuto();
+        go(i - 1);
       });
       // tap anywhere on the scene advances (clamped at the clean pour)
       stage.addEventListener("click", () => { stopAuto(); go(i + 1); });
@@ -590,7 +598,7 @@ const steps = [
     }
 
     /* nudge the next arrow until the reader takes control, so it reads as tappable */
-    .pq__stage:not(.is-touched) .pq__next { animation: pqNudge 1.7s ease-in-out infinite; }
+    .pq__stage:not(.is-touched) .pq__nav--next { animation: pqNudge 1.7s ease-in-out infinite; }
     @keyframes pqNudge {
       0%, 100% { transform: translateX(0); }
       50% { transform: translateX(4px); }
@@ -679,19 +687,18 @@ const steps = [
   }
   .pq__dot.is-active { background: var(--gold-text); border-color: var(--gold-text); transform: scale(1.15); }
 
-  /* next-arrow affordance: hidden on desktop (scroll drives it), shown on mobile */
-  .pq__next {
+  /* prev/next arrows flank the beer on mobile; hidden on desktop (scroll drives it) */
+  .pq__glass-row { display: contents; }
+  .pq__nav {
     display: none;
-    position: absolute;
-    right: 0.5rem;
-    bottom: 2.5vh;
-    width: 42px;
-    height: 42px;
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
     border-radius: 999px;
     border: 1px solid var(--gold-text);
     background: rgba(12, 26, 20, 0.72);
     color: var(--gold-text);
-    font-size: 1.5rem;
+    font-size: 1.6rem;
     line-height: 1;
     align-items: center;
     justify-content: center;
@@ -707,9 +714,6 @@ const steps = [
     color: var(--ink);
     max-width: 48ch;
   }
-
-  /* the swipe hint only shows in the mobile tap scene (enabled in the query) */
-  .pq__hint { display: none; }
 
   /* MOBILE: tap / swipe to advance, NOT scroll-pinned (scroll-jacking fights
      the address bar on phones). The scene is a fixed-height panel in normal
@@ -735,33 +739,52 @@ const steps = [
          container's own padding */
       padding-inline: max(env(safe-area-inset-left), 1.25rem) max(env(safe-area-inset-right), 1.25rem);
     }
-    .pq__next { display: flex; }
+    .pq__nav { display: flex; }
 
     /* row 1: the card box is fixed to the tallest card (grid stack from the
        base rule), so the beer and bill never move. Shorter cards center their
-       text vertically inside that fixed box, so the spare space reads as
-       balanced breathing room, not a padded-out footer. */
+       text vertically inside that fixed box. Kept compact so the beer keeps
+       its share of the height. */
     .pq__cards { flex: 0 0 auto; max-width: none; margin: 0; }
     .pq__card {
-      padding: 0.7rem 1rem;
+      padding: 0.55rem 1rem;
       display: flex;
       flex-direction: column;
       justify-content: center;
     }
     .pq__card-title { font-size: var(--step-1); }
-    .pq__card-body { display: block; font-size: var(--step-0); margin-top: var(--space-2xs); }
+    .pq__card-body { display: block; font-size: var(--step-0); line-height: 1.4; margin-top: var(--space-2xs); }
 
     /* unwrap the two columns so glass and bill are direct flex rows */
     .pq__cols { display: contents; }
 
-    /* row 2: the beer grows to fill the leftover height */
+    /* row 2: the beer is the hero, guaranteed a substantial share, with the
+       prev/next arrows flanking it and the load label beneath it. */
     .pq__glass-col {
-      flex: 1 1 0;
-      min-height: 0;
+      flex: 1 1 auto;
+      min-height: 38vh;
+      display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
+      gap: 0.4rem;
     }
-    .pq__glass { width: auto; max-width: 60vw; max-height: 100%; }
+    .pq__glass-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      flex: 1 1 auto;
+      min-height: 0;
+      width: 100%;
+    }
+    .pq__glass { width: auto; max-width: 50vw; max-height: 100%; }
+    .pq__load {
+      position: static;
+      transform: none;
+      font-size: var(--step--2);
+      padding: 0.22em 0.75em;
+    }
 
     /* row 3: the meter, content-sized */
     .pq__bill-col { flex: 0 0 auto; width: 100%; }
@@ -773,20 +796,9 @@ const steps = [
 
     .pq__title { font-size: var(--step-2); }
 
-    /* tap mode affordances: the whole scene is tappable, dots are real
-       targets, and a one-time hint invites the gesture */
+    /* the whole scene is tappable; dots are progress + jump targets */
     .pq__stage.is-tap { cursor: pointer; }
-    .pq__dots { display: flex; margin-top: var(--space-s); gap: 0.7rem; }
+    .pq__dots { display: flex; margin-top: var(--space-2xs); gap: 0.7rem; }
     .pq__dot { width: 11px; height: 11px; }
-    .pq__hint {
-      display: block;
-      text-align: center;
-      margin-top: var(--space-2xs);
-      font-family: var(--font-mono);
-      font-size: var(--step--2);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
   }
 </style>
