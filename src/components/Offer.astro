@@ -1,0 +1,114 @@
+---
+// The scannable "offer / how we help" block (StoryBrand section 2): a short
+// lead that positions us as the experts on the operator's side, then five
+// outcome-first bullets for the reader who scans before they read.
+const points = [
+  {
+    lead: "A lower energy bill,",
+    rest: "verified at your own meter, not a projection.",
+  },
+  {
+    lead: "Maintenance costs cut by up to 40%,",
+    rest: "by cleaning up the distorted power that wears your equipment.",
+  },
+  {
+    lead: "Equipment that lasts 5 to 15 years longer,",
+    rest: "once it stops running on dirty power.",
+  },
+  {
+    lead: "Cash-flow positive from month one,",
+    rest: "financed against the savings we verify.",
+  },
+  {
+    lead: "The diagnosis is on us,",
+    rest: "so it costs nothing to find out.",
+  },
+];
+---
+
+<section class="section offer" id="offer" aria-labelledby="offer-title">
+  <div class="container container--narrow">
+    <div class="offer__inner reveal">
+      <h2 class="offer__title" id="offer-title">What you actually get.</h2>
+      <p class="offer__lead">
+        We're an independent energy partner, not an equipment vendor. Our
+        experts sit on your side of the table: diagnosing your building,
+        negotiating with the right vendors, and prescribing only what it
+        actually needs.
+      </p>
+
+      <ul class="offer__list">
+        {
+          points.map((p, i) => (
+            <li class="offer__item reveal" style={`--i: ${i}`}>
+              <span class="offer__check" aria-hidden="true">&#10003;</span>
+              <span class="offer__text">
+                <strong>{p.lead}</strong> {p.rest}
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .offer {
+    border-top: 1px solid var(--line);
+  }
+  .offer__title {
+    font-size: var(--step-3);
+    max-width: 16ch;
+  }
+  .offer__lead {
+    margin-top: var(--space-m);
+    font-size: var(--step-1);
+    line-height: 1.55;
+    color: var(--body);
+    max-width: 60ch;
+  }
+
+  .offer__list {
+    list-style: none;
+    margin: var(--space-l) 0 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-s);
+    max-width: 62ch;
+  }
+  .offer__item {
+    display: flex;
+    gap: 0.8rem;
+    align-items: flex-start;
+    padding: var(--space-s) 0;
+    border-top: 1px solid var(--line);
+    font-size: var(--step-1);
+    line-height: 1.5;
+  }
+  .offer__item:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
+  .offer__check {
+    flex: none;
+    width: 1.6em;
+    height: 1.6em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--mint-soft);
+    color: var(--mint);
+    font-size: 0.85em;
+    font-weight: 700;
+    margin-top: 0.05em;
+  }
+  .offer__text {
+    color: var(--body);
+  }
+  .offer__text strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+</style>
