@@ -7,24 +7,24 @@
 // Bill figures are illustrative.
 const steps = [
   {
-    n: "Before", key: "intro", title: "How it used to flow", meaning: "the even pour",
-    body: "Your building used to run linear loads: one smooth, even pour, almost all useful.",
+    n: "", key: "intro", title: "How it used to flow",
+    body: "Power arrived as one smooth, even pour, almost all of it useful.",
   },
   {
-    n: "01", key: "foam", title: "The foam", meaning: "power you can't use",
-    body: "Modern equipment pulses. That froth is harmonics and reactive power you can't use.",
+    n: "01", key: "foam", title: "The foam",
+    body: "The pour froths over. You're billed for power that does no work.",
   },
   {
-    n: "02", key: "spills", title: "The spills", meaning: "energy lost as heat",
-    body: "Useful energy bleeds off as heat in your wires and motors.",
+    n: "02", key: "spills", title: "The spills",
+    body: "Some slops over the side, useful energy lost as heat in your wires and motors.",
   },
   {
-    n: "03", key: "mess", title: "The mess", meaning: "utility penalties",
-    body: "Utility penalties for poor power factor and demand.",
+    n: "03", key: "mess", title: "The mess",
+    body: "It leaves a mess on the bar, and the utility adds a penalty to your bill.",
   },
   {
-    n: "04", key: "mug", title: "The mug", meaning: "early equipment wear",
-    body: "Distortion wears your breakers and transformers out years early.",
+    n: "04", key: "mug", title: "The mug",
+    body: "The rough pour is hard on the glass. Your breakers and transformers wear out years early.",
   },
 ];
 
@@ -51,8 +51,7 @@ const steps = [
           {steps.map((s, i) => (
             <article class="pq__card" data-card={s.key} data-i={i}>
               <h3 class="pq__card-title">
-                <span class="pq__card-num">{s.n}</span>{s.title}
-                <span class="pq__card-meaning">({s.meaning})</span>
+                {s.n && <span class="pq__card-num">{s.n}</span>}{s.title}
               </h3>
               <p class="pq__card-body">{s.body}</p>
             </article>
@@ -62,8 +61,8 @@ const steps = [
               <span class="pq__card-num">&#10003;</span>A cleaner pour
             </h3>
             <p class="pq__card-body">
-              Cut the distortion and the same bill buys a full mug of useful
-              energy: no spill, no mess fee, and a glass that lasts.
+              Harmonize the power and the same bill fills a full, useful mug.
+              No foam, no spills, no mess, no worn-out glass.
             </p>
           </article>
         </div>
@@ -183,10 +182,10 @@ const steps = [
     const billInfo = {
       intro: { label: "Useful energy", amt: 1000, kind: "useful" },
       foam: { label: "Power you can't use", amt: 140, kind: "waste" },
-      spills: { label: "Heat lost in the lines", amt: 95, kind: "waste" },
-      mess: { label: "Power-factor penalty", amt: 70, kind: "waste" },
+      spills: { label: "Energy lost as heat", amt: 95, kind: "waste" },
+      mess: { label: "Utility penalty", amt: 70, kind: "waste" },
       mug: { label: "Early equipment wear", amt: 55, kind: "waste" },
-      clean: { label: "Foam cut from the bill", amt: 360, kind: "save" },
+      clean: { label: "Energy harmonization", amt: 360, kind: "save" },
     };
     const totalByIdx = [1000, 1140, 1235, 1305, 1360, 1000];
     const PEAK = 1360;
@@ -378,14 +377,6 @@ const steps = [
   }
   .pq__card--clean .pq__card-num { color: var(--mint); }
   .pq__card-title { font-size: var(--step-2); letter-spacing: -0.01em; }
-  .pq__card-meaning {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-size: 0.78em;
-    color: var(--gold-text);
-    letter-spacing: 0;
-  }
-  .pq__card--clean .pq__card-meaning { color: var(--mint); }
   .pq__card-body {
     margin-top: var(--space-2xs);
     font-size: var(--step-1);
@@ -639,30 +630,48 @@ const steps = [
   /* MOBILE: stack into one column (card, then beer, then the meter) so the
      three stay readable without the side-by-side squeeze. The pinned
      scroll-step still drives it. */
+  /* MOBILE: the pinned viewport is an invisible segment (breathing room top
+     and bottom). The stage fills it as a flex column and the three rows divide
+     the height: card and meter take what they need, the beer grows to absorb
+     the rest, so the portrait space is always filled, never empty or clipped. */
   @media (max-width: 640px) {
-    .pq__cols {
-      grid-template-columns: 1fr;
-      gap: var(--space-s);
-      align-items: center;
-      justify-items: center;
+    .pq__track.is-pinned .pq__sticky {
+      align-items: stretch;
+      padding-block: 4.5vh;
     }
-    .pq__glass-col { width: auto; }
-    .pq__glass { max-width: 158px; max-height: 30vh; }
-    .pq__bill-col { width: 100%; }
-    .pq__bill { width: 100%; max-width: 22rem; margin-inline: auto; padding: 0.7rem 0.9rem; }
+    .pq__stage {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-s);
+    }
 
-    /* collapse the card to a single line: number + term + meaning, no body */
-    .pq__cards { max-width: none; margin-bottom: var(--space-s); }
-    .pq__card { padding: 0.6rem 0.95rem; }
+    /* row 1: card with its description (kept) */
+    .pq__cards { flex: 0 0 auto; max-width: none; margin: 0; }
+    .pq__card { padding: 0.7rem 1rem; }
     .pq__card-title { font-size: var(--step-1); }
-    .pq__card-body { display: none; }
-    .pq__title { font-size: var(--step-2); }
+    .pq__card-body { display: block; font-size: var(--step-0); margin-top: var(--space-2xs); }
 
-    /* tighten the meter and drop the dots so all three rows fit at once */
+    /* unwrap the two columns so glass and bill are direct flex rows */
+    .pq__cols { display: contents; }
+
+    /* row 2: the beer grows to fill the leftover height */
+    .pq__glass-col {
+      flex: 1 1 0;
+      min-height: 0;
+      align-items: center;
+      justify-content: center;
+    }
+    .pq__glass { width: auto; max-width: 60vw; max-height: 100%; }
+
+    /* row 3: the meter, content-sized */
+    .pq__bill-col { flex: 0 0 auto; width: 100%; }
+    .pq__bill { width: 100%; max-width: 24rem; margin-inline: auto; padding: 0.7rem 0.9rem; }
     .pq__bill-head { padding-bottom: 0.4rem; }
     .pq__bill-active { margin: 0.3rem 0; padding: 0.3rem 0.35rem; }
     .pq__bill-total { margin-top: 0.3rem; padding-top: 0.45rem; }
     .pq__total { font-size: var(--step-2); }
+
+    .pq__title { font-size: var(--step-2); }
     .pq__dots { display: none; }
   }
 </style>
