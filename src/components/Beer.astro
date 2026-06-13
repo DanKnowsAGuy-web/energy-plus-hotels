@@ -269,61 +269,34 @@ const steps = [
       const prevBtn = stage.querySelector(".pq__nav--prev");
       const nextBtn = stage.querySelector(".pq__nav--next");
       let i = 0;
-      let auto = null;
-      const stopAuto = () => {
-        if (auto) { clearInterval(auto); auto = null; }
-        stage.classList.add("is-touched");
+      // no left arrow on the first card, no right arrow on the last (no loop)
+      const updateArrows = () => {
+        prevBtn.classList.toggle("is-off", i === 0);
+        nextBtn.classList.toggle("is-off", i === STEPS - 1);
       };
       const go = (n) => {
         i = Math.max(0, Math.min(STEPS - 1, n));
         show(i, true);
+        updateArrows();
       };
       show(0, false);
+      updateArrows();
 
-      // Auto-play once when the scene scrolls into view, so a passing reader
-      // sees the pour come alive and doesn't miss the point. Any interaction
-      // hands control over and stops the autoplay.
-      const io = new IntersectionObserver(
-        (entries) => {
-          for (const e of entries) {
-            if (e.isIntersecting && !auto && !stage.classList.contains("is-touched")) {
-              auto = setInterval(() => {
-                if (i >= STEPS - 1) { stopAuto(); return; }
-                go(i + 1);
-              }, 2600);
-            }
-          }
-        },
-        { threshold: 0.55 },
-      );
-      io.observe(stage);
-
+      // Advance ONLY on a push: arrows, a tap on the scene, swipe, or the dots.
+      // No automated timer; the per-card animations still play on each push.
       dots.forEach((d) =>
-        d.addEventListener("click", (e) => {
-          e.stopPropagation();
-          stopAuto();
-          go(Number(d.dataset.go));
-        }),
+        d.addEventListener("click", (e) => { e.stopPropagation(); go(Number(d.dataset.go)); }),
       );
-      nextBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        stopAuto();
-        go(i + 1);
-      });
-      prevBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        stopAuto();
-        go(i - 1);
-      });
-      // tap anywhere on the scene advances (clamped at the clean pour)
-      stage.addEventListener("click", () => { stopAuto(); go(i + 1); });
+      nextBtn.addEventListener("click", (e) => { e.stopPropagation(); go(i + 1); });
+      prevBtn.addEventListener("click", (e) => { e.stopPropagation(); go(i - 1); });
+      stage.addEventListener("click", () => go(i + 1));
       // horizontal swipe: left = next, right = back
       let x0 = null;
       stage.addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; }, { passive: true });
       stage.addEventListener("touchend", (e) => {
         if (x0 === null) return;
         const dx = e.changedTouches[0].clientX - x0;
-        if (Math.abs(dx) > 40) { stopAuto(); go(dx < 0 ? i + 1 : i - 1); }
+        if (Math.abs(dx) > 40) go(dx < 0 ? i + 1 : i - 1);
         x0 = null;
       }, { passive: true });
       return;
@@ -597,11 +570,11 @@ const steps = [
       45% { transform: scale(1.13); }
     }
 
-    /* nudge the next arrow until the reader takes control, so it reads as tappable */
-    .pq__stage:not(.is-touched) .pq__nav--next { animation: pqNudge 1.7s ease-in-out infinite; }
+    /* the next arrow pulses subtly so it reads as "push me" */
+    .pq__nav--next:not(.is-off) { animation: pqNudge 1.8s ease-in-out infinite; }
     @keyframes pqNudge {
-      0%, 100% { transform: translateX(0); }
-      50% { transform: translateX(4px); }
+      0%, 100% { transform: translateX(0); opacity: 0.85; }
+      50% { transform: translateX(3px); opacity: 1; }
     }
   }
 
@@ -779,6 +752,8 @@ const steps = [
       width: 100%;
     }
     .pq__glass { width: auto; max-width: 50vw; max-height: 100%; }
+    /* hidden but space reserved, so the glass stays centered card to card */
+    .pq__nav.is-off { visibility: hidden; animation: none; }
     .pq__load {
       position: static;
       transform: none;
