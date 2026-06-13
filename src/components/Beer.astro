@@ -37,10 +37,6 @@ const steps = [
       <h2 class="pq__title" id="pq-title">
         You ordered the full beer. Why pay for the foam?
       </h2>
-      <p class="pq__sub">
-        Nonlinear loads distort your power and pour it like a bad tap. Scroll
-        the pour.
-      </p>
     </div>
   </div>
 
@@ -149,6 +145,7 @@ const steps = [
           <button class="pq__dot pq__dot--clean" data-go={steps.length} aria-label="A cleaner pour" type="button"></button>
         </div>
         <p class="pq__hint" aria-hidden="true">Tap or swipe to pour</p>
+        <button class="pq__next" type="button" aria-label="Next pour">&rsaquo;</button>
       </div>
     </div>
   </div>
@@ -267,27 +264,58 @@ const steps = [
     const mobile = matchMedia("(max-width: 640px)").matches;
     if (mobile) {
       stage.classList.add("is-tap");
+      const nextBtn = stage.querySelector(".pq__next");
       let i = 0;
+      let auto = null;
+      const stopAuto = () => {
+        if (auto) { clearInterval(auto); auto = null; }
+        stage.classList.add("is-touched");
+      };
       const go = (n) => {
         i = Math.max(0, Math.min(STEPS - 1, n));
         show(i, true);
       };
       show(0, false);
+
+      // Auto-play once when the scene scrolls into view, so a passing reader
+      // sees the pour come alive and doesn't miss the point. Any interaction
+      // hands control over and stops the autoplay.
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (e.isIntersecting && !auto && !stage.classList.contains("is-touched")) {
+              auto = setInterval(() => {
+                if (i >= STEPS - 1) { stopAuto(); return; }
+                go(i + 1);
+              }, 2600);
+            }
+          }
+        },
+        { threshold: 0.55 },
+      );
+      io.observe(stage);
+
       dots.forEach((d) =>
         d.addEventListener("click", (e) => {
           e.stopPropagation();
+          stopAuto();
           go(Number(d.dataset.go));
         }),
       );
+      nextBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        stopAuto();
+        go(i + 1);
+      });
       // tap anywhere on the scene advances (clamped at the clean pour)
-      stage.addEventListener("click", () => go(i + 1));
+      stage.addEventListener("click", () => { stopAuto(); go(i + 1); });
       // horizontal swipe: left = next, right = back
       let x0 = null;
       stage.addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; }, { passive: true });
       stage.addEventListener("touchend", (e) => {
         if (x0 === null) return;
         const dx = e.changedTouches[0].clientX - x0;
-        if (Math.abs(dx) > 40) go(dx < 0 ? i + 1 : i - 1);
+        if (Math.abs(dx) > 40) { stopAuto(); go(dx < 0 ? i + 1 : i - 1); }
         x0 = null;
       }, { passive: true });
       return;
@@ -354,12 +382,6 @@ const steps = [
     margin-bottom: var(--space-s);
   }
   .pq__title { font-size: var(--step-3); max-width: 22ch; }
-  .pq__sub {
-    margin-top: var(--space-s);
-    font-size: var(--step-0);
-    color: var(--muted);
-    max-width: 44ch;
-  }
 
   /* scroll track: tall so the pinned scene has room to step through */
   .pq__track.is-pinned { height: 420vh; }
@@ -566,6 +588,13 @@ const steps = [
       0%, 100% { transform: scale(1); }
       45% { transform: scale(1.13); }
     }
+
+    /* nudge the next arrow until the reader takes control, so it reads as tappable */
+    .pq__stage:not(.is-touched) .pq__next { animation: pqNudge 1.7s ease-in-out infinite; }
+    @keyframes pqNudge {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(4px); }
+    }
   }
 
   /* utility bill */
@@ -649,6 +678,25 @@ const steps = [
     transition: background 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
   }
   .pq__dot.is-active { background: var(--gold-text); border-color: var(--gold-text); transform: scale(1.15); }
+
+  /* next-arrow affordance: hidden on desktop (scroll drives it), shown on mobile */
+  .pq__next {
+    display: none;
+    position: absolute;
+    right: 0.5rem;
+    bottom: 2.5vh;
+    width: 42px;
+    height: 42px;
+    border-radius: 999px;
+    border: 1px solid var(--gold-text);
+    background: rgba(12, 26, 20, 0.72);
+    color: var(--gold-text);
+    font-size: 1.5rem;
+    line-height: 1;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
   .pq__dot--clean.is-active { background: var(--mint); border-color: var(--mint); }
 
   .pq__close {
@@ -680,7 +728,14 @@ const steps = [
       display: flex;
       flex-direction: column;
       gap: var(--space-s);
+      position: relative;
+      width: 100%;
+      box-sizing: border-box;
+      /* guarantee side padding even if a flex/scroll state strips the
+         container's own padding */
+      padding-inline: max(env(safe-area-inset-left), 1.25rem) max(env(safe-area-inset-right), 1.25rem);
     }
+    .pq__next { display: flex; }
 
     /* row 1: the card box is fixed to the tallest card (grid stack from the
        base rule), so the beer and bill never move. Shorter cards center their
