@@ -93,7 +93,9 @@ body {
   background-color: var(--bg);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  overflow-x: hidden;
+  /* clip (not hidden) prevents sideways scroll WITHOUT making body a scroll
+     container, which would break position: sticky for the pinned scenes. */
+  overflow-x: clip;
 }
 
 img,
