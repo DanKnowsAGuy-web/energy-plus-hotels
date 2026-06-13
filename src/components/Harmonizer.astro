@@ -52,12 +52,17 @@ const ptacs = [244, 204, 164];
         <h2 class="hz__title" id="hz-title">
           What dirty power does, and what the harmonizer undoes.
         </h2>
+        <p class="hz__lede">
+          Picture a beer poured too fast: you pay for a full glass, but the top
+          is foam you can't drink, some slops over the side, and the rough pour
+          wears on the glass. Dirty power bills your hotel the same way.
+        </p>
         <div class="hz__card" id="hz-card" aria-live="polite">
           <span class="hz__card-num" id="hz-card-num">1 / 4</span>
           <p class="hz__card-text" id="hz-card-text">
-            Modern equipment pulls power in fast pulses instead of a steady
-            draw. The pulses make the power in your panels unstable, and most
-            of that instability starts inside your own building.
+            Modern equipment doesn't sip power, it gulps it in pulses. Those
+            pulses froth up the power in your panels like a beer poured too
+            fast, and most of the mess starts inside your own building.
           </p>
         </div>
       </div>
@@ -180,18 +185,32 @@ const ptacs = [244, 204, 164];
             <text class="hz__box-sub" x="372" y="321" text-anchor="middle">at the panel</text>
           </g>
 
-          <g class="hz__meter" transform="translate(80,52)">
-            <text class="hz__meter-label" x="0" y="0">What the utility bills</text>
-            <text class="hz__bill-lbl" x="0" y="26">Peak demand</text>
-            <text class="hz__bill-val" id="hz-kw" x="0" y="50">66.0</text>
-            <text class="hz__bill-lbl" x="0" y="78">Power factor</text>
-            <text class="hz__bill-val" id="hz-pf" x="0" y="102">0.82</text>
-            <g class="hz__stamp">
-              <rect x="78" y="80" width="84" height="26" rx="3"></rect>
-              <text x="120" y="98" text-anchor="middle">VERIFIED</text>
+          <g class="hz__bill" transform="translate(80,40)">
+            <text class="hz__meter-label" x="0" y="0">Your utility bill</text>
+            <text class="hz__bill-name" x="0" y="24">Useful energy</text>
+            <text class="hz__bill-amt" x="200" y="24" text-anchor="end">$1,000</text>
+            <text class="hz__bill-name hz__foam" x="0" y="46">Foam: power you can't use</text>
+            <text class="hz__bill-amt hz__foam" x="200" y="46" text-anchor="end">+$60</text>
+            <text class="hz__bill-name hz__foam" x="0" y="66">Spills: lost as heat</text>
+            <text class="hz__bill-amt hz__foam" x="200" y="66" text-anchor="end">+$40</text>
+            <text class="hz__bill-name hz__foam" x="0" y="86">The mess: utility penalty</text>
+            <text class="hz__bill-amt hz__foam" x="200" y="86" text-anchor="end">+$25</text>
+            <text class="hz__bill-name hz__foam" x="0" y="106">Worn glass: early wear</text>
+            <text class="hz__bill-amt hz__foam" x="200" y="106" text-anchor="end">+$15</text>
+
+            <g id="hz-credit" class="hz__credit">
+              <text class="hz__bill-name hz__bill--mint" x="0" y="128">Harmonizer</text>
+              <text class="hz__bill-amt hz__bill--mint" x="200" y="128" text-anchor="end">&#8722;$140</text>
             </g>
-            <text class="hz__bill-lbl" x="0" y="130">Maintenance calls</text>
-            <text class="hz__bill-val" id="hz-mx" x="0" y="154">5 a day</text>
+
+            <line class="hz__bill-rule" x1="0" y1="142" x2="200" y2="142"></line>
+            <text class="hz__bill-tlabel" x="0" y="170">What you pay</text>
+            <text class="hz__bill-total" id="hz-total" x="200" y="172" text-anchor="end">$1,140</text>
+
+            <g class="hz__stamp">
+              <rect x="96" y="186" width="104" height="26" rx="3"></rect>
+              <text x="148" y="204" text-anchor="middle">VERIFIED</text>
+            </g>
           </g>
         </svg>
       </figure>
@@ -209,7 +228,6 @@ const ptacs = [244, 204, 164];
     if (!sec) return;
     const $ = (id) => document.getElementById(id);
     const box = $("hz-box");
-    const pf = $("hz-pf");
     const kwh = $("hz-kwh");
     const prog = $("hz-progress");
     const riserRed = $("hz-riser-red");
@@ -248,10 +266,10 @@ const ptacs = [244, 204, 164];
     const rectD = $("hz-rect-d");
 
     const cards = [
-      "Modern equipment pulls power in fast pulses instead of a steady draw. The pulses make the power in your panels unstable, and most of that instability starts inside your own building.",
-      "Unstable power does less work per delivery, so the utility has to send more to do the same job. You pay for the extra: bigger demand charges and penalties.",
-      "The harmonizer smooths the power right at the panel, absorbing the noise your equipment makes instead of letting it bounce through every circuit. Machines run cooler.",
-      "Smaller demand charges. Fewer breakdowns. Longer equipment life. Verified at hotels like yours: 8 to 14 percent.",
+      "Modern equipment doesn't sip power, it gulps it in pulses. Those pulses froth up the power in your panels like a beer poured too fast, and most of the mess starts inside your own building.",
+      "You pay for the foam. Frothy power does less real work per delivery, so the utility sends more to do the same job and bills you for the difference: bigger demand charges and penalties.",
+      "The harmonizer settles the pour right at the panel, absorbing the froth your equipment makes instead of letting it surge through every circuit. The machines run cooler.",
+      "No foam, no spills, no worn-out glass. Smaller demand charges, fewer breakdowns, longer equipment life. Verified at hotels like yours: 8 to 14 percent.",
     ];
     const card = $("hz-card");
     const cardText = $("hz-card-text");
@@ -301,19 +319,14 @@ const ptacs = [244, 204, 164];
       kwh.textContent = fmtK(KWH_HI - (KWH_HI - KWH_LO) * climb);
       kwh.classList.toggle("is-good", climb > 0.6);
 
-      // the bill, left side: demand falls (Southpoint metered numbers),
-      // maintenance calls fall with the heal (underwriter-backed claim)
-      const kw = $("hz-kw");
-      const mx = $("hz-mx");
-      kw.textContent = (66.0 - 6.1 * climb).toFixed(1);
-      kw.classList.toggle("is-good", climb > 0.6);
-      mx.textContent = Math.round(5 - 4 * climb) + " a day";
-      mx.classList.toggle("is-good", climb > 0.6);
+      // the bill, left side: the foam credit lands and the total falls back
+      // toward the useful-energy line as the harmonizer seats
+      const credit = $("hz-credit");
+      const total = $("hz-total");
+      credit.style.opacity = climb.toFixed(2);
+      total.textContent = "$" + fmtK(1140 - 140 * climb);
+      total.classList.toggle("is-good", climb > 0.6);
       sec.classList.toggle("is-deferred", p > 0.66);
-
-      const pfVal = 0.82 + (Math.round(climb * 5) / 5) * 0.15;
-      pf.textContent = pfVal.toFixed(2);
-      pf.classList.toggle("is-good", p > 0.72);
       sec.classList.toggle("is-stamped", p > 0.72);
       sec.classList.toggle("is-settled", p > 0.75);
       if (prog) prog.style.transform = "scaleX(" + p.toFixed(3) + ")";
@@ -333,13 +346,12 @@ const ptacs = [244, 204, 164];
       rectD.setAttribute("width", "246");
       loads.forEach((l) => l.el.classList.add("is-cool"));
       winRows.forEach((w) => w.el.classList.add("is-warm"));
-      pf.textContent = "0.97";
-      pf.classList.add("is-good");
       kwh.textContent = fmtK(KWH_LO);
       kwh.classList.add("is-good");
-      const kwS = $("hz-kw"), mxS = $("hz-mx");
-      kwS.textContent = "59.9"; kwS.classList.add("is-good");
-      mxS.textContent = "1 a day"; mxS.classList.add("is-good");
+      $("hz-credit").style.opacity = "1";
+      const totalS = $("hz-total");
+      totalS.textContent = "$" + fmtK(1000);
+      totalS.classList.add("is-good");
       sec.classList.add("is-deferred");
       setCard(3);
       return;
@@ -397,6 +409,13 @@ const ptacs = [244, 204, 164];
   .hz__inner { width: 100%; }
   .hz__head { max-width: 60rem; margin-bottom: clamp(1rem, 3vh, 2.5rem); }
   .hz__title { font-size: var(--step-3); max-width: 20ch; }
+  .hz__lede {
+    margin-top: var(--space-s);
+    font-size: var(--step-0);
+    line-height: 1.55;
+    color: var(--body);
+    max-width: 58ch;
+  }
   /* narration card: slides out left, in from the right on each beat */
   .hz__card {
     position: relative;
@@ -590,6 +609,23 @@ const ptacs = [244, 204, 164];
     font-variant-numeric: tabular-nums;
   }
   .hz__bill-val.is-good { fill: var(--mint); }
+
+  /* itemized "foam" bill */
+  .hz__bill-name { font-family: var(--font-mono); font-size: 10px; fill: var(--body); }
+  .hz__bill-amt { font-family: var(--font-mono); font-size: 10px; fill: var(--body); font-variant-numeric: tabular-nums; }
+  .hz__foam { fill: #e0894a; }
+  .hz__bill--mint { fill: var(--mint); }
+  .hz__credit { opacity: 0; }
+  .hz__bill-rule { stroke: var(--line-strong); stroke-width: 1; }
+  .hz__bill-tlabel {
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.06em; text-transform: uppercase; fill: var(--muted);
+  }
+  .hz__bill-total {
+    font-family: var(--font-serif); font-size: 24px; fill: #e05a2b;
+    font-variant-numeric: tabular-nums; transition: fill 0.5s ease;
+  }
+  .hz__bill-total.is-good { fill: var(--mint); }
 
   .hz__defer {
     font-family: var(--font-mono); font-size: 9px;

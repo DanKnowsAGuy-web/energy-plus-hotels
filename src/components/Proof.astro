@@ -58,26 +58,6 @@ const cases = [
       </p>
     </div>
 
-    <div class="proof__framing reveal">
-      <p class="proof__framing-text">
-        <strong>A note on how we harmonize.</strong> There isn't one universal
-        device. Power distortion looks different in every building, so we work
-        with a stack of harmonization technologies and select the right one
-        after we measure yours. The results below come from specific
-        technologies in that stack. They show what the technology does in the
-        field, not a single product we manufacture, because we don't
-        manufacture any of it. We are the team that diagnoses your building
-        and points the right tool at the right problem.
-      </p>
-      <p class="proof__framing-text proof__framing-text--tech">
-        For the technically minded: modern non-linear loads distort current,
-        utilities size demand on apparent power (kVA) and penalize low power
-        factor, and conditioning at the panel narrows the gap between the
-        power delivered and the work done. That is why the impact shows up in
-        demand charges, equipment life, and the metered results below.
-      </p>
-    </div>
-
     <div class="proof__carousel reveal" style="--i: 1">
       <button class="proof__arrow" id="proof-prev" type="button" aria-label="Previous case study">&larr;</button>
       <div class="proof__viewport" id="proof-viewport">
@@ -158,31 +138,6 @@ const cases = [
   }
   .proof__lede {
     margin-top: var(--space-m);
-  }
-
-  .proof__framing {
-    margin-top: var(--space-l);
-    padding: clamp(1.1rem, 2.5vw, 1.6rem) clamp(1.2rem, 3vw, 1.9rem);
-    background: rgba(194, 163, 104, 0.05);
-    border: 1px solid var(--line-strong);
-    border-radius: var(--radius-s);
-    max-width: 64rem;
-  }
-  .proof__framing-text {
-    font-size: var(--step-0);
-    line-height: 1.6;
-    color: var(--body);
-  }
-  .proof__framing-text strong {
-    color: var(--gold-text);
-    font-weight: 600;
-  }
-  .proof__framing-text--tech {
-    margin-top: var(--space-s);
-    padding-top: var(--space-s);
-    border-top: 1px solid var(--line);
-    font-size: var(--step--1);
-    color: var(--muted);
   }
 
   .proof__carousel {
