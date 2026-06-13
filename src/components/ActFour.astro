@@ -61,11 +61,9 @@ const items = [
                 </svg>
               )}
             </span>
-            <div class="threat__main">
-              <h3 class="threat__term">{it.term}</h3>
-              <p class="threat__body">{it.body}</p>
-            </div>
+            <h3 class="threat__term">{it.term}</h3>
             <span class="threat__tag">{it.tag}</span>
+            <p class="threat__body">{it.body}</p>
           </li>
         ))
       }
@@ -111,11 +109,19 @@ const items = [
   .threat {
     display: grid;
     grid-template-columns: auto 1fr auto;
-    align-items: start;
-    gap: var(--space-m) var(--space-l);
+    grid-template-areas:
+      "icon term tag"
+      "body body body";
+    align-items: center;
+    column-gap: var(--space-m);
+    row-gap: var(--space-s);
     padding: clamp(1.4rem, 3vw, 2rem) 0;
     border-bottom: 1px solid var(--line-strong);
   }
+  .threat__ico { grid-area: icon; }
+  .threat__term { grid-area: term; }
+  .threat__tag { grid-area: tag; }
+  .threat__body { grid-area: body; }
 
   /* distressed equipment icon: same geometry as the harmonizer loads, shown
      hot here so the scene below reads as these exact machines being healed */
@@ -163,16 +169,17 @@ const items = [
   .threat__term {
     font-size: var(--step-2);
     color: var(--ink);
-    margin-bottom: var(--space-xs);
+    margin: 0;
   }
   .threat__body {
     color: var(--body);
     font-size: var(--step-0);
     line-height: 1.6;
-    max-width: 58ch;
+    max-width: 74ch;
   }
   .threat__tag {
     align-self: center;
+    justify-self: end;
     font-family: var(--font-mono);
     font-size: var(--step--1);
     letter-spacing: 0.04em;
@@ -205,9 +212,12 @@ const items = [
   @media (max-width: 680px) {
     .threat {
       grid-template-columns: auto 1fr;
+      grid-template-areas:
+        "icon term"
+        "body body"
+        "tag  tag";
     }
     .threat__tag {
-      grid-column: 2;
       justify-self: start;
     }
   }
