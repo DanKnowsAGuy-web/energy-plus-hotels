@@ -6,22 +6,25 @@ const rows = [
   {
     key: "solar", word: "Solar-thermal",
     desc: "The sun preheats the refrigerant. Thermal takes a fraction of the size and cost of solar panels.",
-    figs: [{ value: "30–40%" }],
+    figs: [{ value: "30–40%", suf: "energy savings" }],
   },
   {
     key: "retrofit", word: "Compressor retrofit",
     desc: "Instead of buying a whole new system, make your existing compressor run like an intelligent one.",
-    figs: [{ value: "15–30%" }],
+    figs: [{ value: "15–30%", suf: "energy savings" }],
   },
   {
     key: "roof", word: "Cool Roof Shield",
     desc: "Spray-on coatings or thermal membranes keep the heat off the building.",
-    figs: [{ value: "10–20°F", suf: "cooler roof" }],
+    figs: [
+      { value: "10–20°F", suf: "cooler roof" },
+      { value: "10–25%", suf: "energy savings" },
+    ],
   },
   {
     key: "seal", word: "Permaseal",
     desc: "A one-time treatment. The older the unit, the more efficiency it brings back.",
-    figs: [{ pre: "up to", value: "36%" }],
+    figs: [{ value: "10–36%", suf: "energy savings" }],
   },
 ];
 ---
@@ -33,7 +36,8 @@ const rows = [
       <h2 class="hvl__title" id="hvl-title">Your biggest burden is almost half your energy bill.</h2>
       <p class="hvl__lede lede">
         We carry more than 20 HVAC solutions so you can match the right fix for
-        your building instead of being sold one box. A few of the most popular:
+        your building instead of forcing a vendor solution to work. A few of
+        the most popular:
       </p>
     </div>
 
@@ -62,13 +66,13 @@ const rows = [
         <div class="hvl__hero-fig hvl__fig--cool">
           <span class="hvl__fig-pre">up to</span>
           <span class="hvl__fig-val">55%</span>
-          <span class="hvl__fig-suf">cooling</span>
+          <span class="hvl__fig-suf">cooling energy savings</span>
         </div>
         <span class="hvl__hero-div" aria-hidden="true"></span>
         <div class="hvl__hero-fig hvl__fig--warm">
           <span class="hvl__fig-pre">up to</span>
           <span class="hvl__fig-val">60%</span>
-          <span class="hvl__fig-suf">heating</span>
+          <span class="hvl__fig-suf">heating energy savings</span>
         </div>
       </div>
     </div>

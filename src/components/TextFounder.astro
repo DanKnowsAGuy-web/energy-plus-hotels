@@ -1,0 +1,127 @@
+---
+// "Skip the formalities, text the founder." A modal triggered by any
+// .js-text-founder button. Shows an editable message preview; Send opens the
+// visitor's SMS app pre-addressed to the founder with the (edited) body.
+const PHONE = "+18647770688";
+const PHONE_DISPLAY = "(864) 777-0688";
+const DEFAULT_MSG =
+  "Hi Dan, I run a hotel and I'd like to see what real energy savings could look like at my property, without the sales song and dance. What would a Verified Savings Pilot find for a building like mine?";
+---
+
+<div class="tf" id="text-founder" hidden>
+  <div class="tf__backdrop" data-tf-close></div>
+  <div class="tf__dialog" role="dialog" aria-modal="true" aria-labelledby="tf-title">
+    <button class="tf__x" type="button" data-tf-close aria-label="Close">&times;</button>
+    <p class="tf__eyebrow">Skip the formalities</p>
+    <h2 class="tf__title" id="tf-title">Text the founder.</h2>
+    <p class="tf__sub">
+      No form, no funnel. Edit the note if you like, then it opens in your own
+      messages, ready to send to Dan. Reply comes straight from him.
+    </p>
+
+    <div class="tf__phone">
+      <p class="tf__to">To&nbsp; <span>Dan &middot; {PHONE_DISPLAY}</span></p>
+      <label class="tf__bubble">
+        <span class="visually-hidden">Your message</span>
+        <textarea id="tf-msg" rows="5" spellcheck="false">{DEFAULT_MSG}</textarea>
+      </label>
+    </div>
+
+    <a class="btn tf__send" id="tf-send" href="#" data-phone={PHONE}>
+      Open in my messages
+      <span class="btn__arrow" aria-hidden="true">&rarr;</span>
+    </a>
+    <p class="tf__fallback">Prefer to type it yourself? Text <a href={`sms:${PHONE}`}>{PHONE_DISPLAY}</a>.</p>
+  </div>
+</div>
+
+<script is:inline>
+  (() => {
+    const modal = document.getElementById("text-founder");
+    if (!modal) return;
+    const msg = document.getElementById("tf-msg");
+    const send = document.getElementById("tf-send");
+    const phone = send.getAttribute("data-phone") || "";
+    const ua = navigator.userAgent || "";
+    const isIOS = /iP(hone|ad|od)/.test(ua) || (/Mac/.test(ua) && "ontouchend" in document);
+    let lastFocus = null;
+
+    const build = () => {
+      const sep = isIOS ? "&" : "?";
+      send.href = "sms:" + phone + sep + "body=" + encodeURIComponent(msg.value);
+    };
+    const open = () => {
+      lastFocus = document.activeElement;
+      build();
+      modal.hidden = false;
+      document.body.style.overflow = "hidden";
+      requestAnimationFrame(() => { msg.focus(); msg.setSelectionRange(msg.value.length, msg.value.length); });
+    };
+    const close = () => {
+      modal.hidden = true;
+      document.body.style.overflow = "";
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    };
+
+    document.addEventListener("click", (e) => {
+      const trigger = e.target.closest(".js-text-founder");
+      if (trigger) { e.preventDefault(); open(); return; }
+      if (e.target.closest("[data-tf-close]")) { close(); }
+    });
+    msg.addEventListener("input", build);
+    send.addEventListener("click", build);
+    addEventListener("keydown", (e) => { if (e.key === "Escape" && !modal.hidden) close(); });
+  })();
+</script>
+
+<style>
+  .tf[hidden] { display: none; }
+  .tf {
+    position: fixed; inset: 0; z-index: var(--z-modal, 400);
+    display: grid; place-items: center; padding: 1.5rem;
+  }
+  .tf__backdrop {
+    position: absolute; inset: 0; background: rgba(0, 0, 0, 0.62);
+    -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+  }
+  .tf__dialog {
+    position: relative; width: min(31rem, 100%);
+    background: var(--surface); border: 1px solid var(--line-strong);
+    border-radius: var(--radius); padding: clamp(1.5rem, 4vw, 2.3rem);
+    box-shadow: 0 40px 90px -34px rgba(0, 0, 0, 0.85);
+  }
+  .tf__x {
+    position: absolute; top: 0.7rem; right: 0.9rem;
+    background: none; border: none; color: var(--muted);
+    font-size: 1.5rem; line-height: 1; cursor: pointer; padding: 0.2rem;
+  }
+  .tf__x:hover { color: var(--ink); }
+  .tf__eyebrow {
+    font-family: var(--font-mono); font-size: var(--step--1);
+    letter-spacing: 0.13em; text-transform: uppercase; color: var(--gold-text);
+  }
+  .tf__title { font-size: var(--step-2); margin-top: 0.25rem; }
+  .tf__sub { margin-top: var(--space-s); font-size: var(--step--1); line-height: 1.55; color: var(--body); max-width: 40ch; }
+
+  .tf__phone {
+    margin-top: var(--space-m); padding: 0.9rem;
+    background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius-s);
+  }
+  .tf__to {
+    font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted);
+    border-bottom: 1px solid var(--line); padding-bottom: 0.55rem; margin-bottom: 0.7rem;
+  }
+  .tf__to span { color: var(--body); }
+  .tf__bubble textarea {
+    width: 100%; resize: vertical; min-height: 6.5em;
+    background: var(--mint-soft); color: var(--ink);
+    border: 1px solid color-mix(in srgb, var(--mint) 40%, transparent);
+    border-radius: 16px; padding: 0.75rem 0.95rem;
+    font-family: var(--font-sans); font-size: var(--step-0); line-height: 1.5;
+  }
+  .tf__bubble textarea:focus-visible { outline: 2px solid var(--mint); outline-offset: 2px; }
+
+  .tf__send { margin-top: var(--space-m); width: 100%; justify-content: center; }
+  .tf__fallback { margin-top: var(--space-s); font-size: 0.72rem; color: var(--muted); text-align: center; }
+  .tf__fallback a { color: var(--gold-text); }
+</style>
