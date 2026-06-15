@@ -2,6 +2,7 @@
 // BRUTAL-EDIT VARIANT of Offer: outcomes as four icon-led benefit boxes (icon
 // / figure / label aligned across all four), then a mint risk-reversal panel
 // carrying the cash-flow promise and the verify-first guarantee, then one CTA.
+import CtaPair from "./CtaPair.astro";
 const boxes = [
   { key: "bill", fig: "20–40%", label: "off your monthly electric bill" },
   { key: "maint", pre: "up to", fig: "40%", label: "less equipment maintenance" },
@@ -86,10 +87,7 @@ const boxes = [
         </li>
       </ul>
 
-      <a href="#book" class="btn offerl__cta">
-        Book your Verified Savings Pilot
-        <span class="btn__arrow" aria-hidden="true">&rarr;</span>
-      </a>
+      <CtaPair />
     </div>
   </div>
 </section>

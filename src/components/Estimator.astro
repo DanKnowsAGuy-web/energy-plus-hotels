@@ -5,6 +5,7 @@
 // demand 0.05 x 0.40, outdoor lighting (hotel 4-9%, off-grid mult 1.0),
 // rate negotiation 2.5-6% in deregulated states, portfolio low x floor to
 // high x ceiling, escalation applied to savings via the annuity factor.
+import CtaPair from "./CtaPair.astro";
 const STATE_COOL: Record<string, number> = {
   Alabama: 65, Alaska: 22, Arizona: 80, Arkansas: 65, California: 50,
   Colorado: 35, Connecticut: 35, Delaware: 50, "District of Columbia": 50,
@@ -219,10 +220,7 @@ const heats = [
           That number is a model. The pilot replaces it with a measurement, at
           your meter, before you commit a dollar.
         </p>
-        <a href="#book" class="btn">
-          Book your Verified Savings Pilot
-          <span class="btn__arrow" aria-hidden="true">&rarr;</span>
-        </a>
+        <CtaPair />
         <p class="est__disclaimer">
           Directional estimate using the conservative floor rates from the
           published model, applied to your electricity spend. Not a quote.
