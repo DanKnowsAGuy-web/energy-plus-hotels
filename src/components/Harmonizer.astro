@@ -52,17 +52,11 @@ const ptacs = [244, 204, 164];
         <h2 class="hz__title" id="hz-title">
           What dirty power does, and what the harmonizer undoes.
         </h2>
-        <p class="hz__lede">
-          Picture a beer poured too fast: you pay for a full glass, but the top
-          is foam you can't drink, some slops over the side, and the rough pour
-          wears on the glass. Dirty power bills your hotel the same way.
-        </p>
         <div class="hz__card" id="hz-card" aria-live="polite">
           <span class="hz__card-num" id="hz-card-num">1 / 4</span>
           <p class="hz__card-text" id="hz-card-text">
-            Modern equipment doesn't sip power, it gulps it in pulses. Those
-            pulses froth up the power in your panels like a beer poured too
-            fast, and most of the mess starts inside your own building.
+            Modern equipment pulls power in fast pulses instead of a steady
+            draw, and most of that instability starts inside your own building.
           </p>
         </div>
       </div>
@@ -81,7 +75,6 @@ const ptacs = [244, 204, 164];
           </defs>
 
           <line class="hz__ground" x1="80" y1="330" x2="752" y2="330"></line>
-          <text class="hz__tag" x="80" y="240">Grid power, lightly noisy</text>
 
           <!-- the line: the grid side never cleans up -->
           <line class="hz__axis" x1="80" y1={midY} x2="420" y2={midY}></line>
@@ -163,18 +156,6 @@ const ptacs = [244, 204, 164];
             <circle class="hz__spark" id="hz-spark4" r="1.7"></circle>
           </g>
 
-          <!-- device labels, right column -->
-          <g class="hz__labels">
-            <line class="hz__leader" x1="652" y1="84" x2="664" y2="84"></line>
-            <text class="hz__dev-label" x="668" y="88">Elevator motor</text>
-            <line class="hz__leader" x1="608" y1="210" x2="664" y2="210"></line>
-            <text class="hz__dev-label" x="668" y="214">PTAC fleet</text>
-            <text class="hz__defer" x="668" y="228">replacement deferred</text>
-            <line class="hz__leader" x1="610" y1="312" x2="664" y2="312"></line>
-            <text class="hz__dev-label" x="668" y="310">Pool &amp; spa pumps,</text>
-            <text class="hz__dev-label" x="668" y="322">laundry drives</text>
-          </g>
-
           <!-- harmonizer: the shield, pressed against the building -->
           <g class="hz__box" id="hz-box" transform="translate(0,-230)">
             <rect class="hz__box-body" x="326" y="232" width="92" height="96" rx="7"></rect>
@@ -185,31 +166,40 @@ const ptacs = [244, 204, 164];
             <text class="hz__box-sub" x="372" y="321" text-anchor="middle">at the panel</text>
           </g>
 
-          <g class="hz__bill" transform="translate(80,40)">
+          <g class="hz__bill" transform="translate(78,34)">
             <text class="hz__meter-label" x="0" y="0">Your utility bill</text>
-            <text class="hz__bill-name" x="0" y="24">Useful energy</text>
-            <text class="hz__bill-amt" x="200" y="24" text-anchor="end">$1,000</text>
-            <text class="hz__bill-name hz__foam" x="0" y="46">Foam: power you can't use</text>
-            <text class="hz__bill-amt hz__foam" x="200" y="46" text-anchor="end">+$60</text>
-            <text class="hz__bill-name hz__foam" x="0" y="66">Spills: lost as heat</text>
-            <text class="hz__bill-amt hz__foam" x="200" y="66" text-anchor="end">+$40</text>
-            <text class="hz__bill-name hz__foam" x="0" y="86">The mess: utility penalty</text>
-            <text class="hz__bill-amt hz__foam" x="200" y="86" text-anchor="end">+$25</text>
-            <text class="hz__bill-name hz__foam" x="0" y="106">Worn glass: early wear</text>
-            <text class="hz__bill-amt hz__foam" x="200" y="106" text-anchor="end">+$15</text>
+            <text class="hz__bill-name" x="0" y="30">Useful energy</text>
+            <text class="hz__bill-amt" x="210" y="30" text-anchor="end">$1,000</text>
 
-            <g id="hz-credit" class="hz__credit">
-              <text class="hz__bill-name hz__bill--mint" x="0" y="128">Harmonizer</text>
-              <text class="hz__bill-amt hz__bill--mint" x="200" y="128" text-anchor="end">&#8722;$140</text>
+            <g class="hz__cost" id="hz-c1">
+              <text class="hz__bill-name" x="0" y="56">Power you can't use</text>
+              <text class="hz__bill-amt hz__cost-amt" x="210" y="56" text-anchor="end">+$60</text>
+            </g>
+            <g class="hz__cost" id="hz-c2">
+              <text class="hz__bill-name" x="0" y="80">Lost as heat</text>
+              <text class="hz__bill-amt hz__cost-amt" x="210" y="80" text-anchor="end">+$40</text>
+            </g>
+            <g class="hz__cost" id="hz-c3">
+              <text class="hz__bill-name" x="0" y="104">Utility penalty</text>
+              <text class="hz__bill-amt hz__cost-amt" x="210" y="104" text-anchor="end">+$25</text>
+            </g>
+            <g class="hz__cost" id="hz-c4">
+              <text class="hz__bill-name" x="0" y="128">Early equipment wear</text>
+              <text class="hz__bill-amt hz__cost-amt" x="210" y="128" text-anchor="end">+$15</text>
             </g>
 
-            <line class="hz__bill-rule" x1="0" y1="142" x2="200" y2="142"></line>
-            <text class="hz__bill-tlabel" x="0" y="170">What you pay</text>
-            <text class="hz__bill-total" id="hz-total" x="200" y="172" text-anchor="end">$1,140</text>
+            <g id="hz-credit" class="hz__credit">
+              <text class="hz__bill-name hz__bill--mint" x="0" y="154">Harmonizer</text>
+              <text class="hz__bill-amt hz__bill--mint" x="210" y="154" text-anchor="end">&#8722;$140</text>
+            </g>
+
+            <line class="hz__bill-rule" x1="0" y1="170" x2="210" y2="170"></line>
+            <text class="hz__bill-tlabel" x="0" y="196">What you pay</text>
+            <text class="hz__bill-total" id="hz-total" x="210" y="198" text-anchor="end">$1,140</text>
 
             <g class="hz__stamp">
-              <rect x="96" y="186" width="104" height="26" rx="3"></rect>
-              <text x="148" y="204" text-anchor="middle">VERIFIED</text>
+              <rect x="104" y="212" width="106" height="26" rx="3"></rect>
+              <text x="157" y="230" text-anchor="middle">VERIFIED</text>
             </g>
           </g>
         </svg>
@@ -266,10 +256,10 @@ const ptacs = [244, 204, 164];
     const rectD = $("hz-rect-d");
 
     const cards = [
-      "Modern equipment doesn't sip power, it gulps it in pulses. Those pulses froth up the power in your panels like a beer poured too fast, and most of the mess starts inside your own building.",
-      "You pay for the foam. Frothy power does less real work per delivery, so the utility sends more to do the same job and bills you for the difference: bigger demand charges and penalties.",
-      "The harmonizer settles the pour right at the panel, absorbing the froth your equipment makes instead of letting it surge through every circuit. The machines run cooler.",
-      "No foam, no spills, no worn-out glass. Smaller demand charges, fewer breakdowns, longer equipment life. Verified at hotels like yours: 8 to 14 percent.",
+      "Modern equipment pulls power in fast pulses instead of a steady draw, and most of that instability starts inside your own building.",
+      "Unstable power does less real work per delivery, so the utility sends more to do the same job and bills you for the difference: bigger demand charges and penalties.",
+      "The harmonizer smooths the power right at the panel, absorbing the noise your equipment makes instead of letting it surge through every circuit. The machines run cooler.",
+      "Smaller demand charges, fewer breakdowns, longer equipment life. Verified at hotels like yours: 8 to 14 percent.",
     ];
     const card = $("hz-card");
     const cardText = $("hz-card-text");
@@ -321,6 +311,10 @@ const ptacs = [244, 204, 164];
 
       // the bill, left side: the foam credit lands and the total falls back
       // toward the useful-energy line as the harmonizer seats
+      // cost lines appear one by one as the scroll advances
+      [["hz-c1", 0.07], ["hz-c2", 0.13], ["hz-c3", 0.19], ["hz-c4", 0.25]].forEach(
+        ([id, th]) => { const el = $(id); if (el) el.style.opacity = p > th ? "1" : "0"; },
+      );
       const credit = $("hz-credit");
       const total = $("hz-total");
       credit.style.opacity = climb.toFixed(2);
@@ -348,6 +342,7 @@ const ptacs = [244, 204, 164];
       winRows.forEach((w) => w.el.classList.add("is-warm"));
       kwh.textContent = fmtK(KWH_LO);
       kwh.classList.add("is-good");
+      ["hz-c1", "hz-c2", "hz-c3", "hz-c4"].forEach((id) => { const el = $(id); if (el) el.style.opacity = "1"; });
       $("hz-credit").style.opacity = "1";
       const totalS = $("hz-total");
       totalS.textContent = "$" + fmtK(1000);
@@ -401,7 +396,14 @@ const ptacs = [244, 204, 164];
 
 <style>
   /* extra track length = the hold beat at the finished state */
-  .hz { position: relative; height: 480vh; border-top: 1px solid var(--line); }
+  .hz {
+    position: relative; height: 480vh; border-top: 1px solid var(--line);
+    /* theme-aware accents: distortion = cost, clean feed = signal teal,
+       warm windows = gold-text. Fallbacks keep the forest theme identical. */
+    --hz-dist: var(--cost, #e05a2b);
+    --hz-feed: var(--h-teal, #5b9dc2);
+    --hz-warm: var(--gold-text);
+  }
   .hz__sticky {
     position: sticky; top: 0; height: 100vh;
     display: flex; align-items: center; overflow: hidden;
@@ -462,7 +464,7 @@ const ptacs = [244, 204, 164];
   .hz__ground { stroke: var(--line-strong); stroke-width: 1.5; stroke-dasharray: 5 6; }
   .hz__axis { stroke: var(--line); stroke-width: 1; stroke-dasharray: 3 6; }
   .hz__wave { fill: none; stroke-width: 2.6; vector-effect: non-scaling-stroke; }
-  .hz__wave--dist { stroke: #e05a2b; filter: drop-shadow(0 0 5px rgba(224, 90, 43, 0.4)); }
+  .hz__wave--dist { stroke: var(--hz-dist); filter: drop-shadow(0 0 5px color-mix(in srgb, var(--hz-dist) 42%, transparent)); }
   @media (prefers-reduced-motion: no-preference) {
     .hz__flow { animation: hzFlow 6.5s linear infinite; }
     @keyframes hzFlow {
@@ -477,11 +479,11 @@ const ptacs = [244, 204, 164];
 
   .hz__kwh-read {
     font-family: var(--font-mono); font-size: 26px; font-weight: 500;
-    fill: #e05a2b; transition: fill 0.5s ease;
+    fill: var(--hz-dist); transition: fill 0.5s ease;
     font-variant-numeric: tabular-nums;
   }
   .hz__kwh-read.is-good { fill: var(--mint); }
-  .hz__meter-face { fill: #0c211b; }
+  .hz__meter-face { fill: var(--bg); }
 
   /* building */
   .hz__shell {
@@ -490,32 +492,32 @@ const ptacs = [244, 204, 164];
   }
   .hz.is-settled .hz__shell {
     stroke: var(--mint);
-    filter: drop-shadow(0 0 8px rgba(91, 194, 162, 0.3));
+    filter: drop-shadow(0 0 8px color-mix(in srgb, var(--mint) 32%, transparent));
   }
   .hz__floor { stroke: var(--line); stroke-width: 1; }
-  .hz__shaft { fill: rgba(226, 216, 196, 0.04); stroke: var(--line); stroke-width: 1; }
+  .hz__shaft { fill: color-mix(in srgb, var(--ink) 4%, transparent); stroke: var(--line); stroke-width: 1; }
   .hz__win {
-    fill: rgba(226, 216, 196, 0.07); stroke: var(--line); stroke-width: 0.6;
+    fill: color-mix(in srgb, var(--ink) 7%, transparent); stroke: var(--line); stroke-width: 0.6;
     transition: fill 0.6s ease, stroke 0.6s ease, filter 0.6s ease;
   }
   .hz__winrow.is-warm .hz__win {
-    fill: rgba(216, 190, 134, 0.55); stroke: var(--gold-text);
-    filter: drop-shadow(0 0 4px rgba(216, 190, 134, 0.4));
+    fill: color-mix(in srgb, var(--hz-warm) 55%, transparent); stroke: var(--gold-text);
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--hz-warm) 42%, transparent));
   }
 
   .hz__riser { fill: none; stroke-width: 2.2; stroke-linecap: round; }
-  .hz__riser--red { stroke: #e05a2b; filter: drop-shadow(0 0 4px rgba(224, 90, 43, 0.5)); }
-  .hz__riser--mint { stroke: var(--mint); filter: drop-shadow(0 0 4px rgba(91, 194, 162, 0.5)); }
+  .hz__riser--red { stroke: var(--hz-dist); filter: drop-shadow(0 0 4px color-mix(in srgb, var(--hz-dist) 50%, transparent)); }
+  .hz__riser--mint { stroke: var(--mint); filter: drop-shadow(0 0 4px color-mix(in srgb, var(--mint) 50%, transparent)); }
 
   .hz__spark {
-    fill: #ff8a4d; opacity: 0;
-    filter: drop-shadow(0 0 4px rgba(255, 138, 77, 0.9));
+    fill: var(--cost, #ff8a4d); opacity: 0;
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--cost, #ff8a4d) 90%, transparent));
   }
 
   .hz__mini {
-    fill: none; stroke: #5b9dc2; stroke-width: 1.6;
+    fill: none; stroke: var(--hz-feed); stroke-width: 1.6;
     stroke-dasharray: 14 10; opacity: 0;
-    filter: drop-shadow(0 0 3px rgba(91, 157, 194, 0.5));
+    filter: drop-shadow(0 0 3px color-mix(in srgb, var(--hz-feed) 50%, transparent));
     transition: opacity 0.6s ease;
   }
   .hz__load.is-cool .hz__mini { opacity: 1; }
@@ -534,13 +536,13 @@ const ptacs = [244, 204, 164];
   }
   .hz__load.is-hot .hz__stub,
   .hz__load.is-hot .hz__load-ln {
-    stroke: #e05a2b; opacity: 1;
-    filter: drop-shadow(0 0 5px rgba(224, 90, 43, 0.55));
+    stroke: var(--hz-dist); opacity: 1;
+    filter: drop-shadow(0 0 5px color-mix(in srgb, var(--hz-dist) 55%, transparent));
   }
   .hz__load.is-cool .hz__stub,
   .hz__load.is-cool .hz__load-ln {
-    stroke: #5b9dc2; opacity: 1;
-    filter: drop-shadow(0 0 4px rgba(91, 157, 194, 0.45));
+    stroke: var(--hz-feed); opacity: 1;
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--hz-feed) 45%, transparent));
   }
   @media (prefers-reduced-motion: no-preference) {
     .hz__load.is-hot { animation: hzShake 0.34s ease-in-out infinite; }
@@ -555,11 +557,11 @@ const ptacs = [244, 204, 164];
     }
     @keyframes hzOverheat {
       0%, 100% {
-        filter: drop-shadow(0 0 3px rgba(224, 90, 43, 0.45));
+        filter: drop-shadow(0 0 3px color-mix(in srgb, var(--hz-dist) 45%, transparent));
         stroke-width: 1.6;
       }
       50% {
-        filter: drop-shadow(0 0 8px rgba(224, 90, 43, 0.85));
+        filter: drop-shadow(0 0 8px color-mix(in srgb, var(--hz-dist) 85%, transparent));
         stroke-width: 2;
       }
     }
@@ -579,7 +581,7 @@ const ptacs = [244, 204, 164];
   /* noise radiating from hot machines */
   .hz__ripple {
     fill: none;
-    stroke: #e05a2b;
+    stroke: var(--hz-dist);
     stroke-width: 1.2;
     opacity: 0;
     transform-box: fill-box;
@@ -605,24 +607,25 @@ const ptacs = [244, 204, 164];
   }
   .hz__bill-val {
     font-family: var(--font-serif); font-size: 22px;
-    fill: #e05a2b; transition: fill 0.5s ease;
+    fill: var(--hz-dist); transition: fill 0.5s ease;
     font-variant-numeric: tabular-nums;
   }
   .hz__bill-val.is-good { fill: var(--mint); }
 
   /* itemized "foam" bill */
-  .hz__bill-name { font-family: var(--font-mono); font-size: 10px; fill: var(--body); }
-  .hz__bill-amt { font-family: var(--font-mono); font-size: 10px; fill: var(--body); font-variant-numeric: tabular-nums; }
-  .hz__foam { fill: #e0894a; }
+  .hz__bill-name { font-family: var(--font-mono); font-size: 12px; fill: var(--body); }
+  .hz__bill-amt { font-family: var(--font-mono); font-size: 12px; fill: var(--body); font-variant-numeric: tabular-nums; }
+  .hz__cost-amt { fill: var(--hz-dist); }
   .hz__bill--mint { fill: var(--mint); }
-  .hz__credit { opacity: 0; }
+  .hz__cost { opacity: 0; transition: opacity 0.5s ease; }
+  .hz__credit { opacity: 0; transition: opacity 0.5s ease; }
   .hz__bill-rule { stroke: var(--line-strong); stroke-width: 1; }
   .hz__bill-tlabel {
     font-family: var(--font-mono); font-size: 10px;
     letter-spacing: 0.06em; text-transform: uppercase; fill: var(--muted);
   }
   .hz__bill-total {
-    font-family: var(--font-serif); font-size: 24px; fill: #e05a2b;
+    font-family: var(--font-serif); font-size: 24px; fill: var(--hz-dist);
     font-variant-numeric: tabular-nums; transition: fill 0.5s ease;
   }
   .hz__bill-total.is-good { fill: var(--mint); }
@@ -640,7 +643,7 @@ const ptacs = [244, 204, 164];
     transition: opacity 0.35s ease, transform 0.45s var(--ease-out-quart);
   }
   .hz.is-stamped .hz__stamp { opacity: 1; transform: scale(1) rotate(-4deg); }
-  .hz__stamp rect { fill: rgba(91, 194, 162, 0.08); stroke: var(--mint); stroke-width: 1.4; }
+  .hz__stamp rect { fill: color-mix(in srgb, var(--mint) 8%, transparent); stroke: var(--mint); stroke-width: 1.4; }
   .hz__stamp text {
     font-family: var(--font-mono); font-size: 12px;
     letter-spacing: 0.18em; fill: var(--mint);

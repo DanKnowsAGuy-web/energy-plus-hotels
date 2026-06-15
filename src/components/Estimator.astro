@@ -391,7 +391,7 @@ const heats = [
   .est {
     border-top: 1px solid var(--line);
     background:
-      radial-gradient(ellipse 60% 45% at 50% 0%, rgba(194, 163, 104, 0.06), transparent 70%),
+      radial-gradient(ellipse 60% 45% at 50% 0%, color-mix(in srgb, var(--gold) 7%, transparent), transparent 70%),
       var(--bg);
   }
   .est__head { max-width: 54rem; }
@@ -419,12 +419,12 @@ const heats = [
 
   input[type="range"]#est-spend {
     -webkit-appearance: none; appearance: none; width: 100%; height: 4px;
-    border-radius: 999px; background: rgba(226, 216, 196, 0.16); outline-offset: 6px;
+    border-radius: 999px; background: color-mix(in srgb, var(--ink) 16%, transparent); outline-offset: 6px;
   }
   #est-spend::-webkit-slider-thumb {
     -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%;
     background: var(--gold); border: 3px solid var(--surface);
-    box-shadow: 0 0 0 1px var(--gold), 0 4px 12px -2px var(--gold-glow); cursor: pointer;
+    box-shadow: 0 0 0 1px var(--gold), 0 4px 12px -2px color-mix(in srgb, var(--gold) 45%, transparent); cursor: pointer;
   }
   #est-spend::-moz-range-thumb {
     width: 20px; height: 20px; border-radius: 50%; background: var(--gold);
@@ -440,7 +440,7 @@ const heats = [
     transition: all 0.22s ease;
   }
   .est__chip input:checked + span {
-    background: rgba(194, 163, 104, 0.16); border-color: var(--gold);
+    background: color-mix(in srgb, var(--gold) 16%, transparent); border-color: var(--gold);
     color: var(--gold-text); font-weight: 600;
   }
   .est__chip input:focus-visible + span { outline: 2px solid var(--gold); outline-offset: 2px; }
@@ -553,7 +553,7 @@ const heats = [
   .est__dial-track { fill: none; stroke: var(--line-strong); stroke-width: 6; stroke-linecap: round; }
   .est__dial-zone {
     fill: none; stroke: var(--mint); stroke-width: 6; stroke-linecap: round;
-    opacity: 0.85; filter: drop-shadow(0 0 5px rgba(91, 194, 162, 0.35));
+    opacity: 0.85; filter: drop-shadow(0 0 5px color-mix(in srgb, var(--mint) 35%, transparent));
   }
   .est__dial-needle { transform-origin: 100px 104px; transform: rotate(90deg); }
   @media (prefers-reduced-motion: no-preference) {
