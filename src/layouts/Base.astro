@@ -301,6 +301,32 @@ const tlClean = tlPath(false);
         });
       }
 
+      // Bio portraits: on touch (no hover), drive grayscale->color by scroll —
+      // full color when the image's center reaches the viewport center, fading
+      // to B&W as it nears the top or bottom. Desktop uses :hover (CSS).
+      if (matchMedia("(hover: none)").matches && !reduce.matches) {
+        const photos = Array.from(document.querySelectorAll(".bio-photo"));
+        if (photos.length) {
+          let bticking = false;
+          const paint = () => {
+            const mid = innerHeight / 2;
+            for (const ph of photos) {
+              const r = ph.getBoundingClientRect();
+              if (r.bottom < 0 || r.top > innerHeight) continue;
+              const center = (r.top + r.bottom) / 2;
+              const color = Math.max(0, Math.min(1, 1 - Math.abs(center - mid) / mid));
+              ph.style.filter = "grayscale(" + (1 - color).toFixed(3) + ")";
+            }
+            bticking = false;
+          };
+          addEventListener("scroll", () => {
+            if (!bticking) { bticking = true; requestAnimationFrame(paint); }
+          }, { passive: true });
+          addEventListener("resize", paint, { passive: true });
+          paint();
+        }
+      }
+
       // Mint pulse: the "diagnosis is on us" dot pulses once on arrival.
       const dot = document.querySelector(".pay__dot");
       if (dot && !reduce.matches && "IntersectionObserver" in window) {

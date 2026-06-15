@@ -508,6 +508,31 @@ main > .section::before {
   }
 }
 
+/* --- Bio portraits: grayscale by default, color on hover (desktop). On touch
+   the color is driven by scroll position in Base.astro (peaks when the image
+   center reaches the viewport center). --------------------------------------- */
+.bio-photo {
+  filter: grayscale(1);
+  transition: filter 0.5s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .bio-photo:hover {
+    filter: none;
+  }
+}
+@media (hover: none) {
+  /* scroll-driven: no transition so it tracks the scroll exactly */
+  .bio-photo {
+    transition: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bio-photo {
+    filter: none;
+    transition: none;
+  }
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;

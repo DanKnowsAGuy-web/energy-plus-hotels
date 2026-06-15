@@ -42,7 +42,7 @@ const team = [
         team.map((m, i) => (
           <article class="team__card reveal" style={`--i: ${i}`}>
             <img
-              class="team__photo"
+              class="team__photo bio-photo"
               src={m.photo.src}
               width={m.photo.width}
               height={m.photo.height}
@@ -65,45 +65,6 @@ const team = [
     </div>
   </div>
 </section>
-
-<script is:inline>
-  (() => {
-    // Touch devices have no hover, so the color reveal is scroll-driven:
-    // a photo starts tinted, fades to full color as its top travels from
-    // mid-viewport to the top, holds, then fades back to tint as its bottom
-    // crosses mid-viewport on the way out.
-    if (!matchMedia("(hover: none)").matches) return;
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const photos = Array.from(document.querySelectorAll(".team__photo"));
-    if (!photos.length) return;
-    const TINT = [1, 0.25, 95, 0.55, 0.92]; // grayscale sepia hue sat bright
-    const clamp = (v) => Math.max(0, Math.min(1, v));
-    let ticking = false;
-    const update = () => {
-      const half = innerHeight / 2;
-      for (const ph of photos) {
-        const r = ph.getBoundingClientRect();
-        if (r.bottom < 0 || r.top > innerHeight) continue;
-        const colorIn = clamp((half - r.top) / half);
-        const colorOut = clamp((r.bottom - half) / half);
-        const c = Math.min(colorIn, colorOut); // 0 = tinted, 1 = full color
-        const k = 1 - c;
-        ph.style.filter =
-          "grayscale(" + (TINT[0] * k).toFixed(3) +
-          ") sepia(" + (TINT[1] * k).toFixed(3) +
-          ") hue-rotate(" + (TINT[2] * k).toFixed(1) +
-          "deg) saturate(" + (1 - (1 - TINT[3]) * k).toFixed(3) +
-          ") brightness(" + (1 - (1 - TINT[4]) * k).toFixed(3) + ")";
-      }
-      ticking = false;
-    };
-    addEventListener("scroll", () => {
-      if (!ticking) { ticking = true; requestAnimationFrame(update); }
-    }, { passive: true });
-    addEventListener("resize", update, { passive: true });
-    update();
-  })();
-</script>
 
 <style>
   .team { border-top: 1px solid var(--line); }
@@ -140,20 +101,15 @@ const team = [
     border-color: rgba(194, 163, 104, 0.5);
     transform: translateY(-3px);
   }
-  /* full original framing at every width: scale, never crop */
+  /* full original framing at every width: scale, never crop.
+     grayscale->color handled by the shared .bio-photo treatment */
   .team__photo {
     width: 100%;
     height: auto;
     display: block;
-    filter: grayscale(1) sepia(0.25) hue-rotate(95deg) saturate(0.55) brightness(0.92);
-    transition: filter 0.5s ease;
-  }
-  .team__card:hover .team__photo,
-  .team__card:focus-within .team__photo {
-    filter: none;
   }
   @media (prefers-reduced-motion: reduce) {
-    .team__card, .team__photo { transition: none; }
+    .team__card { transition: none; }
   }
   .team__body { padding: 1.3rem 1.4rem 1.5rem; }
   .team__name {
