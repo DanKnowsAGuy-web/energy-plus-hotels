@@ -4,6 +4,25 @@
 // figures kept in their own column so descriptors can never collide with them.
 const rows = [
   {
+    key: "replace", word: "Replace",
+    desc: "When it's finally time to replace a unit, it's time for the gold standard.",
+    figs: [
+      { pre: "up to", value: "55%", suf: "cooling", tone: "cool" },
+      { pre: "up to", value: "60%", suf: "heating", tone: "warm" },
+    ],
+    badge: "IEER 31 · COP 6",
+  },
+  {
+    key: "solar", word: "Solar-thermal",
+    desc: "The sun preheats the refrigerant. Thermal takes a fraction of the size and cost of solar panels.",
+    figs: [{ value: "30–40%" }],
+  },
+  {
+    key: "retrofit", word: "Compressor retrofit",
+    desc: "Instead of buying a whole new system, make your existing compressor run like an intelligent one.",
+    figs: [{ value: "15–30%" }],
+  },
+  {
     key: "roof", word: "Cool Roof Shield",
     desc: "Spray-on coatings or thermal membranes keep the heat off the building.",
     figs: [{ value: "10–20°F", suf: "cooler roof" }],
@@ -13,37 +32,20 @@ const rows = [
     desc: "A one-time treatment. The older the unit, the more efficiency it brings back.",
     figs: [{ pre: "up to", value: "36%" }],
   },
-  {
-    key: "retrofit", word: "Compressor retrofit",
-    desc: "Instead of buying a whole new system, make your existing compressor run like an intelligent one.",
-    figs: [{ value: "15–30%" }],
-  },
-  {
-    key: "solar", word: "Solar-thermal",
-    desc: "The sun preheats the refrigerant. Thermal takes a fraction of the size and cost of solar panels.",
-    figs: [{ value: "30–40%" }],
-  },
-  {
-    key: "replace", word: "Replace",
-    desc: "When it's finally time to replace a unit, it's time for the gold standard.",
-    figs: [
-      { pre: "up to", value: "55%", suf: "cooling", tone: "cool" },
-      { pre: "up to", value: "60%", suf: "heating", tone: "warm" },
-    ],
-    badge: "IEER 31 · COP 6",
-  },
 ];
 ---
 
 <section class="section hvl" id="hvac" aria-labelledby="hvl-title">
   <div class="container">
     <div class="hvl__head reveal">
-      <h2 class="hvl__title" id="hvl-title">Lower the load, then optimize what's left.</h2>
+      <p class="eyebrow">Your single largest energy load</p>
+      <h2 class="hvl__title" id="hvl-title">Reduce your biggest burden first.</h2>
       <p class="hvl__lede lede">
-        HVAC is the biggest load you own, so we shrink how hard it works, then
-        optimize what's left. We don't lead with a rip-and-replace; we replace
-        only when a unit is truly done, and the exam decides which fixes your
-        building gets.
+        Heating and cooling runs close to 40% of a hotel's energy bill, the
+        heaviest load you carry. We shrink how hard it has to work before anyone
+        spends a dollar on new equipment. With more than 20 HVAC solutions in
+        the toolkit, the exam decides which ones fit your building, not a
+        vendor's catalog. A few of the most common:
       </p>
     </div>
 

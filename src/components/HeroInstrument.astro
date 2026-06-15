@@ -311,19 +311,6 @@ const branches = [
 
     <div class="xray__lens"></div>
     <div class="hero__scrim"></div>
-
-    <div class="hero__hud" aria-hidden="true">
-      <div class="hero__hud-now" data-hud-now>
-        <span class="hero__hud-dev" data-hud-name></span>
-        <span class="hero__hud-cost" data-hud-cost></span>
-        <span class="hero__hud-metric" data-hud-metric></span>
-      </div>
-      <div class="hero__hud-total">
-        <span class="hero__hud-label">Estimated waste found</span>
-        <span class="hero__hud-val"><span data-hud-total>$0</span><span class="hero__hud-mo">/mo</span></span>
-        <span class="hero__hud-note">illustrative, until we measure yours</span>
-      </div>
-    </div>
   </div>
 
   <div class="container hero__inner">
@@ -351,12 +338,6 @@ const branches = [
         <li>No capital at risk</li>
         <li>No equipment torn out</li>
       </ul>
-
-      <p class="hero__waste-m reveal">
-        <span class="hero__waste-m-label">Estimated waste found</span>
-        <strong>&#8776; $4,280<span>/mo</span></strong>
-        <span class="hero__waste-m-note">illustrative, until we measure yours</span>
-      </p>
     </div>
   </div>
 </section>
@@ -371,43 +352,7 @@ const branches = [
     const devs = Array.from(scene.querySelectorAll(".dev"));
     const NEAR = 135;
 
-    // --- HUD: the scanner reads dollars ---------------------------------
-    const hudNow = scene.querySelector("[data-hud-now]");
-    const elName = scene.querySelector("[data-hud-name]");
-    const elCost = scene.querySelector("[data-hud-cost]");
-    const elMetric = scene.querySelector("[data-hud-metric]");
-    const elTotal = scene.querySelector("[data-hud-total]");
-    const found = new Set();
-    let total = 0, shownTotal = 0, totalRaf = 0;
-    const fmt = (n) => "$" + Math.round(n).toLocaleString("en-US");
-    const animateTotal = () => {
-      if (totalRaf) cancelAnimationFrame(totalRaf);
-      const start = performance.now(), from = shownTotal, to = total, dur = 700;
-      const tick = (now) => {
-        const t = Math.min((now - start) / dur, 1);
-        shownTotal = from + (to - from) * (1 - Math.pow(1 - t, 3));
-        if (elTotal) elTotal.textContent = fmt(shownTotal);
-        if (t < 1) totalRaf = requestAnimationFrame(tick); else totalRaf = 0;
-      };
-      totalRaf = requestAnimationFrame(tick);
-    };
-    const discover = (d) => {
-      const id = d.getAttribute("data-dev");
-      if (found.has(id)) return;
-      found.add(id);
-      total += Number(d.getAttribute("data-cost")) || 0;
-      if (reduce) { shownTotal = total; if (elTotal) elTotal.textContent = fmt(total); }
-      else animateTotal();
-    };
-    const showNow = (d) => {
-      if (!hudNow) return;
-      if (!d) { hudNow.classList.remove("is-on"); return; }
-      if (elName) elName.textContent = d.getAttribute("data-name") || "";
-      if (elCost) elCost.textContent = "+" + fmt(Number(d.getAttribute("data-cost")) || 0) + "/mo";
-      if (elMetric) elMetric.textContent = d.getAttribute("data-metric") || "";
-      hudNow.classList.add("is-on");
-    };
-
+    const showNow = () => {};
     const setPos = (x, y) => {
       scene.style.setProperty("--mx", x + "px");
       scene.style.setProperty("--my", y + "px");
@@ -419,18 +364,13 @@ const branches = [
     };
     const markNear = (x, y) => {
       const box = scene.getBoundingClientRect();
-      let nearest = null, nd = 1e9;
       for (const d of devs) {
         const m = d.querySelector(".dev__glow") || d;
         const b = m.getBoundingClientRect();
         const hx = b.left + b.width / 2 - box.left;
         const hy = b.top + b.height / 2 - box.top;
-        const dist = Math.hypot(hx - x, hy - y);
-        const near = dist < NEAR;
-        d.classList.toggle("is-near", near);
-        if (near) { discover(d); if (dist < nd) { nd = dist; nearest = d; } }
+        d.classList.toggle("is-near", Math.hypot(hx - x, hy - y) < NEAR);
       }
-      showNow(nearest);
     };
     const centerOf = (d) => {
       const m = d.querySelector(".dev__glow") || d;
@@ -443,7 +383,6 @@ const branches = [
     // reduced motion: reveal the annotated blueprint, all waste counted
     if (reduce) {
       hero.classList.add("is-revealed");
-      devs.forEach(discover);
       return;
     }
 
