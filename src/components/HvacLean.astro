@@ -4,15 +4,6 @@
 // figures kept in their own column so descriptors can never collide with them.
 const rows = [
   {
-    key: "replace", word: "Replace",
-    desc: "When it's finally time to replace a unit, it's time for the gold standard.",
-    figs: [
-      { pre: "up to", value: "55%", suf: "cooling", tone: "cool" },
-      { pre: "up to", value: "60%", suf: "heating", tone: "warm" },
-    ],
-    badge: "IEER 31 · COP 6",
-  },
-  {
     key: "solar", word: "Solar-thermal",
     desc: "The sun preheats the refrigerant. Thermal takes a fraction of the size and cost of solar panels.",
     figs: [{ value: "30–40%" }],
@@ -45,6 +36,44 @@ const rows = [
         your building instead of being sold one box. A few of the most popular:
       </p>
     </div>
+
+    <div class="hvl__hero reveal">
+      <span class="hvl__hero-ribbon">The standard</span>
+      <div class="hvl__hero-main">
+        <span class="hvl__ico hvl__hero-ico" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none">
+            <rect class="hvl__s" x="7" y="17" width="26" height="18" rx="2" />
+            <path class="hvl__s" d="M12 17 v18 M18 17 v18 M24 17 v18" opacity="0.55" />
+            <g class="hvl__spark">
+              <path class="hvl__s" d="M39 9 v9 M34.5 13.5 h9 M35.5 10 l7 7 M42.5 10 l-7 7" />
+            </g>
+          </svg>
+        </span>
+        <div class="hvl__hero-copy">
+          <h3 class="hvl__hero-title">One unit, both loads.</h3>
+          <p class="hvl__hero-desc">
+            When a unit is finally done, replace it with the gold standard: one
+            machine that heats and cools your building at best-in-class efficiency.
+          </p>
+          <span class="hvl__badge">IEER 31 · COP 6</span>
+        </div>
+      </div>
+      <div class="hvl__hero-figs">
+        <div class="hvl__hero-fig hvl__fig--cool">
+          <span class="hvl__fig-pre">up to</span>
+          <span class="hvl__fig-val">55%</span>
+          <span class="hvl__fig-suf">cooling</span>
+        </div>
+        <span class="hvl__hero-div" aria-hidden="true"></span>
+        <div class="hvl__hero-fig hvl__fig--warm">
+          <span class="hvl__fig-pre">up to</span>
+          <span class="hvl__fig-val">60%</span>
+          <span class="hvl__fig-suf">heating</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="hvl__sublabel reveal">Or zero in on one gain:</p>
 
     <ol class="hvl__list">
       {rows.map((r, i) => (
@@ -121,7 +150,45 @@ const rows = [
   .hvl__title { font-size: var(--step-3); max-width: 22ch; }
   .hvl__lede { margin-top: var(--space-m); max-width: 60ch; }
 
-  .hvl__list { list-style: none; margin: var(--space-xl) 0 0; padding: 0; }
+  /* featured unit: pulled out of the list, accented, dual heat+cool split */
+  .hvl__hero {
+    position: relative;
+    margin: var(--space-xl) 0 var(--space-l);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    align-items: center;
+    padding: clamp(1.6rem, 3.5vw, 2.4rem);
+    border: 1px solid var(--gold);
+    border-radius: var(--radius);
+    background:
+      radial-gradient(130% 150% at 100% 0%, var(--gold-soft), transparent 58%),
+      var(--surface);
+    box-shadow: var(--shadow-lift, 0 18px 44px -26px rgba(0, 0, 0, 0.7));
+  }
+  .hvl__hero-ribbon {
+    position: absolute; top: 0; left: clamp(1.6rem, 3.5vw, 2.4rem);
+    transform: translateY(-50%);
+    font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--bg); background: var(--gold-text);
+    padding: 0.32em 0.7em; border-radius: 999px;
+  }
+  .hvl__hero-main { display: flex; gap: clamp(1rem, 2.5vw, 1.6rem); align-items: flex-start; }
+  .hvl__hero-ico svg { width: 60px; height: 60px; }
+  .hvl__hero-title { font-size: var(--step-2); color: var(--ink); letter-spacing: -0.01em; }
+  .hvl__hero-desc { margin-top: 0.5rem; font-size: var(--step-0); line-height: 1.55; color: var(--body); max-width: 44ch; }
+  .hvl__hero .hvl__badge { display: inline-block; margin-top: var(--space-s); }
+  .hvl__hero-figs { display: flex; align-items: center; gap: clamp(1rem, 2.5vw, 1.8rem); }
+  .hvl__hero-fig { display: grid; justify-items: center; text-align: center; font-family: var(--font-serif); line-height: 1.05; }
+  .hvl__hero-fig .hvl__fig-val { font-size: clamp(2rem, 4vw, 3rem); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+  .hvl__hero-div { width: 1px; height: 3.6rem; background: var(--line-strong); }
+
+  .hvl__sublabel {
+    font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: var(--space-xs);
+  }
+
+  .hvl__list { list-style: none; margin: 0; padding: 0; }
   .hvl__row {
     display: grid;
     grid-template-columns: 9rem minmax(0, 1fr) 12rem;
@@ -217,6 +284,8 @@ const rows = [
   }
 
   @media (max-width: 46rem) {
+    .hvl__hero { grid-template-columns: 1fr; gap: var(--space-l); }
+    .hvl__hero-figs { justify-content: flex-start; }
     .hvl__row {
       grid-template-columns: 56px 1fr;
       grid-template-areas: "ico desc" "ico figs";
