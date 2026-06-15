@@ -1,0 +1,503 @@
+---
+// CONCEPT A — "hotel cutaway / section" hero. A clean architectural cross
+// section of a hotel: guest floors of beds + warm lamps, a lobby with a
+// porte-cochere + car, rooftop AHUs, and a basement plant. The scanner moves
+// across it and flags the systems + the empty-but-still-cooled rooms that
+// bleed money. Reuses the scanner + dollar-HUD logic from HeroInstrument; only
+// the scene art changes. Beds make it read as a hotel even behind text.
+const BX = 532, BW = 360, BR = BX + BW; // building spans x 532..892
+const ROOF_Y = 120;
+const GROUND_Y = 556;
+const floorYs = [150, 206, 262, 318]; // top of each guest floor
+const FLOOR_H = 50;
+function rooms(fy) {
+  const n = 3, pad = 16;
+  const rw = (BW - pad * 2) / n;
+  return [0, 1, 2].map((i) => ({ x: BX + pad + i * rw, y: fy, w: rw }));
+}
+// which rooms are warm/occupied (lit) vs dark (vacant) — "fr-fc"
+const litRooms = new Set(["0-0", "0-2", "1-1", "2-0", "2-2", "3-1"]);
+const amenityY = 374;
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero__scene" aria-hidden="true">
+    <div class="xray__layer cut__layer">
+      <svg viewBox="0 0 1000 640" preserveAspectRatio="xMidYMax slice" role="presentation">
+        <defs>
+          <radialGradient id="lamp" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#f0b35a" stop-opacity="0.9" />
+            <stop offset="100%" stop-color="#f0b35a" stop-opacity="0" />
+          </radialGradient>
+          <radialGradient id="cheat" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ff7a4d" stop-opacity="0.85" />
+            <stop offset="100%" stop-color="#ff7a4d" stop-opacity="0" />
+          </radialGradient>
+          <pattern id="cutgrid" width="38" height="38" patternUnits="userSpaceOnUse">
+            <path d="M38 0 H0 V38" fill="none" stroke="rgba(150,185,195,0.07)" stroke-width="1" />
+          </pattern>
+        </defs>
+
+        <rect x="0" y="0" width="1000" height="640" fill="#10151a" />
+        <rect x="0" y="0" width="1000" height="640" fill="url(#cutgrid)" />
+
+        <!-- ground / street -->
+        <line class="cut__ground" x1="120" y1={GROUND_Y} x2="980" y2={GROUND_Y} />
+
+        <!-- building shell + the section cut on the left edge -->
+        <rect class="cut__shell" x={BX} y={ROOF_Y} width={BW} height={GROUND_Y - ROOF_Y} />
+        <line class="cut__edge" x1={BX} y1={ROOF_Y} x2={BX} y2={GROUND_Y} />
+
+        <!-- rooftop mechanical: AHUs (a scannable system) -->
+        <g class="dev" data-dev="ahu" data-name="Rooftop AHUs" data-cost="920" data-metric="PF 0.81">
+          <circle class="dev__glow" cx={BX + 70} cy={ROOF_Y - 4} r="30" fill="url(#cheat)" />
+          <rect class="cut__unit" x={BX + 40} y={ROOF_Y - 26} width="60" height="24" rx="2" />
+          <g class="dev__spin" style="--spin:2.4s">
+            <circle class="dev__hub" cx={BX + 70} cy={ROOF_Y - 14} r="2.4" />
+            <ellipse class="dev__blade" cx={BX + 70} cy={ROOF_Y - 20} rx="2.6" ry="6" />
+            <ellipse class="dev__blade" cx={BX + 76} cy={ROOF_Y - 14} rx="6" ry="2.6" />
+            <ellipse class="dev__blade" cx={BX + 70} cy={ROOF_Y - 8} rx="2.6" ry="6" />
+            <ellipse class="dev__blade" cx={BX + 64} cy={ROOF_Y - 14} rx="6" ry="2.6" />
+          </g>
+          <rect class="cut__unit" x={BX + 250} y={ROOF_Y - 22} width="44" height="20" rx="2" />
+          <g class="dev__tag" transform={`translate(${BR - 6} ${ROOF_Y - 34})`}>
+            <text text-anchor="end">Rooftop air handlers</text>
+          </g>
+        </g>
+
+        <!-- guest floors: slabs + rooms with beds + warm lamps -->
+        {floorYs.map((fy, fr) => (
+          <g>
+            <line class="cut__slab" x1={BX} y1={fy} x2={BR} y2={fy} />
+            {rooms(fy).map((rm, fc) => (
+              <g class={`cut__room${litRooms.has(fr + "-" + fc) ? " is-lit" : ""}`}>
+                <line class="cut__wall" x1={rm.x + rm.w} y1={fy + 4} x2={rm.x + rm.w} y2={fy + FLOOR_H - 2} />
+                <circle class="cut__lampglow" cx={rm.x + rm.w - 16} cy={fy + 20} r="16" fill="url(#lamp)" />
+                <rect class="cut__bedh" x={rm.x + 10} y={fy + 18} width="4" height="22" rx="1" />
+                <rect class="cut__bed" x={rm.x + 14} y={fy + 30} width={rm.w - 40} height="11" rx="2.5" />
+                <rect class="cut__pillow" x={rm.x + 16} y={fy + 22} width="13" height="8" rx="2" />
+                <circle class="cut__lamp" cx={rm.x + rm.w - 16} cy={fy + 22} r="2.4" />
+                <rect class="cut__nstand" x={rm.x + rm.w - 20} y={fy + 30} width="9" height="11" rx="1" />
+              </g>
+            ))}
+          </g>
+        ))}
+
+        <!-- the waste beat: a whole floor of empty rooms still being cooled -->
+        <g class="dev" data-dev="rooms" data-name="Empty rooms, still cooled" data-cost="760" data-metric="14 vacant">
+          <circle class="dev__glow" cx={BX + BW / 2} cy={floorYs[1] + 26} r="40" fill="url(#cheat)" />
+          <rect class="cut__zone" x={BX + 6} y={floorYs[1] + 2} width={BW - 12} height={FLOOR_H - 4} rx="3" />
+          <g class="dev__tag" transform={`translate(${BX + 4} ${floorYs[1] - 6})`}>
+            <text text-anchor="start">Empty rooms, still cooled</text>
+          </g>
+        </g>
+
+        <!-- amenity deck: heated pool + lounger (a scannable system) -->
+        <g class="dev" data-dev="pool" data-name="Heated pool" data-cost="410" data-metric="pump runs 24/7">
+          <line class="cut__slab" x1={BX} y1={amenityY} x2={BR} y2={amenityY} />
+          <circle class="dev__glow" cx={BX + 96} cy={amenityY + 30} r="30" fill="url(#cheat)" />
+          <path class="cut__pool" d={`M${BX + 40} ${amenityY + 40} L${BX + 40} ${amenityY + 24} L${BX + 152} ${amenityY + 24} L${BX + 152} ${amenityY + 40} Z`} />
+          <path class="cut__water" d={`M${BX + 44} ${amenityY + 29} q 14 -5 28 0 t 28 0 t 28 0`} />
+          <line class="cut__lounge" x1={BX + 188} y1={amenityY + 40} x2={BX + 214} y2={amenityY + 40} />
+          <line class="cut__lounge" x1={BX + 188} y1={amenityY + 40} x2={BX + 200} y2={amenityY + 30} />
+          <g class="dev__tag" transform={`translate(${BR - 6} ${amenityY + 16})`}>
+            <text text-anchor="end">Heated pool, pumping all night</text>
+          </g>
+        </g>
+
+        <!-- lobby: chandelier, reception desk + bell, revolving door -->
+        <g class="cut__lobby">
+          <line class="cut__slab" x1={BX} y1={amenityY + 56} x2={BR} y2={amenityY + 56} />
+          <line class="cut__chain" x1={BX + BW / 2} y1={amenityY + 56} x2={BX + BW / 2} y2={amenityY + 74} />
+          <circle class="cut__chand" cx={BX + BW / 2} cy={amenityY + 80} r="7" />
+          <circle class="cut__chandglow" cx={BX + BW / 2} cy={amenityY + 80} r="22" fill="url(#lamp)" />
+          <rect class="cut__desk" x={BX + 40} y={GROUND_Y - 30} width="74" height="30" rx="2" />
+          <circle class="cut__bell" cx={BX + 58} cy={GROUND_Y - 36} r="4" />
+          <line class="cut__bellline" x1={BX + 58} y1={GROUND_Y - 40} x2={BX + 58} y2={GROUND_Y - 44} />
+          <rect class="cut__door" x={BR - 64} y={GROUND_Y - 48} width="48" height="48" rx="1" />
+          <line class="cut__doorv" x1={BR - 40} y1={GROUND_Y - 48} x2={BR - 40} y2={GROUND_Y} />
+        </g>
+
+        <!-- porte-cochere + a car out front -->
+        <g class="cut__entry">
+          <rect class="cut__canopy" x={BX - 150} y={GROUND_Y - 52} width="150" height="7" rx="2" />
+          <line class="cut__post" x1={BX - 142} y1={GROUND_Y - 45} x2={BX - 142} y2={GROUND_Y} />
+          <path class="cut__car" d={`M${BX - 132} ${GROUND_Y} l6 -16 h44 l10 16 Z`} />
+          <rect class="cut__carcab" x={BX - 120} y={GROUND_Y - 22} width="26" height="8" rx="2" />
+          <circle class="cut__wheel" cx={BX - 118} cy={GROUND_Y} r="5" />
+          <circle class="cut__wheel" cx={BX - 86} cy={GROUND_Y} r="5" />
+        </g>
+
+        <!-- basement plant: chiller, boiler, laundry (scannable systems) -->
+        <rect class="cut__basement" x={BX} y={GROUND_Y} width={BW} height="58" />
+        <g class="dev" data-dev="chiller" data-name="Chiller" data-cost="1180" data-metric="42% part-load">
+          <circle class="dev__glow" cx={BX + 56} cy={GROUND_Y + 30} r="30" fill="url(#cheat)" />
+          <rect class="cut__plant" x={BX + 28} y={GROUND_Y + 14} width="56" height="34" rx="4" />
+          <g class="dev__spin dev__spin--stutter" style="--spin:5s">
+            <circle class="dev__hub" cx={BX + 56} cy={GROUND_Y + 31} r="2.4" />
+            <line class="dev__vane" x1={BX + 56} y1={GROUND_Y + 31} x2={BX + 56} y2={GROUND_Y + 23} />
+            <line class="dev__vane" x1={BX + 56} y1={GROUND_Y + 31} x2={BX + 64} y2={GROUND_Y + 31} />
+            <line class="dev__vane" x1={BX + 56} y1={GROUND_Y + 31} x2={BX + 56} y2={GROUND_Y + 39} />
+            <line class="dev__vane" x1={BX + 56} y1={GROUND_Y + 31} x2={BX + 48} y2={GROUND_Y + 31} />
+          </g>
+          <g class="dev__tag" transform={`translate(${BX + 4} ${GROUND_Y + 56})`}>
+            <text text-anchor="start">Chiller stuck at part-load</text>
+          </g>
+        </g>
+        <g class="dev" data-dev="boiler" data-name="Boilers" data-cost="480" data-metric="9 cycles/hr">
+          <circle class="dev__glow" cx={BX + 168} cy={GROUND_Y + 30} r="26" fill="url(#cheat)" />
+          <rect class="cut__plant" x={BX + 150} y={GROUND_Y + 14} width="36" height="34" rx="5" />
+          <path class="cut__flame" d={`M${BX + 168} ${GROUND_Y + 44} q-6 -7 -2 -14 q3 4 2 -2 q5 5 3 9 q3 -2 2 2 q-1 5 -8 5 Z`} />
+        </g>
+        <g class="dev" data-dev="laundry" data-name="Laundry" data-cost="360" data-metric="exhaust loss">
+          <circle class="dev__glow" cx={BX + 272} cy={GROUND_Y + 30} r="26" fill="url(#cheat)" />
+          <rect class="cut__plant" x={BX + 250} y={GROUND_Y + 14} width="44" height="34" rx="4" />
+          <g class="dev__spin" style="--spin:2s">
+            <circle class="dev__hub" cx={BX + 272} cy={GROUND_Y + 31} r="6" />
+            <circle class="dev__hub" cx={BX + 272} cy={GROUND_Y + 31} r="2" />
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <div class="xray__lens"></div>
+    <div class="hero__scrim"></div>
+
+    <div class="hero__hud" aria-hidden="true">
+      <div class="hero__hud-now" data-hud-now>
+        <span class="hero__hud-dev" data-hud-name></span>
+        <span class="hero__hud-cost" data-hud-cost></span>
+        <span class="hero__hud-metric" data-hud-metric></span>
+      </div>
+      <div class="hero__hud-total">
+        <span class="hero__hud-label">Estimated waste found</span>
+        <span class="hero__hud-val"><span data-hud-total>$0</span><span class="hero__hud-mo">/mo</span></span>
+        <span class="hero__hud-note">illustrative, until we measure yours</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="container hero__inner">
+    <div class="hero__copy">
+      <p class="hero__kicker reveal">The smart operators don't guess. They measure.</p>
+      <h1 class="hero__title reveal" id="hero-title">
+        Your hotel is
+        <span class="hero__title-accent">overpaying for energy.</span>
+      </h1>
+      <p class="hero__lede lede reveal">
+        We find exactly how much and prove it at your own meter, so you can cut
+        the bill without taking a vendor's word.
+      </p>
+      <div class="hero__actions reveal">
+        <a href="#book" class="btn">
+          Book your Verified Savings Pilot
+          <span class="btn__arrow" aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+      <ul class="hero__chips reveal" aria-label="What the pilot does not require">
+        <li>No capital at risk</li>
+        <li>No equipment torn out</li>
+      </ul>
+      <p class="hero__waste-m reveal">
+        <span class="hero__waste-m-label">Estimated waste found</span>
+        <strong>&#8776; $4,510<span>/mo</span></strong>
+        <span class="hero__waste-m-note">illustrative, until we measure yours</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  (() => {
+    const hero = document.querySelector(".hero");
+    const scene = hero && hero.querySelector(".hero__scene");
+    if (!hero || !scene) return;
+    const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const devs = Array.from(scene.querySelectorAll(".dev"));
+    const NEAR = 130;
+    const elName = scene.querySelector("[data-hud-name]");
+    const elCost = scene.querySelector("[data-hud-cost]");
+    const elMetric = scene.querySelector("[data-hud-metric]");
+    const elTotal = scene.querySelector("[data-hud-total]");
+    const hudNow = scene.querySelector("[data-hud-now]");
+    const found = new Set();
+    let total = 0, shown = 0, traf = 0;
+    const fmt = (n) => "$" + Math.round(n).toLocaleString("en-US");
+    const animateTotal = () => {
+      if (traf) cancelAnimationFrame(traf);
+      const s = performance.now(), from = shown, to = total;
+      const tick = (now) => {
+        const t = Math.min((now - s) / 700, 1);
+        shown = from + (to - from) * (1 - Math.pow(1 - t, 3));
+        if (elTotal) elTotal.textContent = fmt(shown);
+        if (t < 1) traf = requestAnimationFrame(tick); else traf = 0;
+      };
+      traf = requestAnimationFrame(tick);
+    };
+    const discover = (d) => {
+      const id = d.getAttribute("data-dev");
+      if (found.has(id)) return;
+      found.add(id);
+      total += Number(d.getAttribute("data-cost")) || 0;
+      if (reduce) { shown = total; if (elTotal) elTotal.textContent = fmt(total); } else animateTotal();
+    };
+    const showNow = (d) => {
+      if (!hudNow) return;
+      if (!d) { hudNow.classList.remove("is-on"); return; }
+      if (elName) elName.textContent = d.getAttribute("data-name") || "";
+      if (elCost) elCost.textContent = "+" + fmt(Number(d.getAttribute("data-cost")) || 0) + "/mo";
+      if (elMetric) elMetric.textContent = d.getAttribute("data-metric") || "";
+      hudNow.classList.add("is-on");
+    };
+    const setPos = (x, y) => { scene.style.setProperty("--mx", x + "px"); scene.style.setProperty("--my", y + "px"); };
+    const markNear = (x, y) => {
+      const box = scene.getBoundingClientRect();
+      let nearest = null, nd = 1e9;
+      for (const d of devs) {
+        const m = d.querySelector(".dev__glow") || d;
+        const b = m.getBoundingClientRect();
+        const hx = b.left + b.width / 2 - box.left, hy = b.top + b.height / 2 - box.top;
+        const dist = Math.hypot(hx - x, hy - y), near = dist < NEAR;
+        d.classList.toggle("is-near", near);
+        if (near) { discover(d); if (dist < nd) { nd = dist; nearest = d; } }
+      }
+      showNow(nearest);
+    };
+    const centerOf = (d) => {
+      const m = d.querySelector(".dev__glow") || d;
+      const b = m.getBoundingClientRect(), box = scene.getBoundingClientRect();
+      return { x: b.left + b.width / 2 - box.left, y: b.top + b.height / 2 - box.top };
+    };
+    const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+    if (reduce) { hero.classList.add("is-revealed"); devs.forEach(discover); return; }
+
+    if (fine) {
+      let tx = 0, ty = 0, lx = 0, ly = 0, raf = 0, primed = false, demo = true;
+      const render = () => {
+        lx += (tx - lx) * 0.16; ly += (ty - ly) * 0.16;
+        setPos(lx, ly); markNear(lx, ly);
+        if (Math.abs(tx - lx) > 0.5 || Math.abs(ty - ly) > 0.5) raf = requestAnimationFrame(render); else raf = 0;
+      };
+      hero.addEventListener("pointermove", (e) => {
+        demo = false;
+        const box = scene.getBoundingClientRect();
+        tx = e.clientX - box.left; ty = e.clientY - box.top;
+        if (!primed) { lx = tx; ly = ty; primed = true; }
+        hero.classList.add("is-live");
+        if (!raf) raf = requestAnimationFrame(render);
+      }, { passive: true });
+      hero.addEventListener("pointerleave", () => { hero.classList.remove("is-live"); devs.forEach((d) => d.classList.remove("is-near")); showNow(null); });
+      const dp = ["chiller", "rooms", "ahu"].map((n) => scene.querySelector('.dev[data-dev="' + n + '"]')).filter(Boolean);
+      if (dp.length) {
+        let seg = 0, segStart = 0, phase = "hold", dstart = 0;
+        hero.classList.add("is-live");
+        const step = (ts) => {
+          if (!demo) { hero.classList.remove("is-live"); devs.forEach((d) => d.classList.remove("is-near")); return; }
+          const pts = dp.map(centerOf);
+          if (!dstart) { dstart = ts; segStart = ts; setPos(pts[0].x, pts[0].y); markNear(pts[0].x, pts[0].y); }
+          if (phase === "travel") {
+            const cur = pts[seg], nxt = pts[Math.min(seg + 1, pts.length - 1)];
+            const t = Math.min(1, (ts - segStart) / 1150), e = ease(t);
+            const x = cur.x + (nxt.x - cur.x) * e, y = cur.y + (nxt.y - cur.y) * e;
+            setPos(x, y); markNear(x, y);
+            if (t >= 1) { seg++; phase = "hold"; segStart = ts; }
+          } else {
+            setPos(pts[seg].x, pts[seg].y); markNear(pts[seg].x, pts[seg].y);
+            if (ts - segStart >= 750) {
+              if (seg >= pts.length - 1) { demo = false; hero.classList.remove("is-live"); devs.forEach((d) => d.classList.remove("is-near")); showNow(null); return; }
+              phase = "travel"; segStart = ts;
+            }
+          }
+          requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      }
+      return;
+    }
+
+    const order = ["chiller", "rooms", "ahu", "pool", "boiler", "laundry"].map((n) => scene.querySelector('.dev[data-dev="' + n + '"]')).filter(Boolean);
+    if (!order.length) return;
+    let oi = 0, phase = "hold", tstart = 0, from = null, to = null, started = false;
+    hero.classList.add("is-auto", "is-live");
+    const tour = (ts) => {
+      if (!started) { to = centerOf(order[0]); from = { x: to.x, y: to.y }; setPos(to.x, to.y); markNear(to.x, to.y); tstart = ts; started = true; }
+      if (phase === "travel") {
+        const t = Math.min(1, (ts - tstart) / 1700), e = ease(t);
+        setPos(from.x + (to.x - from.x) * e, from.y + (to.y - from.y) * e);
+        markNear(from.x + (to.x - from.x) * e, from.y + (to.y - from.y) * e);
+        if (t >= 1) { phase = "hold"; tstart = ts; }
+      } else {
+        setPos(to.x, to.y); markNear(to.x, to.y);
+        if (ts - tstart >= 1300) { oi = (oi + 1) % order.length; from = { x: to.x, y: to.y }; to = centerOf(order[oi]); phase = "travel"; tstart = ts; }
+      }
+      requestAnimationFrame(tour);
+    };
+    requestAnimationFrame(tour);
+  })();
+</script>
+
+<style>
+  .hero {
+    position: relative; isolation: isolate; overflow: hidden;
+    min-height: clamp(30rem, 78vh, 45rem);
+    display: flex; align-items: center; background: var(--bg);
+    padding-block: clamp(2.5rem, 5vw, 4.5rem); cursor: crosshair;
+  }
+  .hero :is(a, button) { cursor: pointer; }
+  .hero__scene { position: absolute; inset: 0; z-index: -1; --mx: 72%; --my: 52%; --lens-r: 150px; }
+  .xray__layer { position: absolute; inset: 0; }
+  .xray__layer svg { width: 100%; height: 100%; }
+
+  .cut__ground { stroke: rgba(220,228,230,0.22); stroke-width: 1.4; }
+  .cut__shell { fill: rgba(255,255,255,0.012); stroke: rgba(220,228,230,0.22); stroke-width: 1.5; }
+  .cut__edge { stroke: var(--h-teal, #4fc4cf); stroke-width: 2; opacity: 0.5; stroke-dasharray: 4 5; }
+  .cut__slab { stroke: rgba(220,228,230,0.16); stroke-width: 1.2; }
+  .cut__wall { stroke: rgba(220,228,230,0.08); stroke-width: 1; }
+  .cut__basement { fill: rgba(0,0,0,0.25); stroke: rgba(220,228,230,0.12); stroke-width: 1; }
+
+  /* beds: cool/neutral by default, warm when the room is "occupied" */
+  .cut__bed, .cut__pillow, .cut__bedh, .cut__nstand {
+    fill: #1e252b; stroke: rgba(220,228,230,0.4); stroke-width: 1;
+  }
+  .cut__lamp { fill: #6b7578; }
+  .cut__lampglow { opacity: 0; transition: opacity 0.5s ease; }
+  .cut__room.is-lit .cut__lamp { fill: #f0b35a; }
+  .cut__room.is-lit .cut__lampglow { opacity: 0.7; }
+  .cut__room.is-lit .cut__bed, .cut__room.is-lit .cut__pillow { stroke: rgba(240,179,90,0.5); }
+
+  .cut__unit, .cut__plant { fill: #182026; stroke: rgba(220,228,230,0.45); stroke-width: 1.3; }
+  .dev__hub { fill: var(--h-teal, #cfe9ec); }
+  .dev__blade { fill: var(--h-teal, #6fb6ba); }
+  .dev__vane { stroke: var(--h-teal, #cfe9ec); stroke-width: 1.5; stroke-linecap: round; }
+  .cut__flame { fill: #ff8a4d; }
+  .cut__pool { fill: rgba(79,196,207,0.1); stroke: rgba(220,228,230,0.4); stroke-width: 1.2; }
+  .cut__water { fill: none; stroke: var(--h-teal, #4fc4cf); stroke-width: 1.4; opacity: 0.8; }
+  .cut__lounge { stroke: rgba(220,228,230,0.5); stroke-width: 1.4; stroke-linecap: round; }
+  .cut__chain { stroke: rgba(220,228,230,0.4); stroke-width: 1; }
+  .cut__chand { fill: #f0b35a; }
+  .cut__chandglow { opacity: 0.6; }
+  .cut__desk, .cut__door { fill: #182026; stroke: rgba(220,228,230,0.4); stroke-width: 1.2; }
+  .cut__doorv, .cut__bellline { stroke: rgba(220,228,230,0.4); stroke-width: 1; }
+  .cut__bell { fill: #cdd6d4; }
+  .cut__canopy { fill: #182026; stroke: rgba(220,228,230,0.34); stroke-width: 1.2; }
+  .cut__post { stroke: rgba(220,228,230,0.34); stroke-width: 1.3; }
+  .cut__car { fill: #20282e; stroke: rgba(220,228,230,0.45); stroke-width: 1.2; }
+  .cut__carcab { fill: rgba(79,196,207,0.12); stroke: rgba(220,228,230,0.4); stroke-width: 1; }
+  .cut__wheel { fill: #11151a; stroke: rgba(220,228,230,0.5); stroke-width: 1.3; }
+
+  .cut__zone { fill: none; stroke: var(--cost, #c87a64); stroke-width: 1.2; stroke-dasharray: 5 5; opacity: 0; transition: opacity 0.4s ease; }
+  .dev.is-near .cut__zone { opacity: 0.9; }
+
+  .dev__glow { transform-box: fill-box; transform-origin: center; opacity: 0.5; }
+  .dev.is-near .dev__glow { opacity: 1; filter: drop-shadow(0 0 14px color-mix(in srgb, #ff7a4d 55%, transparent)); }
+  .dev.is-near :is(.cut__unit, .cut__plant) { stroke: var(--cost, #c87a64); }
+
+  .dev__tag { opacity: 0; transition: opacity 0.3s var(--ease-out-quart); }
+  .dev__tag text {
+    font-family: var(--font-mono); font-size: 12px; fill: var(--gold-text);
+    paint-order: stroke; stroke: #10151a; stroke-width: 4px; stroke-linejoin: round;
+  }
+  .dev.is-near .dev__tag { opacity: 1; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .dev__glow { animation: cutPulse 3s ease-in-out infinite; }
+    @keyframes cutPulse { 0%,100% { opacity: 0.4; transform: scale(0.9); } 50% { opacity: 0.85; transform: scale(1.08); } }
+    .dev__spin { transform-box: fill-box; transform-origin: center; animation: cutSpin var(--spin,2.4s) linear infinite; }
+    .dev__spin--stutter { animation-timing-function: cubic-bezier(0.5,0,0.9,0.3); }
+    @keyframes cutSpin { to { transform: rotate(360deg); } }
+    .cut__flame { transform-box: fill-box; transform-origin: 50% 100%; animation: cutFlame 0.45s ease-in-out infinite alternate; }
+    @keyframes cutFlame { from { transform: scaleY(0.8); } to { transform: scaleY(1.15); } }
+    .cut__room.is-lit .cut__lampglow { animation: cutFlicker 5s ease-in-out infinite; }
+    @keyframes cutFlicker { 0%,100% { opacity: 0.7; } 48% { opacity: 0.55; } 52% { opacity: 0.78; } }
+  }
+
+  .xray__lens {
+    position: absolute; z-index: 3; top: 0; left: 0;
+    width: calc(var(--lens-r) * 2); height: calc(var(--lens-r) * 2);
+    margin: calc(var(--lens-r) * -1) 0 0 calc(var(--lens-r) * -1);
+    border-radius: 50%; transform: translate(var(--mx), var(--my));
+    border: 1px solid color-mix(in srgb, var(--h-teal, #4fc4cf) 60%, transparent);
+    box-shadow: inset 0 0 60px color-mix(in srgb, var(--h-teal, #4fc4cf) 16%, transparent),
+      0 0 44px color-mix(in srgb, var(--h-teal, #4fc4cf) 18%, transparent);
+    pointer-events: none; opacity: 0; transition: opacity 0.45s var(--ease-out-quart);
+  }
+  .xray__lens::before {
+    content: ""; position: absolute; inset: -38%; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(circle, color-mix(in srgb, var(--h-teal, #4fc4cf) 14%, transparent), transparent 62%);
+  }
+  .hero.is-live .xray__lens { opacity: 1; }
+
+  .hero__scrim {
+    position: absolute; inset: 0; z-index: 4; pointer-events: none;
+    background:
+      linear-gradient(100deg, var(--bg) 0%, var(--bg) 22%, color-mix(in srgb, var(--bg) 70%, transparent) 42%, transparent 64%),
+      linear-gradient(0deg, var(--bg) 0%, transparent 22%);
+  }
+
+  .hero__hud {
+    position: absolute; z-index: 4; top: clamp(1rem,4vh,2.2rem); right: clamp(1rem,3vw,2.4rem);
+    display: grid; gap: 0.55rem; justify-items: end; text-align: right; pointer-events: none; font-family: var(--font-mono);
+  }
+  .hero__hud-now {
+    display: grid; gap: 0.12rem; justify-items: end; padding: 0.5rem 0.75rem; border-radius: var(--radius-s);
+    border: 1px solid transparent; opacity: 0; transform: translateY(-5px);
+    transition: opacity 0.3s ease, transform 0.3s var(--ease-out-quart);
+  }
+  .hero__hud-now.is-on {
+    opacity: 1; transform: none; border-color: var(--line-strong);
+    background: color-mix(in srgb, var(--bg) 90%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  }
+  .hero__hud-dev { font-size: var(--step--1); color: var(--ink); }
+  .hero__hud-cost { font-size: var(--step-1); color: var(--cost, #c87a64); font-weight: 500; font-variant-numeric: tabular-nums; }
+  .hero__hud-metric { font-size: 0.62rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+  .hero__hud-total {
+    display: grid; gap: 0.12rem; justify-items: end; padding: 0.6rem 0.85rem;
+    border: 1px solid var(--line-strong); border-radius: var(--radius-s);
+    background: color-mix(in srgb, var(--bg) 90%, transparent); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    box-shadow: 0 18px 40px -28px rgba(0,0,0,0.85);
+  }
+  .hero__hud-label { font-size: 0.58rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .hero__hud-val { font-size: var(--step-2); color: var(--cost, #c87a64); font-variant-numeric: tabular-nums; line-height: 1; }
+  .hero__hud-mo { font-size: 0.42em; color: var(--muted); margin-left: 0.15em; }
+  .hero__hud-note { font-size: 0.56rem; color: var(--muted); }
+
+  .hero__inner { position: relative; z-index: 5; width: 100%; }
+  .hero__copy { max-width: 34rem; }
+  .hero__kicker { font-family: var(--font-mono); font-size: var(--step--1); letter-spacing: 0.13em; text-transform: uppercase; color: var(--gold-text); margin-bottom: var(--space-m); }
+  .hero__title { font-size: var(--step-5); line-height: 1.04; letter-spacing: -0.025em; max-width: 16ch; }
+  .hero__title-accent { color: var(--body); font-style: italic; font-weight: 400; }
+  .hero__lede { margin-top: var(--space-l); max-width: 50ch; }
+  .hero__actions { margin-top: var(--space-l); display: flex; flex-wrap: wrap; gap: var(--space-s); }
+  .hero__chips { margin-top: var(--space-m); padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 0.5rem 1.4rem; }
+  .hero__chips li { display: inline-flex; align-items: center; gap: 0.5em; font-family: var(--font-mono); font-size: var(--step--1); color: var(--muted); }
+  .hero__chips li::before { content: "\2713"; color: var(--mint); font-weight: 700; }
+  .hero__waste-m { display: none; }
+
+  .hero.is-revealed .xray__lens { display: none; }
+  .hero.is-revealed .dev__tag { opacity: 1; }
+  .hero.is-revealed .dev__glow { opacity: 0.8; }
+  .hero.is-revealed .cut__zone { opacity: 0.9; }
+  .hero.is-revealed .hero__hud-now { display: none; }
+
+  @media (max-width: 52rem) {
+    .hero { flex-direction: column; align-items: stretch; min-height: auto; }
+    .hero__inner { order: 1; padding-top: clamp(0.5rem,3vh,1.5rem); }
+    .hero__title { font-size: var(--step-3); }
+    .hero__lede { margin-top: var(--space-m); }
+    .hero__scene {
+      position: relative; inset: auto; z-index: 0; order: 2;
+      height: clamp(260px,42vh,340px); margin-top: var(--space-l);
+      border: 1px solid var(--line-strong); border-radius: var(--radius); overflow: hidden;
+      --mx: 60%; --my: 55%; --lens-r: 92px;
+    }
+    .hero__scrim, .hero__hud { display: none; }
+    .hero__chips li { background: color-mix(in srgb, var(--bg) 72%, transparent); border: 1px solid var(--line); border-radius: 999px; padding: 0.32em 0.7em; }
+    .hero__waste-m { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 0.6rem; margin-top: var(--space-m); font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+    .hero__waste-m-label { order: 1; flex-basis: 100%; }
+    .hero__waste-m strong { order: 2; font-size: var(--step-2); color: var(--cost, #c87a64); font-weight: 600; text-transform: none; font-variant-numeric: tabular-nums; }
+    .hero__waste-m strong span { font-size: 0.42em; color: var(--muted); margin-left: 0.1em; }
+    .hero__waste-m-note { order: 3; text-transform: none; font-size: 0.6rem; }
+  }
+</style>
