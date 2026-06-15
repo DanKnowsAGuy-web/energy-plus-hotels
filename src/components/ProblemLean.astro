@@ -1,0 +1,147 @@
+---
+// BRUTAL-EDIT VARIANT merging ActOne + Parable into one compact section.
+// Keeps the stat hook and the cause->effect chain, replaces the two insulin
+// prose paragraphs with a two-panel "prescription vs exam" visual + one
+// pull-quote. Cuts roughly half the prose of the two original sections.
+---
+
+<section class="section probl" id="problem" aria-labelledby="probl-title">
+  <div class="container">
+    <div class="probl__grid">
+      <div class="probl__lead reveal">
+        <h2 class="probl__title" id="probl-title">
+          Your building wastes about a third of the energy it buys. So why
+          didn't your last upgrade pay off?
+        </h2>
+        <p class="probl__stat">~30%</p>
+        <p class="probl__note">
+          The EPA's figure for the average commercial building. Most hotels have
+          never had anyone qualified find out where theirs goes.
+        </p>
+      </div>
+
+      <div class="probl__body reveal">
+        <div class="probl__panels">
+          <div class="probl__panel probl__panel--bad">
+            <span class="probl__mark" aria-hidden="true">&times;</span>
+            <h3>Prescription without an exam</h3>
+            <p>The vendor arrives with the one box they sell, the medicine that worked on someone else's building.</p>
+          </div>
+          <div class="probl__panel probl__panel--good">
+            <span class="probl__mark probl__mark--ok" aria-hidden="true">&#10003;</span>
+            <h3>Exam, then prescription</h3>
+            <p>We measure your building first, then fit and modify equipment to what it actually needs.</p>
+          </div>
+        </div>
+        <p class="probl__caption">
+          They didn't lie to you. They just never diagnosed whether their box
+          was the right medicine for your building.
+        </p>
+        <p class="probl__quote">We don't work for the vendors. We work for you.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .probl { border-top: 1px solid var(--line); }
+  .probl__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: start;
+  }
+  .probl__title { font-size: var(--step-3); max-width: 20ch; }
+  .probl__stat {
+    display: inline-block;
+    margin-top: var(--space-l);
+    font-family: var(--font-serif);
+    font-size: clamp(3.5rem, 9vw, 6rem);
+    line-height: 0.9;
+    color: var(--gold-text);
+    letter-spacing: -0.04em;
+  }
+  .probl__note {
+    margin-top: var(--space-s);
+    font-size: var(--step-0);
+    line-height: 1.6;
+    color: var(--body);
+    max-width: 42ch;
+  }
+  .probl__chain {
+    list-style: none;
+    margin: var(--space-l) 0 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-s);
+    max-width: var(--measure);
+  }
+  .probl__chain li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding-bottom: var(--space-s);
+    border-bottom: 1px solid var(--line);
+    font-size: var(--step-0);
+    line-height: 1.45;
+  }
+  .probl__chain li:last-child { border-bottom: none; padding-bottom: 0; }
+  .probl__cause { color: var(--ink); }
+  .probl__arr { flex: none; font-family: var(--font-mono); color: #e0894a; }
+  .probl__effect { color: var(--muted); }
+
+  .probl__panels {
+    display: grid;
+    gap: var(--space-s);
+  }
+  .probl__panel {
+    padding: var(--space-m);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .probl__panel h3 {
+    margin-top: var(--space-2xs);
+    font-size: var(--step-1);
+    color: var(--ink);
+  }
+  .probl__panel p {
+    margin-top: var(--space-2xs);
+    font-size: var(--step--1);
+    line-height: 1.55;
+    color: var(--body);
+  }
+  .probl__mark {
+    display: inline-grid;
+    place-items: center;
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    font-size: 1.1rem;
+    color: #e0894a;
+    background: rgba(224, 137, 74, 0.12);
+    border: 1px solid rgba(224, 137, 74, 0.4);
+  }
+  .probl__mark--ok {
+    color: var(--mint);
+    background: var(--mint-soft);
+    border-color: rgba(91, 194, 162, 0.4);
+  }
+  .probl__panel--good { border-color: rgba(91, 194, 162, 0.35); }
+
+  .probl__caption {
+    margin-top: var(--space-m);
+    font-size: var(--step--1);
+    line-height: 1.55;
+    color: var(--body);
+    max-width: 46ch;
+  }
+  .probl__quote {
+    margin-top: var(--space-m);
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-size: var(--step-1);
+    color: var(--ink);
+    max-width: 24ch;
+  }
+</style>

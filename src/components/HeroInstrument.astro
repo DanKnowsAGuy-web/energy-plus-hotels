@@ -1,11 +1,8 @@
 ---
-// Hero: the building IS the background. A grand-hotel facade fills the hero at
-// dusk; an "x-ray torch" follows the cursor and cuts a hole in the facade to
-// reveal the systems beneath: a distorted red-wire network threading the whole
-// building, feeding five overheating machines that the operator discovers.
-// Copy is overlaid left over a scrim that keeps it well above the AA floor.
-
-// Window grids precomputed server-side (keeps `<` out of template expressions).
+// HYBRID-THEME hero: a recolor of Hero.astro into the unified instrument
+// palette — graphite ground, red distortion (kept), brass->teal for the clean/
+// verified signals. Forked so the original forest/brass hero stays intact on
+// the other pages. Structure + JS identical to Hero.astro.
 function grid(x0, y0, cols, rows, gapX, gapY, w, h, lit) {
   const cells = [];
   for (let r = 0; r < rows; r++) {
@@ -17,19 +14,15 @@ function grid(x0, y0, cols, rows, gapX, gapY, w, h, lit) {
 }
 const tower = grid(448, 150, 5, 9, 40, 42, 26, 28,
   new Set(["1-3", "2-0", "3-2", "4-4", "5-1", "6-3", "7-0", "8-2"]));
-const wingL = grid(322, 262, 2, 6, 46, 48, 28, 30,
-  new Set(["0-1", "3-0", "5-1"]));
-const wingR = grid(676, 262, 2, 6, 46, 48, 28, 30,
-  new Set(["1-0", "2-1", "4-0"]));
+const wingL = grid(322, 262, 2, 6, 46, 48, 28, 30, new Set(["0-1", "3-0", "5-1"]));
+const wingR = grid(676, 262, 2, 6, 46, 48, 28, 30, new Set(["1-0", "2-1", "4-0"]));
 
-// A "distorted wire": a sine-rippled polyline between two points. The ripple is
-// the visual tell of dirty power. amp = how distorted, wl = ripple wavelength.
 function wire(x1, y1, x2, y2, amp = 2.4, wl = 17) {
   const dx = x2 - x1, dy = y2 - y1;
   const len = Math.hypot(dx, dy) || 1;
-  const ux = dx / len, uy = dy / len; // along
-  const px = -uy, py = ux;            // perpendicular
-  const steps = Math.max(12, Math.round(len / 3)); // ~3px spacing traces the ripple
+  const ux = dx / len, uy = dy / len;
+  const px = -uy, py = ux;
+  const steps = Math.max(12, Math.round(len / 3));
   let d = "";
   for (let i = 0; i <= steps; i++) {
     const t = i / steps;
@@ -40,7 +33,6 @@ function wire(x1, y1, x2, y2, amp = 2.4, wl = 17) {
   }
   return d;
 }
-// vertical risers + the brighter central spine
 const mains = [
   [540, 100, 540, 542, 2.2, 15],
   [470, 128, 470, 540, 2.4, 17],
@@ -48,14 +40,12 @@ const mains = [
   [360, 244, 360, 540, 2.4, 17],
   [720, 244, 720, 540, 2.4, 17],
 ];
-// horizontal runs along the floor slabs, lacing the risers together
 const runs = [
   [470, 162, 610, 162], [470, 204, 610, 204], [360, 288, 720, 288],
   [320, 372, 760, 372], [360, 456, 720, 456], [470, 498, 610, 498],
   [300, 312, 430, 312], [650, 312, 780, 312],
   [300, 456, 430, 456], [650, 456, 780, 456],
 ];
-// branches diving into each machine (more distorted as they near the fault)
 const branches = [
   [540, 128, 540, 102, 3.2, 12],
   [540, 288, 600, 330, 3.4, 12],
@@ -69,7 +59,6 @@ const branches = [
 
 <section class="hero" aria-labelledby="hero-title">
   <div class="hero__scene" aria-hidden="true">
-    <!-- INNER: the x-ray view, revealed through the lens -->
     <div class="xray__layer xray__inner">
       <svg viewBox="0 0 1000 640" preserveAspectRatio="xMidYMax slice" role="presentation">
         <defs>
@@ -83,41 +72,29 @@ const branches = [
             <stop offset="100%" stop-color="#c5301a" />
           </linearGradient>
           <pattern id="blueprint" width="40" height="40" patternUnits="userSpaceOnUse">
-            <path d="M40 0 H0 V40" fill="none" stroke="rgba(120,170,150,0.10)" stroke-width="1" />
+            <path d="M40 0 H0 V40" fill="none" stroke="rgba(150,185,195,0.10)" stroke-width="1" />
           </pattern>
         </defs>
 
-        <!-- the cool "inside": darker, blueprint-gridded -->
-        <rect x="0" y="0" width="1000" height="640" fill="#07150f" />
+        <rect x="0" y="0" width="1000" height="640" fill="#0a0c0e" />
         <rect x="0" y="0" width="1000" height="640" fill="url(#blueprint)" />
 
-        <!-- faint building cross-section behind the wiring -->
-        <g stroke="rgba(226,216,196,0.13)" stroke-width="1.2" fill="none">
+        <g stroke="rgba(220,228,230,0.12)" stroke-width="1.2" fill="none">
           <path d="M430 120 H650 V560 H430 Z" />
           <path d="M300 240 H430 M300 240 V560 H430" />
           <path d="M650 240 H780 M780 240 V560 H650" />
           <line x1="280" y1="560" x2="800" y2="560" stroke-width="1.5" />
-          {[162, 204, 246, 288, 330, 372, 414, 456, 498].map((y) => (
-            <line x1="430" y1={y} x2="650" y2={y} />
-          ))}
+          {[162, 204, 246, 288, 330, 372, 414, 456, 498].map((y) => (<line x1="430" y1={y} x2="650" y2={y} />))}
           {[312, 384, 456].map((y) => (<line x1="300" y1={y} x2="430" y2={y} />))}
           {[312, 384, 456].map((y) => (<line x1="650" y1={y} x2="780" y2={y} />))}
         </g>
 
-        <!-- the distorted red-wire network: everywhere the eye lands -->
         <g class="wires" fill="none" stroke="url(#redwire)" stroke-linecap="round">
-          {runs.map((w, i) => (
-            <path class="wire wire--run" style={`--d:${(i % 5) * 0.18}s`} d={wire(w[0], w[1], w[2], w[3])} />
-          ))}
-          {mains.map((w, i) => (
-            <path class="wire wire--main" style={`--d:${i * 0.12}s`} d={wire(w[0], w[1], w[2], w[3], w[4], w[5])} />
-          ))}
-          {branches.map((w, i) => (
-            <path class="wire wire--branch" style={`--d:${i * 0.1}s`} d={wire(w[0], w[1], w[2], w[3], w[4], w[5])} />
-          ))}
+          {runs.map((w, i) => (<path class="wire wire--run" style={`--d:${(i % 5) * 0.18}s`} d={wire(w[0], w[1], w[2], w[3])} />))}
+          {mains.map((w, i) => (<path class="wire wire--main" style={`--d:${i * 0.12}s`} d={wire(w[0], w[1], w[2], w[3], w[4], w[5])} />))}
+          {branches.map((w, i) => (<path class="wire wire--branch" style={`--d:${i * 0.1}s`} d={wire(w[0], w[1], w[2], w[3], w[4], w[5])} />))}
         </g>
 
-        <!-- ===== FAULT 1: rooftop air handler ===== -->
         <g class="dev" data-dev="ahu">
           <circle class="dev__glow" cx="540" cy="96" r="36" fill="url(#heat)" />
           <g class="dev__body">
@@ -133,12 +110,11 @@ const branches = [
             <ellipse class="dev__blade" cx="532" cy="93" rx="8" ry="3.4" />
           </g>
           <g class="dev__tag" transform="translate(584 72)">
-            <line x1="-12" y1="24" x2="0" y2="16" stroke="#d8be86" stroke-width="1" />
+            <line x1="-12" y1="24" x2="0" y2="16" stroke="#4fc4cf" stroke-width="1" />
             <text x="4" y="20">Rooftop units fighting each other</text>
           </g>
         </g>
 
-        <!-- ===== FAULT 2: exhaust fan bleeding conditioned air ===== -->
         <g class="dev" data-dev="laundry">
           <circle class="dev__glow" cx="600" cy="330" r="32" fill="url(#heat)" />
           <g class="dev__plume">
@@ -154,12 +130,11 @@ const branches = [
             <ellipse class="dev__blade" cx="590" cy="331" rx="9" ry="3.6" />
           </g>
           <g class="dev__tag" transform="translate(630 312)">
-            <line x1="-10" y1="14" x2="0" y2="14" stroke="#d8be86" stroke-width="1" />
+            <line x1="-10" y1="14" x2="0" y2="14" stroke="#4fc4cf" stroke-width="1" />
             <text x="4" y="18">Exhaust dumping cooled air</text>
           </g>
         </g>
 
-        <!-- ===== FAULT 3: switchgear, power factor sagging ===== -->
         <g class="dev" data-dev="switch">
           <circle class="dev__glow" cx="365" cy="452" r="34" fill="url(#heat)" />
           <g class="dev__body">
@@ -167,18 +142,15 @@ const branches = [
             <rect x="349" y="436" width="14" height="10" rx="1.5" /><rect x="367" y="436" width="14" height="10" rx="1.5" />
             <rect x="349" y="450" width="14" height="10" rx="1.5" /><rect x="367" y="450" width="14" height="10" rx="1.5" />
           </g>
-          <!-- power-factor gauge: needle slumped low -->
           <path class="dev__gauge" d="M348 474 a16 16 0 0 1 32 0" fill="none" />
           <line class="dev__needle" x1="364" y1="474" x2="352" y2="468" />
-          <!-- arcing fault between contacts -->
           <path class="dev__arc" d="M356 442 l4 4 l-3 3 l5 5" fill="none" />
           <g class="dev__tag" transform="translate(150 494)">
-            <line x1="186" y1="-24" x2="196" y2="-16" stroke="#d8be86" stroke-width="1" />
+            <line x1="186" y1="-24" x2="196" y2="-16" stroke="#4fc4cf" stroke-width="1" />
             <text x="0" y="0">Power factor sagging at the switchgear</text>
           </g>
         </g>
 
-        <!-- ===== FAULT 4: boilers short-cycling ===== -->
         <g class="dev" data-dev="boiler">
           <circle class="dev__glow" cx="500" cy="520" r="32" fill="url(#heat)" />
           <g class="dev__cycle">
@@ -189,12 +161,11 @@ const branches = [
             <path class="dev__flame" d="M500 540 q-7 -8 -3 -16 q4 5 3 -2 q5 6 3 11 q3 -3 3 2 q-1 6 -9 5 Z" />
           </g>
           <g class="dev__tag" transform="translate(374 588)">
-            <line x1="120" y1="-44" x2="130" y2="-36" stroke="#d8be86" stroke-width="1" />
+            <line x1="120" y1="-44" x2="130" y2="-36" stroke="#4fc4cf" stroke-width="1" />
             <text x="0" y="0">Boilers short-cycling</text>
           </g>
         </g>
 
-        <!-- ===== FAULT 5: chiller stuck at part-load ===== -->
         <g class="dev" data-dev="chiller">
           <circle class="dev__glow" cx="720" cy="512" r="36" fill="url(#heat)" />
           <g class="dev__body">
@@ -208,12 +179,11 @@ const branches = [
             <line class="dev__vane" x1="708" y1="513" x2="708" y2="523" /><line class="dev__vane" x1="708" y1="513" x2="698" y2="513" />
           </g>
           <g class="dev__tag" transform="translate(704 588)">
-            <line x1="20" y1="-50" x2="28" y2="-42" stroke="#d8be86" stroke-width="1" />
+            <line x1="20" y1="-50" x2="28" y2="-42" stroke="#4fc4cf" stroke-width="1" />
             <text x="0" y="0">Chiller stuck at part-load</text>
           </g>
         </g>
 
-        <!-- ===== FAULT 6: domestic hot-water pump running nonstop ===== -->
         <g class="dev" data-dev="pump">
           <circle class="dev__glow" cx="470" cy="372" r="30" fill="url(#heat)" />
           <g class="dev__body">
@@ -229,12 +199,11 @@ const branches = [
             <path class="dev__vane" d="M470 372 q-5 -9 3 -12" fill="none" />
           </g>
           <g class="dev__tag" transform="translate(360 338)">
-            <line x1="100" y1="22" x2="110" y2="30" stroke="#d8be86" stroke-width="1" />
+            <line x1="100" y1="22" x2="110" y2="30" stroke="#4fc4cf" stroke-width="1" />
             <text x="0" y="0">Hot-water loop running around the clock</text>
           </g>
         </g>
 
-        <!-- ===== FAULT 7: walk-in refrigeration never cycling off ===== -->
         <g class="dev" data-dev="fridge">
           <circle class="dev__glow" cx="360" cy="324" r="30" fill="url(#heat)" />
           <g class="dev__body">
@@ -253,29 +222,28 @@ const branches = [
             <ellipse class="dev__blade" cx="361" cy="325" rx="6" ry="2.8" />
           </g>
           <g class="dev__tag" transform="translate(160 300)">
-            <line x1="172" y1="22" x2="182" y2="30" stroke="#d8be86" stroke-width="1" />
+            <line x1="172" y1="22" x2="182" y2="30" stroke="#4fc4cf" stroke-width="1" />
             <text x="0" y="0">Walk-in refrigeration never cycling off</text>
           </g>
         </g>
       </svg>
     </div>
 
-    <!-- SKIN: the dusk facade, masked away under the lens -->
     <div class="xray__layer xray__skin">
       <svg viewBox="0 0 1000 640" preserveAspectRatio="xMidYMax slice" role="presentation">
         <defs>
           <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#16322a" />
-            <stop offset="55%" stop-color="#0e241b" />
-            <stop offset="100%" stop-color="#0c211b" />
+            <stop offset="0%" stop-color="#1c2024" />
+            <stop offset="55%" stop-color="#14171b" />
+            <stop offset="100%" stop-color="#0f1216" />
           </linearGradient>
           <radialGradient id="moon" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="rgba(216,190,134,0.22)" />
-            <stop offset="100%" stop-color="rgba(216,190,134,0)" />
+            <stop offset="0%" stop-color="rgba(120,200,210,0.16)" />
+            <stop offset="100%" stop-color="rgba(120,200,210,0)" />
           </radialGradient>
           <radialGradient id="lobby" cx="50%" cy="40%" r="60%">
-            <stop offset="0%" stop-color="rgba(216,190,134,0.55)" />
-            <stop offset="100%" stop-color="rgba(216,190,134,0)" />
+            <stop offset="0%" stop-color="rgba(79,196,207,0.5)" />
+            <stop offset="100%" stop-color="rgba(79,196,207,0)" />
           </radialGradient>
           <filter id="lit" x="-120%" y="-120%" width="340%" height="340%">
             <feGaussianBlur stdDeviation="5" result="b" />
@@ -283,12 +251,10 @@ const branches = [
           </filter>
         </defs>
 
-        <!-- dusk sky + soft moonlight -->
         <rect x="0" y="0" width="1000" height="640" fill="url(#sky)" />
         <circle cx="760" cy="150" r="240" fill="url(#moon)" />
 
-        <!-- building masses -->
-        <g fill="#15322a" stroke="rgba(226,216,196,0.20)" stroke-width="1.3">
+        <g fill="#1b1f23" stroke="rgba(220,228,230,0.18)" stroke-width="1.3">
           <rect x="300" y="240" width="130" height="320" />
           <rect x="650" y="240" width="130" height="320" />
           <rect x="430" y="120" width="220" height="440" />
@@ -297,33 +263,30 @@ const branches = [
           <rect x="638" y="226" width="154" height="16" />
           <rect x="508" y="90" width="64" height="16" />
         </g>
-        <path d="M488 104 L540 78 L592 104 Z" fill="#173a2f" stroke="rgba(226,216,196,0.22)" stroke-width="1.3" />
-        <rect x="280" y="556" width="520" height="6" fill="#0e2a20" />
-        <line x1="120" y1="562" x2="880" y2="562" stroke="rgba(226,216,196,0.16)" stroke-width="1.3" />
+        <path d="M488 104 L540 78 L592 104 Z" fill="#20252a" stroke="rgba(220,228,230,0.2)" stroke-width="1.3" />
+        <rect x="280" y="556" width="520" height="6" fill="#15181b" />
+        <line x1="120" y1="562" x2="880" y2="562" stroke="rgba(220,228,230,0.16)" stroke-width="1.3" />
 
-        <g stroke="rgba(226,216,196,0.08)" stroke-width="1">
+        <g stroke="rgba(220,228,230,0.07)" stroke-width="1">
           <line x1="474" y1="124" x2="474" y2="556" /><line x1="518" y1="124" x2="518" y2="556" />
           <line x1="562" y1="124" x2="562" y2="556" /><line x1="606" y1="124" x2="606" y2="556" />
         </g>
 
-        <!-- dark windows -->
-        <g fill="#0c241c" stroke="rgba(226,216,196,0.12)" stroke-width="1">
+        <g fill="#11151a" stroke="rgba(220,228,230,0.12)" stroke-width="1">
           {tower.filter((w) => !w.lit).map((w) => (<rect x={w.x} y={w.y} width={w.w} height={w.h} rx="1.5" />))}
           {wingL.filter((w) => !w.lit).map((w) => (<rect x={w.x} y={w.y} width={w.w} height={w.h} rx="1.5" />))}
           {wingR.filter((w) => !w.lit).map((w) => (<rect x={w.x} y={w.y} width={w.w} height={w.h} rx="1.5" />))}
         </g>
 
-        <!-- warm-lit windows -->
-        <g fill="#d8be86" filter="url(#lit)">
+        <g class="lit-win" fill="#4fc4cf" filter="url(#lit)">
           {tower.filter((w) => w.lit).map((w) => (<rect x={w.x} y={w.y} width={w.w} height={w.h} rx="1.5" opacity="0.78" />))}
           {wingL.filter((w) => w.lit).map((w) => (<rect x={w.x} y={w.y} width={w.w} height={w.h} rx="1.5" opacity="0.78" />))}
           {wingR.filter((w) => w.lit).map((w) => (<rect x={w.x} y={w.y} width={w.w} height={w.h} rx="1.5" opacity="0.78" />))}
         </g>
 
-        <!-- glowing arched lobby entrance -->
         <ellipse cx="540" cy="556" rx="80" ry="60" fill="url(#lobby)" />
-        <path d="M508 560 V512 a32 32 0 0 1 64 0 V560 Z" fill="#1d1306" stroke="rgba(216,190,134,0.5)" stroke-width="1.4" />
-        <path d="M508 512 a32 32 0 0 1 64 0" fill="none" stroke="#d8be86" stroke-width="1.4" opacity="0.7" />
+        <path d="M508 560 V512 a32 32 0 0 1 64 0 V560 Z" fill="#0e1114" stroke="rgba(79,196,207,0.5)" stroke-width="1.4" />
+        <path d="M508 512 a32 32 0 0 1 64 0" fill="none" stroke="#4fc4cf" stroke-width="1.4" opacity="0.7" />
       </svg>
     </div>
 
@@ -351,7 +314,6 @@ const branches = [
           <span class="btn__arrow" aria-hidden="true">&rarr;</span>
         </a>
       </div>
-
     </div>
   </div>
 </section>
@@ -364,12 +326,8 @@ const branches = [
     const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const devs = Array.from(scene.querySelectorAll(".dev"));
-    const NEAR = 135; // px from lens centre to wake a fault
-
-    const setPos = (x, y) => {
-      scene.style.setProperty("--mx", x + "px");
-      scene.style.setProperty("--my", y + "px");
-    };
+    const NEAR = 135;
+    const setPos = (x, y) => { scene.style.setProperty("--mx", x + "px"); scene.style.setProperty("--my", y + "px"); };
     const markNear = (x, y) => {
       const box = scene.getBoundingClientRect();
       for (const d of devs) {
@@ -380,23 +338,17 @@ const branches = [
         d.classList.toggle("is-near", Math.hypot(hx - x, hy - y) < NEAR);
       }
     };
-
-    // --- Pointer devices: the torch follows the cursor (eased trailing) ---
     if (fine) {
       let tx = 0, ty = 0, lx = 0, ly = 0, raf = 0, primed = false;
       function render() {
         lx += (tx - lx) * (reduce ? 1 : 0.16);
         ly += (ty - ly) * (reduce ? 1 : 0.16);
-        setPos(lx, ly);
-        markNear(lx, ly);
-        if (Math.abs(tx - lx) > 0.5 || Math.abs(ty - ly) > 0.5) {
-          raf = requestAnimationFrame(render);
-        } else { raf = 0; }
+        setPos(lx, ly); markNear(lx, ly);
+        if (Math.abs(tx - lx) > 0.5 || Math.abs(ty - ly) > 0.5) { raf = requestAnimationFrame(render); } else { raf = 0; }
       }
       hero.addEventListener("pointermove", (e) => {
         const box = scene.getBoundingClientRect();
-        tx = e.clientX - box.left;
-        ty = e.clientY - box.top;
+        tx = e.clientX - box.left; ty = e.clientY - box.top;
         if (!primed) { lx = tx; ly = ty; primed = true; }
         hero.classList.add("is-live");
         if (!raf) raf = requestAnimationFrame(render);
@@ -407,14 +359,9 @@ const branches = [
       });
       return;
     }
-
-    // --- No pointer + reduced motion: leave the static ghost (CSS) ---
     if (reduce) return;
-
-    // --- Touch: a gentle self-guided torch that searches, finds, moves on ---
     const order = ["ahu", "fridge", "switch", "pump", "boiler", "chiller", "laundry"]
-      .map((n) => scene.querySelector('.dev[data-dev="' + n + '"]'))
-      .filter(Boolean);
+      .map((n) => scene.querySelector('.dev[data-dev="' + n + '"]')).filter(Boolean);
     if (!order.length) return;
     const centerOf = (d) => {
       const m = d.querySelector(".dev__glow") || d;
@@ -427,10 +374,7 @@ const branches = [
     let oi = 0, phase = "hold", tstart = 0, from = null, to = null, started = false;
     hero.classList.add("is-auto", "is-live");
     function tour(ts) {
-      if (!started) {
-        to = centerOf(order[0]); from = { x: to.x, y: to.y };
-        setPos(to.x, to.y); tstart = ts; started = true;
-      }
+      if (!started) { to = centerOf(order[0]); from = { x: to.x, y: to.y }; setPos(to.x, to.y); tstart = ts; started = true; }
       if (phase === "travel") {
         const t = Math.min(1, (ts - tstart) / TRAVEL);
         const e = ease(t);
@@ -440,12 +384,7 @@ const branches = [
         if (t >= 1) { phase = "hold"; tstart = ts; }
       } else {
         setPos(to.x, to.y); markNear(to.x, to.y);
-        if (ts - tstart >= HOLD) {
-          oi = (oi + 1) % order.length;
-          from = { x: to.x, y: to.y };
-          to = centerOf(order[oi]);
-          phase = "travel"; tstart = ts;
-        }
+        if (ts - tstart >= HOLD) { oi = (oi + 1) % order.length; from = { x: to.x, y: to.y }; to = centerOf(order[oi]); phase = "travel"; tstart = ts; }
       }
       requestAnimationFrame(tour);
     }
@@ -455,26 +394,18 @@ const branches = [
 
 <style>
   .hero {
-    position: relative;
-    isolation: isolate;
-    overflow: hidden;
-    min-height: clamp(34rem, 82vh, 52rem);
-    display: flex;
-    align-items: center;
+    position: relative; isolation: isolate; overflow: hidden;
+    /* capped so the CTA stays in the fold on tall/wide screens; the copy
+       sits just above center rather than dead-center, pushing the button up */
+    min-height: clamp(30rem, 78vh, 45rem);
+    display: flex; align-items: center;
     background: var(--bg);
-    padding-block: clamp(4rem, 9vw, 7rem);
+    padding-block: clamp(2.5rem, 5vw, 4.5rem);
     cursor: crosshair;
   }
   .hero :is(a, button) { cursor: pointer; }
 
-  /* --- The full-bleed scene -------------------------------------------- */
-  .hero__scene {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    --mx: 72%;
-    --my: 46%;
-  }
+  .hero__scene { position: absolute; inset: 0; z-index: -1; --mx: 72%; --my: 46%; }
   .xray__layer { position: absolute; inset: 0; }
   .xray__layer svg { width: 100%; height: 100%; }
   .xray__inner { z-index: 1; }
@@ -483,51 +414,40 @@ const branches = [
     -webkit-mask-image: radial-gradient(170px circle at var(--mx) var(--my), transparent 0 50%, #000 100%);
     mask-image: radial-gradient(170px circle at var(--mx) var(--my), transparent 0 50%, #000 100%);
   }
-
   .xray__lens {
-    position: absolute;
-    z-index: 3;
-    top: 0; left: 0;
-    width: 340px; height: 340px;
-    margin: -170px 0 0 -170px;
+    position: absolute; z-index: 3; top: 0; left: 0;
+    width: 340px; height: 340px; margin: -170px 0 0 -170px;
     border-radius: 50%;
     transform: translate(var(--mx), var(--my));
-    border: 1px solid rgba(216, 190, 134, 0.45);
-    box-shadow: inset 0 0 40px rgba(216, 190, 134, 0.12), 0 0 30px rgba(216, 190, 134, 0.08);
-    pointer-events: none;
-    opacity: 0;
+    border: 1px solid var(--h-teal, rgba(200,235,240,0.5));
+    box-shadow: inset 0 0 40px rgba(120,200,210,0.12), 0 0 30px rgba(120,200,210,0.1);
+    pointer-events: none; opacity: 0;
     transition: opacity 0.45s var(--ease-out-quart);
   }
   .hero.is-live .xray__lens { opacity: 1; }
 
   .hero__scrim {
-    position: absolute;
-    inset: 0;
-    z-index: 4;
-    pointer-events: none;
+    position: absolute; inset: 0; z-index: 4; pointer-events: none;
     background:
       linear-gradient(100deg, var(--bg) 0%, var(--bg) 24%, color-mix(in srgb, var(--bg) 70%, transparent) 44%, transparent 66%),
       linear-gradient(0deg, var(--bg) 0%, transparent 24%);
   }
 
-  /* --- Wiring ----------------------------------------------------------- */
+  .wires { stroke: var(--h-red, #ff5a3c); }
+  .lit-win { fill: var(--h-teal, #4fc4cf); }
   .wire { opacity: 0.34; }
   .wire--main { stroke-width: 2.3; opacity: 0.5; }
   .wire--run { stroke-width: 1.5; }
   .wire--branch { stroke-width: 2.2; opacity: 0.62; }
 
-  /* --- Machines --------------------------------------------------------- */
-  .dev__glow {
-    transform-box: fill-box; transform-origin: center;
-    opacity: 0.6;
-  }
-  .dev__body { fill: #10362a; stroke: rgba(226,216,196,0.5); stroke-width: 1.4; stroke-linejoin: round; }
-  .dev__hub { fill: #ffce8a; }
-  .dev__blade { fill: rgba(255,206,138,0.85); }
-  .dev__vane { stroke: #ffce8a; stroke-width: 1.6; stroke-linecap: round; }
-  .dev__gauge { stroke: rgba(226,216,196,0.45); stroke-width: 1.4; }
+  .dev__glow { transform-box: fill-box; transform-origin: center; opacity: 0.6; }
+  .dev__body { fill: #15191d; stroke: rgba(220,228,230,0.5); stroke-width: 1.4; stroke-linejoin: round; }
+  .dev__hub { fill: var(--h-teal, #cfe9ec); }
+  .dev__blade { fill: var(--h-teal, #6fb6ba); }
+  .dev__vane { stroke: var(--h-teal, #cfe9ec); stroke-width: 1.6; stroke-linecap: round; }
+  .dev__gauge { stroke: rgba(220,228,230,0.45); stroke-width: 1.4; }
   .dev__needle { stroke: #ff7a3c; stroke-width: 1.8; stroke-linecap: round; transform-box: fill-box; transform-origin: 100% 100%; }
-  .dev__arc { stroke: #ffe1a8; stroke-width: 1.6; stroke-linecap: round; }
+  .dev__arc { stroke: #cdeef0; stroke-width: 1.6; stroke-linecap: round; }
   .dev__flame { fill: #ff8a4d; }
   .dev__wisp { stroke: rgba(120,170,150,0.5); stroke-width: 1.4; fill: none; stroke-linecap: round; }
   .dev__frost { stroke: rgba(150,205,225,0.75); stroke-width: 1.1; fill: none; stroke-linecap: round; }
@@ -535,98 +455,62 @@ const branches = [
   .dev__tag { opacity: 0; transition: opacity 0.3s var(--ease-out-quart); }
   .dev__tag text {
     font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.01em;
-    fill: var(--gold-text); paint-order: stroke; stroke: #07150f; stroke-width: 4px; stroke-linejoin: round;
+    fill: var(--gold-text); paint-order: stroke; stroke: #0a0c0e; stroke-width: 4px; stroke-linejoin: round;
   }
   .dev.is-near .dev__tag { opacity: 1; }
   .dev.is-near .dev__glow { opacity: 1; }
-  .dev.is-near .dev__body { stroke: #ffce8a; }
+  .dev.is-near .dev__body { stroke: #4fc4cf; }
 
-  /* --- Motion: the interior is alive ------------------------------------ */
   @media (prefers-reduced-motion: no-preference) {
-    /* current flowing through every wire */
-    .wire {
-      stroke-dasharray: 22 7;
-      animation: flow 1.5s linear infinite;
-      animation-delay: var(--d, 0s);
-    }
+    .wire { stroke-dasharray: 22 7; animation: flow 1.5s linear infinite; animation-delay: var(--d, 0s); }
     .wire--branch { animation-duration: 1s; }
     @keyframes flow { to { stroke-dashoffset: -29; } }
-
-    /* heat shimmer under each machine */
     .dev__glow { animation: hotPulse 2.8s ease-in-out infinite; }
     .dev[data-dev="switch"] .dev__glow { animation-duration: 3.4s; animation-delay: 0.5s; }
     .dev[data-dev="chiller"] .dev__glow { animation-duration: 3s; animation-delay: 0.9s; }
     .dev[data-dev="laundry"] .dev__glow { animation-duration: 3.6s; animation-delay: 0.3s; }
     .dev[data-dev="boiler"] .dev__glow { animation-duration: 3.1s; animation-delay: 0.7s; }
-    @keyframes hotPulse {
-      0%, 100% { opacity: 0.45; transform: scale(0.9); }
-      50% { opacity: 0.9; transform: scale(1.1); }
-    }
-
-    /* fans + impellers turn; faster when discovered */
-    .dev__spin {
-      transform-box: fill-box; transform-origin: center;
-      animation: spin var(--spin, 2.4s) linear infinite;
-    }
+    @keyframes hotPulse { 0%, 100% { opacity: 0.45; transform: scale(0.9); } 50% { opacity: 0.9; transform: scale(1.1); } }
+    .dev__spin { transform-box: fill-box; transform-origin: center; animation: spin var(--spin, 2.4s) linear infinite; }
     .dev__spin--stutter { animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.3); }
     .dev.is-near .dev__spin { animation-duration: calc(var(--spin, 2.4s) * 0.5); }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* switchgear: arc flickers, PF needle trembles low */
     .dev__arc { animation: arcFlicker 1.3s steps(1) infinite; }
     @keyframes arcFlicker { 0%, 70%, 100% { opacity: 0; } 72%, 80% { opacity: 1; } 85% { opacity: 0.3; } 90% { opacity: 0.9; } }
     .dev__needle { animation: needleTremble 0.9s ease-in-out infinite; }
     @keyframes needleTremble { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-7deg); } }
-
-    /* boiler: flame licks, whole unit short-cycles on and off */
     .dev__flame { transform-box: fill-box; transform-origin: 50% 100%; animation: flame 0.4s ease-in-out infinite alternate; }
     @keyframes flame { from { transform: scaleY(0.82) scaleX(1.05); opacity: 0.8; } to { transform: scaleY(1.12) scaleX(0.92); opacity: 1; } }
     .dev__cycle { transform-box: fill-box; transform-origin: center; animation: shortCycle 3.4s ease-in-out infinite; }
     @keyframes shortCycle { 0%, 38% { opacity: 1; } 50%, 70% { opacity: 0.35; } 82%, 100% { opacity: 1; } }
-
-    /* refrigeration frost twinkles */
     .dev__frost path { animation: twinkle 2.4s ease-in-out infinite; }
     .dev__frost path:nth-child(2) { animation-delay: 1.1s; }
     @keyframes twinkle { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
-
-    /* exhaust plume drifts up and fades */
     .dev__wisp { animation: rise 2.2s ease-out infinite; }
     .dev__wisp:nth-child(2) { animation-delay: 0.5s; }
     .dev__wisp:nth-child(3) { animation-delay: 1s; }
     @keyframes rise { 0% { opacity: 0; transform: translateY(4px); } 30% { opacity: 0.6; } 100% { opacity: 0; transform: translateY(-12px); } }
-
-    /* one-time entrance: a scan bar sweeps the facade, hinting the x-ray */
     .hero__scene::after {
       content: ""; position: absolute; inset: 0; z-index: 3; pointer-events: none;
-      background: linear-gradient(100deg, transparent 44%, rgba(216,190,134,0.16) 50%, transparent 56%);
+      background: linear-gradient(100deg, transparent 44%, rgba(200,235,240,0.16) 50%, transparent 56%);
       background-size: 220% 100%;
       animation: scanSweep 2.6s var(--ease-out-quart) 0.5s 1 both;
     }
-    @keyframes scanSweep {
-      from { background-position: 130% 0; opacity: 0; }
-      10% { opacity: 1; } 90% { opacity: 1; }
-      to { background-position: -70% 0; opacity: 0; }
-    }
-
+    @keyframes scanSweep { from { background-position: 130% 0; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } to { background-position: -70% 0; opacity: 0; } }
     .hero__title.reveal { transition-delay: 0.06s; }
     .hero__lede.reveal { transition-delay: 0.12s; }
     .hero__actions.reveal { transition-delay: 0.18s; }
   }
 
-  /* --- Touch / no-hover ------------------------------------------------- */
   @media (hover: none), (pointer: coarse) {
     .hero { cursor: default; }
-    .hero__hint { display: none; }
     .hero__scene::after { display: none; }
-    /* JS drives a gentle self-guided torch (.is-auto); the static ghost below
-       is the no-JS / reduced-motion fallback so systems still read. */
     .hero:not(.is-auto) .xray__skin { -webkit-mask-image: none; mask-image: none; opacity: 0.22; }
     .hero:not(.is-auto) .xray__lens { display: none; }
     .hero:not(.is-auto) .dev__tag { opacity: 1; }
     .hero:not(.is-auto) .dev__glow { opacity: 1; }
   }
 
-  /* --- Copy ------------------------------------------------------------- */
   .hero__inner { position: relative; z-index: 5; width: 100%; }
   .hero__copy { max-width: 34rem; }
   .hero__kicker {
@@ -638,15 +522,11 @@ const branches = [
   .hero__title-accent { color: var(--body); font-style: italic; font-weight: 400; }
   .hero__lede { margin-top: var(--space-l); max-width: 50ch; }
   .hero__actions { margin-top: var(--space-l); display: flex; flex-wrap: wrap; gap: var(--space-s); }
-  .hero__note { margin-top: var(--space-m); font-size: var(--step--1); line-height: 1.6; color: var(--muted); max-width: 46ch; }
-  .hero__hint { color: var(--gold-text); font-family: var(--font-mono); letter-spacing: 0.04em; }
 
   @media (max-width: 52rem) {
     .hero { align-items: flex-start; }
     .hero__inner { padding-top: clamp(0.5rem, 3vh, 2.5rem); }
     .hero__scene { --mx: 58%; --my: 44%; }
-    /* darken the top behind the copy; leave the lower building clear so the
-       self-guided torch's discoveries read */
     .hero__scrim {
       background:
         linear-gradient(180deg, var(--bg) 0%, var(--bg) 26%, color-mix(in srgb, var(--bg) 52%, transparent) 50%, transparent 78%),

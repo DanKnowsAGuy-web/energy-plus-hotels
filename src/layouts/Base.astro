@@ -63,6 +63,14 @@ const tlClean = tlPath(false);
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
+
+    <!-- Hybrid-theme prototype fonts (brutal4): grotesque + mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700&family=Geist+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <a href="#main" class="skip-link">Skip to content</a>
@@ -74,11 +82,11 @@ const tlClean = tlPath(false);
           <path
             id="tl-dist-path"
             d={tlDist}
-            stroke="#e05a2b"
+            stroke="var(--cost, #e05a2b)"
             stroke-width="1.4"
             vector-effect="non-scaling-stroke"></path>
-          <circle class="through-line__spark" data-spark-dur="7" data-spark-off="0" r="2.4" fill="#ff8a4d"></circle>
-          <circle class="through-line__spark through-line__spark--b" data-spark-dur="11" data-spark-off="0.45" r="1.8" fill="#ffb070"></circle>
+          <circle class="through-line__spark" data-spark-dur="7" data-spark-off="0" r="2.4" fill="var(--cost, #ff8a4d)"></circle>
+          <circle class="through-line__spark through-line__spark--b" data-spark-dur="11" data-spark-off="0.45" r="1.8" fill="var(--cost, #ffb070)"></circle>
         </g>
         <path
           class="through-line__clean"
@@ -208,23 +216,29 @@ const tlClean = tlPath(false);
         io3.observe(dot);
       }
 
-      // Count-up on the load-waste stat. Enhances the visible default; if motion
-      // is reduced or IO is unavailable, the static "~30%" simply stays put.
-      const stat = document.querySelector("[data-countup]");
-      if (stat && !reduce.matches && "IntersectionObserver" in window) {
-        const target = Number(stat.getAttribute("data-countup")) || 0;
-        const prefix = stat.textContent.trim().startsWith("~") ? "~" : "";
+      // Count-up on any [data-countup] number. Enhances the visible default;
+      // if motion is reduced or IO is unavailable, the static text stays put.
+      // Optional data-prefix / data-suffix / data-decimals shape the output,
+      // so it works on "20%", "$600M+", "13.51%" alike. Range figures (e.g.
+      // "9-19%") are simply left untagged and render static.
+      const stats = document.querySelectorAll("[data-countup]");
+      if (stats.length && !reduce.matches && "IntersectionObserver" in window) {
         const io2 = new IntersectionObserver(
           (entries) => {
             for (const entry of entries) {
               if (!entry.isIntersecting) continue;
               io2.unobserve(entry.target);
+              const el = entry.target;
+              const target = Number(el.getAttribute("data-countup")) || 0;
+              const dec = Number(el.getAttribute("data-decimals")) || 0;
+              const prefix = el.getAttribute("data-prefix") || "";
+              const suffix = el.getAttribute("data-suffix") || "%";
               const start = performance.now();
-              const dur = 900;
+              const dur = 1100;
               const ease = (t) => 1 - Math.pow(1 - t, 4);
               const tick = (now) => {
                 const t = Math.min((now - start) / dur, 1);
-                stat.textContent = prefix + Math.round(ease(t) * target) + "%";
+                el.textContent = prefix + (ease(t) * target).toFixed(dec) + suffix;
                 if (t < 1) requestAnimationFrame(tick);
               };
               requestAnimationFrame(tick);
@@ -232,7 +246,7 @@ const tlClean = tlPath(false);
           },
           { threshold: 0.6 },
         );
-        io2.observe(stat);
+        stats.forEach((s) => io2.observe(s));
       }
     </script>
 

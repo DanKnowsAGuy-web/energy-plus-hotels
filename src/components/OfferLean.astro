@@ -1,0 +1,208 @@
+---
+// BRUTAL-EDIT VARIANT of Offer: outcomes as four icon-led benefit boxes (icon
+// / figure / label aligned across all four), then a mint risk-reversal panel
+// carrying the cash-flow promise and the verify-first guarantee, then one CTA.
+const boxes = [
+  { key: "bill", fig: "20–40%", label: "off your monthly electric bill" },
+  { key: "maint", pre: "up to", fig: "40%", label: "less equipment maintenance" },
+  { key: "life", fig: "5–15", unit: "yrs", label: "added to equipment life" },
+  { key: "tax", pre: "up to", fig: "$5.94", unit: "/ sq ft", label: "Section 179D tax deduction" },
+];
+---
+
+<section class="section offerl" id="offer" aria-labelledby="offerl-title">
+  <div class="container">
+    <div class="offerl__inner reveal">
+      <h2 class="offerl__title" id="offerl-title">What you actually get.</h2>
+
+      <ul class="offerl__boxes">
+        {boxes.map((b, i) => (
+          <li class="offerl__box" style={`--i: ${i}`}>
+            <span class="offerl__ico" aria-hidden="true">
+              {b.key === "bill" && (
+                <svg viewBox="0 0 48 48" fill="none">
+                  <rect class="ob__s" x="8" y="8" width="20" height="30" rx="2" />
+                  <path class="ob__s" d="M13 16 H23 M13 22 H21 M13 28 H19" opacity="0.6" />
+                  <g class="ob__bob">
+                    <path class="ob__s" d="M39 14 V30 M34 25 l5 5 l5 -5" />
+                  </g>
+                </svg>
+              )}
+              {b.key === "maint" && (
+                <svg viewBox="0 0 48 48" fill="none">
+                  <path class="ob__s" d="M24 19 l5 3 v6 l-5 3 l-5 -3 v-6 z" />
+                  <g class="ob__wig">
+                    <circle class="ob__s" cx="24" cy="24" r="9" />
+                    <path class="ob__s" d="M30.4 17.6 L41 7" stroke-width="3" />
+                  </g>
+                </svg>
+              )}
+              {b.key === "life" && (
+                <svg viewBox="0 0 48 48" fill="none">
+                  <circle class="ob__s" cx="24" cy="25" r="14" />
+                  <circle class="ob__s ob__fill" cx="24" cy="25" r="1.6" />
+                  <g class="ob__hand"><line class="ob__s" x1="24" y1="25" x2="24" y2="14" /></g>
+                </svg>
+              )}
+              {b.key === "tax" && (
+                <svg viewBox="0 0 48 48" fill="none">
+                  <rect class="ob__s" x="7" y="13" width="34" height="22" rx="2" />
+                  <path class="ob__s" d="M12 20 h8 M12 26 h6" opacity="0.55" />
+                  <text class="ob__dollar" x="33" y="24" text-anchor="middle">$</text>
+                  <path class="ob__s ob__write" d="M12 31 q3 -4 6 0 t6 0 t6 0" />
+                </svg>
+              )}
+            </span>
+            <span class="offerl__pre">{b.pre || " "}</span>
+            <span class="offerl__fig">
+              {b.fig}{b.unit && <span class="offerl__unit"> {b.unit}</span>}
+            </span>
+            <span class="offerl__label">{b.label}</span>
+          </li>
+        ))}
+      </ul>
+
+      <ul class="offerl__promise">
+        <li>
+          <span class="offerl__dot" aria-hidden="true"></span>
+          <p>
+            Your cash flow can be positive from day one
+            <span class="offerl__caveat"> for qualifying properties.</span>
+          </p>
+        </li>
+        <li>
+          <span class="offerl__dot" aria-hidden="true"></span>
+          <p>
+            Utility programs may cover much of the cost,
+            <strong> up to 75% of the retrofit</strong> in some states.
+          </p>
+        </li>
+        <li>
+          <span class="offerl__dot" aria-hidden="true"></span>
+          <p>
+            <strong>Verify first, commit after.</strong> The diagnosis is on us,
+            so it costs nothing to find out what your building is leaking.
+          </p>
+        </li>
+      </ul>
+
+      <a href="#book" class="btn offerl__cta">
+        Book your Verified Savings Pilot
+        <span class="btn__arrow" aria-hidden="true">&rarr;</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .offerl { border-top: 1px solid var(--line); }
+  .offerl__title { font-size: var(--step-3); max-width: 16ch; }
+
+  .offerl__boxes {
+    list-style: none;
+    margin: var(--space-l) 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 175px), 1fr));
+    gap: var(--space-m);
+  }
+  /* internal slots are fixed-height so icon / figure / label line up across
+     all four boxes regardless of whether a box has an "up to" prefix */
+  .offerl__box {
+    padding: clamp(1.5rem, 3vw, 2rem) var(--space-m);
+    background: var(--surface);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .offerl__ico { height: 46px; margin-bottom: var(--space-s); }
+  .offerl__ico svg { width: 46px; height: 46px; }
+  .ob__s {
+    stroke: var(--gold-text); stroke-width: 1.6; fill: none;
+    stroke-linecap: round; stroke-linejoin: round;
+  }
+  .ob__fill { fill: var(--gold-text); stroke: none; }
+  .ob__dollar { font-family: var(--font-serif); font-size: 11px; fill: var(--gold-text); }
+
+  .offerl__pre {
+    display: block;
+    height: 0.85rem;
+    line-height: 0.85rem;
+    margin-bottom: 0.2rem;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .offerl__fig {
+    white-space: nowrap;
+    font-family: var(--font-serif);
+    font-size: clamp(1.9rem, 3.6vw, 2.6rem);
+    line-height: 1;
+    color: var(--gold-text);
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .offerl__unit {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+    color: var(--muted);
+  }
+  .offerl__label {
+    margin-top: var(--space-xs);
+    font-size: var(--step--1);
+    line-height: 1.45;
+    color: var(--body);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .ob__bob { transform-box: fill-box; transform-origin: center; animation: obBob 2.4s ease-in-out infinite; }
+    @keyframes obBob { 0%, 100% { transform: translateY(-2px); } 50% { transform: translateY(3px); } }
+    .ob__wig { transform-box: view-box; transform-origin: 24px 24px; animation: obWig 2.4s ease-in-out infinite; }
+    @keyframes obWig { 0%, 100% { transform: rotate(-9deg); } 50% { transform: rotate(9deg); } }
+    .ob__hand { transform-box: fill-box; transform-origin: 50% 100%; animation: obClock 4s ease-in-out infinite; }
+    @keyframes obClock { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(92deg); } }
+    .ob__write { stroke-dasharray: 34; stroke-dashoffset: 34; animation: obWrite 3s ease-in-out infinite; }
+    @keyframes obWrite {
+      0% { stroke-dashoffset: 34; }
+      55% { stroke-dashoffset: 0; }
+      85% { stroke-dashoffset: 0; opacity: 1; }
+      100% { stroke-dashoffset: 0; opacity: 0; }
+    }
+  }
+
+  /* the mint promise panel: cash-flow + the verify-first guarantee */
+  .offerl__promise {
+    list-style: none;
+    margin: var(--space-l) 0 0;
+    padding: var(--space-m);
+    background: rgba(91, 194, 162, 0.06);
+    border: 1px solid rgba(91, 194, 162, 0.35);
+    border-radius: var(--radius);
+    display: grid;
+    gap: var(--space-s);
+  }
+  .offerl__promise li {
+    display: flex;
+    gap: var(--space-s);
+    align-items: flex-start;
+  }
+  .offerl__promise p { font-size: var(--step-0); line-height: 1.55; color: var(--body); }
+  .offerl__promise strong { color: var(--mint); font-weight: 600; }
+  .offerl__caveat { color: var(--muted); }
+  .offerl__dot {
+    flex: none;
+    margin-top: 0.5em;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--mint);
+    box-shadow: 0 0 0 4px rgba(91, 194, 162, 0.15);
+  }
+
+  .offerl__cta { margin-top: var(--space-l); }
+</style>

@@ -1,0 +1,81 @@
+---
+// BRUTAL-EDIT VARIANT of HowYouPay: the four payment terms as a numbered
+// stepper with one scannable line each, instead of four stacked lead+paragraph
+// blocks. The detail is compressed; the structure carries the meaning.
+const steps = [
+  { lead: "One fixed fee, on verification", line: "Not a share of your savings forever, and not a projection. Owed only once the savings are measured at your meter." },
+  { lead: "Financed, positive from month one", line: "The verified savings start immediately while the fee spreads over time, so monthly savings beat the monthly payment from the start." },
+  { lead: "Utility programs may cover much of it", line: "Where approved, incentives can fund a large share, widening your cash flow. We confirm what you qualify for before you sign." },
+];
+---
+
+<section class="section payl" id="how-you-pay" aria-labelledby="payl-title">
+  <div class="container">
+    <div class="payl__head reveal">
+      <h2 class="payl__title" id="payl-title">How you pay, only after it's real.</h2>
+    </div>
+
+    <ol class="payl__steps">
+      {steps.map((s, i) => (
+        <li class={`payl__step reveal${s.mint ? " payl__step--mint" : ""}`} style={`--i: ${i}`}>
+          <span class="payl__n">{i + 1}</span>
+          <h3 class="payl__lead">{s.lead}</h3>
+          <p class="payl__line">{s.line}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .payl { border-top: 1px solid var(--line); }
+  .payl__title { font-size: var(--step-3); max-width: 18ch; }
+
+  .payl__steps {
+    list-style: none;
+    margin: var(--space-xl) 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    gap: var(--space-m);
+    counter-reset: payl;
+  }
+  .payl__step {
+    position: relative;
+    padding: var(--space-m);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+  }
+  .payl__step--mint {
+    border-color: rgba(91, 194, 162, 0.35);
+    background: rgba(91, 194, 162, 0.05);
+  }
+  .payl__n {
+    display: inline-grid;
+    place-items: center;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--gold-text);
+    border: 1px solid var(--line-strong);
+  }
+  .payl__step--mint .payl__n {
+    color: var(--mint);
+    border-color: rgba(91, 194, 162, 0.5);
+  }
+  .payl__lead {
+    margin-top: var(--space-s);
+    font-size: var(--step-0);
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .payl__step--mint .payl__lead { color: var(--mint); }
+  .payl__line {
+    margin-top: var(--space-2xs);
+    font-size: var(--step--1);
+    line-height: 1.55;
+    color: var(--body);
+  }
+</style>

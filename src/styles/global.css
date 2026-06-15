@@ -363,10 +363,10 @@ main > .section::before {
 }
 .through-line__dist {
   opacity: calc(1 - var(--tl, 0));
-  filter: drop-shadow(0 0 4px rgba(224, 90, 43, 0.45));
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--cost, #e05a2b) 45%, transparent));
 }
 .through-line__spark {
-  filter: drop-shadow(0 0 5px rgba(255, 138, 77, 0.9));
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--cost, #ff8a4d) 90%, transparent));
 }
 @media (prefers-reduced-motion: no-preference) {
   .through-line__spark {
@@ -387,7 +387,7 @@ main > .section::before {
 }
 .through-line__clean {
   opacity: var(--tl, 0);
-  filter: drop-shadow(0 0 4px rgba(216, 190, 134, 0.4));
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--gold-text) 40%, transparent));
 }
 @media (max-width: 1180px) {
   .through-line {

@@ -18,11 +18,11 @@ const stats = [
 
 <section class="section proc" id="procurement" aria-labelledby="proc-title">
   <div class="container">
-    <p class="proc__kicker reveal">The exam needs an examiner</p>
     <div class="proc__grid">
       <figure class="proc__person reveal">
         <img
           class="proc__photo"
+          id="proc-photo"
           src={cliff.src}
           width={cliff.width}
           height={cliff.height}
@@ -36,7 +36,9 @@ const stats = [
       </figure>
 
       <div class="proc__main reveal">
-        <h2 class="proc__title" id="proc-title">Meet your procurement officer.</h2>
+        {/* PLACEHOLDER headline: "Meet the engineer who runs your exam." stands
+            in until the final wording is locked. */}
+        <h2 class="proc__title" id="proc-title">Meet the engineer who runs your exam.</h2>
         <p class="proc__body">
           When buying the wrong technology wasn't an option, this is who they
           trusted. Now he runs the exam on your building and buys on your
@@ -69,6 +71,34 @@ const stats = [
     </div>
   </div>
 </section>
+
+<script is:inline>
+  (() => {
+    const photo = document.getElementById("proc-photo");
+    if (!photo) return;
+    // Color peaks while the photo sits in the middle of the viewport, fading to
+    // black-and-white as it moves away, for a long, gentle transition.
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      photo.style.setProperty("--gray", "0");
+      return;
+    }
+    let ticking = false;
+    const update = () => {
+      const r = photo.getBoundingClientRect();
+      const vh = window.innerHeight || 1;
+      const center = r.top + r.height / 2;
+      const d = Math.abs(center - vh / 2) / (vh * 0.6);
+      const gray = Math.max(0, Math.min(1, d));
+      photo.style.setProperty("--gray", gray.toFixed(3));
+      ticking = false;
+    };
+    addEventListener("scroll", () => {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }, { passive: true });
+    addEventListener("resize", update, { passive: true });
+    update();
+  })();
+</script>
 
 <style>
   .proc {
@@ -107,7 +137,11 @@ const stats = [
     display: block;
     border-radius: var(--radius);
     border: 1px solid var(--line-strong);
-    filter: grayscale(0.55) sepia(0.18) hue-rotate(78deg) saturate(0.7) brightness(0.95);
+    filter: grayscale(var(--gray, 1));
+    transition: filter 0.5s ease;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .proc__person:hover .proc__photo { filter: grayscale(0); }
   }
   @media (max-width: 760px) {
     .proc__photo { max-width: 18rem; }

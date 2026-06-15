@@ -1,0 +1,77 @@
+---
+// HYBRID "Mix" theme, DARK-DOMINANT variant (preview at /brutal4d/).
+// Inverts brutal4: graphite/slate is the primary surface for most of the page,
+// with paper-white reserved for a couple of bright "evidence" inserts (.paper).
+// Signal teal + Quiet red accents throughout. Same components, token override.
+import Base from "../layouts/Base.astro";
+import Header from "../components/Header.astro";
+import Hero from "../components/HeroInstrument.astro";
+import OfferLean from "../components/OfferLean.astro";
+import Plan from "../components/Plan.astro";
+import ProblemLean from "../components/ProblemLean.astro";
+import Engineer from "../components/Engineer.astro";
+import ActFourLean from "../components/ActFourLean.astro";
+import Harmonizer from "../components/Harmonizer.astro";
+import Proof from "../components/Proof.astro";
+import HvacLean from "../components/HvacLean.astro";
+import FloorStat from "../components/FloorStat.astro";
+import Estimator from "../components/Estimator.astro";
+import Success from "../components/Success.astro";
+import FinalCta from "../components/FinalCta.astro";
+import Footer from "../components/Footer.astro";
+---
+
+<Base>
+  <div class="theme-dark">
+    <Header />
+    <main id="main">
+      <Hero />
+      <div class="paper"><OfferLean /></div>
+      <Plan />
+      <ProblemLean />
+      <Engineer />
+      <ActFourLean />
+      <Harmonizer />
+      <div class="paper"><Proof /></div>
+      <HvacLean />
+      <FloorStat />
+      <Estimator />
+      <Success />
+      <FinalCta />
+    </main>
+    <Footer />
+  </div>
+</Base>
+
+<style is:global>
+  /* --- Slate graphite: the dominant surface ---------------------------- */
+  .theme-dark {
+    --bg: #141a1e; --bg-header: #0f1418; --hero-from: #1c2329; --hero-to: #141a1e;
+    --surface: #1d242b; --surface-2: #252e36;
+    --ink: #eef1ef; --body: #bac2c1; --muted: #8b9592;
+    --gold: #1f8390; --gold-text: #46cfd6; --mint: #46cfd6; --cost: #c87a64;
+    --h-red: #c87a64; --h-teal: #46cfd6;
+    --line: rgba(220, 230, 230, 0.12); --line-strong: rgba(220, 230, 230, 0.2);
+    --gold-soft: rgba(31, 131, 144, 0.12); --mint-soft: rgba(70, 207, 214, 0.13);
+    --font-serif: "Hanken Grotesk", system-ui, sans-serif;
+    --font-sans: "Hanken Grotesk", system-ui, sans-serif;
+    --font-mono: "Geist Mono", ui-monospace, monospace;
+    background: #141a1e; color: #eef1ef;
+  }
+  /* button = ink fill, bg text (resolves correctly on dark and on paper) */
+  .theme-dark .btn { background: var(--ink); color: var(--bg); }
+  .theme-dark .btn:hover { background: #ffffff; box-shadow: none; }
+  .theme-dark .afl__fig { color: var(--cost) !important; }
+
+  /* --- Inserts: muted, charcoal-leaning off-white (dimmed to ease glare) - */
+  .theme-dark .paper {
+    --bg: #d4d8d2; --surface: #dde0da; --surface-2: #cbcfc9;
+    --ink: #1a1d1a; --body: #3c413b; --muted: #5d625b;
+    --gold: #0d6f79; --gold-text: #0d6f79; --mint: #0d6f79; --cost: #8f4030;
+    --h-red: #8f4030; --h-teal: #0d6f79;
+    --line: rgba(20, 25, 20, 0.14); --line-strong: rgba(20, 25, 20, 0.22);
+    --gold-soft: rgba(13, 111, 121, 0.09); --mint-soft: rgba(13, 111, 121, 0.12);
+    background: #d4d8d2; color: #1a1d1a;
+  }
+  .theme-dark .paper .btn:hover { background: #2f352e; }
+</style>
