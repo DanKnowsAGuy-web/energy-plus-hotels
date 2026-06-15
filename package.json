@@ -7,7 +7,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "deploy": "astro build && gh-pages -d dist -b gh-pages -t --dest grand-hotel --add",
+    "deploy": "astro build && gh-pages -d dist -b gh-pages -t",
     "astro": "astro"
   },
   "dependencies": {
