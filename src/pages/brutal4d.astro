@@ -55,7 +55,10 @@ import Footer from "../components/Footer.astro";
     --line: rgba(220, 230, 230, 0.12); --line-strong: rgba(220, 230, 230, 0.2);
     --gold-soft: rgba(31, 131, 144, 0.12); --mint-soft: rgba(70, 207, 214, 0.13);
     /* dual-layer depth: inset top highlight (catches light) + soft drop */
-    --shadow-lift: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 16px 44px -26px rgba(0, 0, 0, 0.72);
+    --shadow-lift: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 22px 50px -24px rgba(0, 0, 0, 0.85);
+    /* tilt-state shadow: deeper drop + a teal edge ring */
+    --shadow-tilt: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 36px 70px -28px rgba(0, 0, 0, 0.92),
+      0 0 0 1px color-mix(in srgb, var(--gold) 32%, transparent);
     --font-serif: "Hanken Grotesk", system-ui, sans-serif;
     --font-sans: "Hanken Grotesk", system-ui, sans-serif;
     --font-mono: "Geist Mono", ui-monospace, monospace;
@@ -67,6 +70,19 @@ import Footer from "../components/Footer.astro";
     .eng__tile, .eng__photo, .est__measured, .hz__card, .case) {
     box-shadow: var(--shadow-lift);
   }
+  /* living cards: 3D tilt toward the cursor (JS sets the transform), with a
+     deeper drop + teal edge ring while engaged */
+  .theme-dark :is(.case, .eng__card, .eng__tile, .probl__panel, .offerl__box,
+    .win__col, .step, .est__measured) {
+    transform-style: preserve-3d;
+    transition: transform 0.5s var(--ease-out-quart), box-shadow 0.5s ease;
+    will-change: transform;
+  }
+  .theme-dark .is-tilting {
+    transition: transform 0.07s linear, box-shadow 0.25s ease;
+    box-shadow: var(--shadow-tilt);
+    z-index: 2;
+  }
 
   /* (2)+(3) ambient teal/red light, parallaxed by the pointer. Screen-blended
      over the slate so it reads as atmosphere; faint enough to keep text crisp.
@@ -74,11 +90,11 @@ import Footer from "../components/Footer.astro";
   .bp-ambient {
     position: fixed; inset: -8%; z-index: 0; pointer-events: none;
     background:
-      radial-gradient(38% 30% at 16% 20%, color-mix(in srgb, var(--mint) 24%, transparent), transparent 70%),
-      radial-gradient(44% 38% at 88% 58%, color-mix(in srgb, var(--gold) 20%, transparent), transparent 72%),
-      radial-gradient(40% 32% at 50% 96%, color-mix(in srgb, var(--cost) 14%, transparent), transparent 70%);
+      radial-gradient(42% 34% at 14% 18%, color-mix(in srgb, var(--mint) 42%, transparent), transparent 68%),
+      radial-gradient(48% 42% at 90% 52%, color-mix(in srgb, var(--gold) 38%, transparent), transparent 70%),
+      radial-gradient(44% 36% at 52% 98%, color-mix(in srgb, var(--cost) 26%, transparent), transparent 68%);
     mix-blend-mode: screen;
-    opacity: 0.5;
+    opacity: 0.75;
     transform: translate3d(var(--px, 0), var(--py, 0), 0);
     transition: transform 0.7s var(--ease-out-quart);
     will-change: transform;

@@ -13,7 +13,10 @@
           Your building wastes about a third of the energy it buys. So why
           didn't your last upgrade pay off?
         </h2>
-        <p class="probl__stat">~30%</p>
+        <p class="probl__stat fig">
+          <span class="fig__val" data-countup="30" data-prefix="~" data-suffix="">~30</span>
+          <span class="fig__unit">%</span>
+        </p>
         <p class="probl__note">
           The EPA's figure for the average commercial building. Most hotels have
           never had anyone qualified find out where theirs goes.
@@ -88,7 +91,7 @@
   }
   .probl__chain li:last-child { border-bottom: none; padding-bottom: 0; }
   .probl__cause { color: var(--ink); }
-  .probl__arr { flex: none; font-family: var(--font-mono); color: #e0894a; }
+  .probl__arr { flex: none; font-family: var(--font-mono); color: var(--cost, #e0894a); }
   .probl__effect { color: var(--muted); }
 
   .probl__panels {
@@ -118,9 +121,9 @@
     width: 28px; height: 28px;
     border-radius: 50%;
     font-size: 1.1rem;
-    color: #e0894a;
-    background: rgba(224, 137, 74, 0.12);
-    border: 1px solid rgba(224, 137, 74, 0.4);
+    color: var(--cost, #e0894a);
+    background: color-mix(in srgb, var(--cost, #e0894a) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--cost, #e0894a) 40%, transparent);
   }
   .probl__mark--ok {
     color: var(--mint);

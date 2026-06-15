@@ -16,7 +16,7 @@ const cases = [
     type: "Hospitality",
     place: "Marietta, GA",
     name: "Hilton Garden Inn, Atlanta",
-    figure: "13.51%", num: 13.51, dec: 2,
+    fval: "13.51", num: 13.51, dec: 2, funit: "%",
     unit: "kWh reduction at the meter, 12 months",
     scope: "123 rooms · 11 devices across 28 panels",
     verifier: "Verified by ABRAXAS",
@@ -26,7 +26,7 @@ const cases = [
     type: "Hotel & Resort",
     place: "Orange Beach, AL",
     name: "Caribe Resort",
-    figure: "14%+", num: 14, suffix: "%+",
+    fval: "14", num: 14, dec: 0, funit: "%", mod: "+",
     unit: "kWh reduction, monthly average over 12 months",
     scope: "3 buildings · paid for itself in the first year",
     verifier: "Verified by CHI Energy",
@@ -36,7 +36,7 @@ const cases = [
     type: "Hospitality",
     place: "Las Vegas, NV",
     name: "Southpoint Hotel & Casino",
-    figure: "8.59%", num: 8.59, dec: 2,
+    fval: "8.59", num: 8.59, dec: 2, funit: "%",
     unit: "kW demand reduction, metered panels",
     scope: "arena lighting + receptacle panels, 45-day baseline",
     verifier: "Third-party meter data",
@@ -46,7 +46,7 @@ const cases = [
     type: "Office + Warehouse",
     place: "Atlanta, GA",
     name: "Corey Center",
-    figure: "14.8%", num: 14.8, dec: 1,
+    fval: "14.8", num: 14.8, dec: 1, funit: "%",
     unit: "kWh reduction, four-year average",
     scope: "35,000 sq ft · 8 devices, one per panel",
     verifier: "Verified by Noesis",
@@ -56,7 +56,7 @@ const cases = [
     type: "Office",
     place: "Birmingham, AL",
     name: "The Massey Building",
-    figure: "9–19%",
+    fval: "9–19", funit: "%",
     unit: "kWh reduction, metered floor by floor",
     scope: "10 floors · 10 devices, one per floor",
     verifier: "Metered impact evaluation",
@@ -67,7 +67,7 @@ const cases = [
 <section class="section proof" id="proof" aria-labelledby="proof-title">
   <div class="container">
     <div class="proof__head reveal">
-      <h2 class="proof__title" id="proof-title">
+      <h2 class="proof__title reveal" id="proof-title" data-words>
         Proof, not promises.
       </h2>
       <p class="proof__lede lede">
@@ -87,7 +87,11 @@ const cases = [
                 <p class="case__type">{c.type}</p>
                 <p class="case__place">{c.place}</p>
                 <h3 class="case__name">{c.name}</h3>
-                <p class="case__figure" data-countup={c.num} data-decimals={c.dec} data-suffix={c.suffix}>{c.figure}</p>
+                <p class="case__figure fig">
+                  <span class="fig__val" data-countup={c.num} data-decimals={c.dec} data-suffix="">{c.fval}</span>
+                  {c.funit && <span class="fig__unit">{c.funit}</span>}
+                  {c.mod && <span class="fig__mod">{c.mod}</span>}
+                </p>
                 <p class="case__unit">{c.unit}</p>
                 <p class="case__scope">{c.scope}</p>
                 <p class="case__verifier">{c.verifier}</p>

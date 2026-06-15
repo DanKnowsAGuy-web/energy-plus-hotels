@@ -26,8 +26,8 @@ const act = [
       <div class="win__col win__col--wait reveal">
         <p class="win__label">If you keep waiting</p>
         <ul class="win__list">
-          {wait.map((t) => (
-            <li class="win__item"><span class="win__mark" aria-hidden="true">&#10005;</span>{t}</li>
+          {wait.map((t, i) => (
+            <li class="win__item reveal" style={`--i: ${i + 1}`}><span class="win__mark" aria-hidden="true">&#10005;</span>{t}</li>
           ))}
         </ul>
       </div>
@@ -35,8 +35,8 @@ const act = [
       <div class="win__col win__col--act reveal" style="--i: 1">
         <p class="win__label">When you act</p>
         <ul class="win__list">
-          {act.map((t) => (
-            <li class="win__item"><span class="win__mark" aria-hidden="true">&#10003;</span>{t}</li>
+          {act.map((t, i) => (
+            <li class="win__item reveal" style={`--i: ${i + 1}`}><span class="win__mark" aria-hidden="true">&#10003;</span>{t}</li>
           ))}
         </ul>
       </div>
@@ -63,8 +63,8 @@ const act = [
     border-radius: var(--radius);
     background: rgba(255, 255, 255, 0.012);
   }
-  .win__col--wait { border-color: rgba(224, 137, 74, 0.28); }
-  .win__col--act { border-color: rgba(91, 194, 162, 0.3); }
+  .win__col--wait { border-color: color-mix(in srgb, var(--cost, #e0894a) 28%, transparent); }
+  .win__col--act { border-color: color-mix(in srgb, var(--mint) 30%, transparent); }
 
   .win__label {
     font-family: var(--font-mono);
@@ -73,7 +73,7 @@ const act = [
     text-transform: uppercase;
     margin-bottom: var(--space-s);
   }
-  .win__col--wait .win__label { color: #e0894a; }
+  .win__col--wait .win__label { color: var(--cost, #e0894a); }
   .win__col--act .win__label { color: var(--mint); }
 
   .win__list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-s); }
@@ -91,7 +91,7 @@ const act = [
     font-weight: 700;
     margin-top: 0.15em;
   }
-  .win__col--wait .win__mark { color: #e0894a; }
+  .win__col--wait .win__mark { color: var(--cost, #e0894a); }
   .win__col--act .win__mark { color: var(--mint); }
   .win__col--act .win__item { color: var(--ink); }
 </style>

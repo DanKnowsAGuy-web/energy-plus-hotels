@@ -173,6 +173,52 @@ a {
   font-style: normal;
 }
 
+/* --- Figure readout: one consistent treatment for every headline number ---
+   Big tabular value (counts up via [data-countup] on .fig__val) with the unit
+   and any modifier (+, ±, "up to", a range) set small and quiet beside it, so a
+   stat reads like an instrument readout instead of a typed string. */
+.fig {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.06em;
+  font-family: var(--font-serif);
+  font-variant-numeric: tabular-nums;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+}
+.fig__val {
+  font-size: 1em;
+}
+.fig__unit {
+  font-size: 0.46em;
+  font-family: var(--font-mono);
+  letter-spacing: 0;
+  opacity: 0.75;
+  align-self: flex-start;
+  margin-top: 0.35em;
+}
+.fig__mod {
+  font-size: 0.32em;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  align-self: flex-start;
+  margin-top: 0.4em;
+}
+/* a modifier that reads as a word ("up to") sits before the value instead */
+.fig__pre {
+  font-size: 0.3em;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  align-self: center;
+}
+
 /* --- Buttons ----------------------------------------------------------- */
 .btn {
   --_glow: var(--gold-glow);
@@ -267,17 +313,41 @@ a {
 @media (prefers-reduced-motion: no-preference) {
   .reveal {
     opacity: 0;
-    transform: translateY(18px);
+    transform: translateY(26px) scale(0.985);
+    filter: blur(6px);
     transition:
-      opacity 0.7s var(--ease-out-expo),
-      transform 0.7s var(--ease-out-expo);
+      opacity 0.8s var(--ease-out-expo),
+      transform 0.8s var(--ease-out-expo),
+      filter 0.8s var(--ease-out-expo);
     /* Sibling stagger: set style="--i: n" on list items to cascade them in. */
-    transition-delay: calc(var(--i, 0) * 70ms);
+    transition-delay: calc(var(--i, 0) * 80ms);
   }
   .reveal.is-in {
     opacity: 1;
     transform: none;
+    filter: none;
   }
+  /* directional variants (add .reveal--left / --right / --scale to taste) */
+  .reveal--left { transform: translateX(-34px); }
+  .reveal--right { transform: translateX(34px); }
+  .reveal--scale { transform: scale(0.92); filter: blur(8px); }
+  .reveal--left.is-in,
+  .reveal--right.is-in,
+  .reveal--scale.is-in { transform: none; }
+
+  /* word-by-word headline assembly: container stays put, words rise + settle */
+  .reveal[data-words] { opacity: 1; transform: none; filter: none; }
+  [data-words] .word {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(0.55em) rotate(1.5deg);
+    transition:
+      opacity 0.6s var(--ease-out-expo),
+      transform 0.6s var(--ease-out-expo);
+    transition-delay: calc(var(--wi, 0) * 45ms);
+  }
+  .reveal.is-in[data-words] .word,
+  [data-words].is-in .word { opacity: 1; transform: none; }
 }
 
 /* Scroll-progress rail: orientation on a long single-page scroll. A thin gold

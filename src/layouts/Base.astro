@@ -111,6 +111,29 @@ const tlClean = tlPath(false);
 
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
 
+      // Word-by-word headline assembly: wrap each word of a [data-words]
+      // element in a staggered span. Skipped under reduced motion. Only run on
+      // plain-text elements (no child markup) to avoid clobbering nested spans.
+      if (!reduce.matches) {
+        document.querySelectorAll("[data-words]").forEach((el) => {
+          if (el.children.length) return;
+          const parts = el.textContent.split(/(\s+)/);
+          el.textContent = "";
+          let wi = 0;
+          for (const part of parts) {
+            if (/^\s+$/.test(part) || part === "") {
+              el.appendChild(document.createTextNode(part));
+              continue;
+            }
+            const span = document.createElement("span");
+            span.className = "word";
+            span.style.setProperty("--wi", String(wi++));
+            span.textContent = part;
+            el.appendChild(span);
+          }
+        });
+      }
+
       // Reveal-on-scroll: content is visible by default (see .reveal in CSS);
       // this only adds the entrance for users who allow motion. Lists carry
       // style="--i: n" so siblings cascade in rather than all firing at once.
@@ -242,6 +265,41 @@ const tlClean = tlPath(false);
             b.style.setProperty("--by", "0px");
           });
         });
+
+        // Living cards: 3D tilt toward the cursor. JS owns the transform while
+        // engaged; .is-tilting swaps in the deeper shadow + edge ring.
+        const TILT = ".case, .eng__card, .eng__tile, .probl__panel, .offerl__box, .win__col, .step, .est__measured";
+        document.querySelectorAll(TILT).forEach((card) => {
+          let traf = 0, rx = 0, ry = 0, gx = 50, gy = 50;
+          card.addEventListener(
+            "pointermove",
+            (e) => {
+              const r = card.getBoundingClientRect();
+              const nx = (e.clientX - r.left) / r.width - 0.5;
+              const ny = (e.clientY - r.top) / r.height - 0.5;
+              ry = nx * 7;
+              rx = -ny * 7;
+              gx = (nx + 0.5) * 100;
+              gy = (ny + 0.5) * 100;
+              if (!traf) {
+                traf = requestAnimationFrame(() => {
+                  card.style.transform =
+                    "perspective(900px) rotateX(" + rx.toFixed(2) +
+                    "deg) rotateY(" + ry.toFixed(2) + "deg) translateY(-6px)";
+                  card.style.setProperty("--gx", gx.toFixed(1) + "%");
+                  card.style.setProperty("--gy", gy.toFixed(1) + "%");
+                  traf = 0;
+                });
+              }
+            },
+            { passive: true },
+          );
+          card.addEventListener("pointerenter", () => card.classList.add("is-tilting"));
+          card.addEventListener("pointerleave", () => {
+            card.classList.remove("is-tilting");
+            card.style.transform = "";
+          });
+        });
       }
 
       // Mint pulse: the "diagnosis is on us" dot pulses once on arrival.
@@ -277,7 +335,8 @@ const tlClean = tlPath(false);
               const target = Number(el.getAttribute("data-countup")) || 0;
               const dec = Number(el.getAttribute("data-decimals")) || 0;
               const prefix = el.getAttribute("data-prefix") || "";
-              const suffix = el.getAttribute("data-suffix") || "%";
+              const sufAttr = el.getAttribute("data-suffix");
+              const suffix = sufAttr === null ? "%" : sufAttr;
               const start = performance.now();
               const dur = 1100;
               const ease = (t) => 1 - Math.pow(1 - t, 4);
