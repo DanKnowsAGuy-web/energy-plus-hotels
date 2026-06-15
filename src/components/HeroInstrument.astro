@@ -332,9 +332,21 @@ const branches = [
           Book your Verified Savings Pilot
           <span class="btn__arrow" aria-hidden="true">&rarr;</span>
         </a>
-        <button type="button" class="btn btn--ghost js-text-founder">
+        <button type="button" class="btn btn--ghost js-text-founder" aria-expanded="false" aria-controls="tf-panel">
           Just text the founder
         </button>
+      </div>
+
+      <div class="tf-panel" id="tf-panel" role="group" aria-label="Text the founder">
+        <p class="tf-panel__to">To <span>Dan &middot; (864) 777-0688</span></p>
+        <textarea id="tf-msg" class="tf-panel__msg" rows="3" spellcheck="false">Hi Dan, I run a hotel and I'd like to see what real energy savings could look like at my property, without the sales song and dance. What would a Verified Savings Pilot find for a building like mine?</textarea>
+        <div class="tf-panel__foot">
+          <span class="tf-panel__hint">Opens in your messages, ready to send.</span>
+          <a class="tf-panel__send" id="tf-send" href="#" data-phone="+18647770688">
+            Send message
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12 h13 M12 5 l7 7 -7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </a>
+        </div>
       </div>
 
       <ul class="hero__chips reveal" aria-label="What the pilot does not require">
@@ -464,6 +476,31 @@ const branches = [
       requestAnimationFrame(tour);
     }
     requestAnimationFrame(tour);
+  })();
+</script>
+
+<script is:inline>
+  (() => {
+    const btn = document.querySelector(".js-text-founder");
+    const panel = document.getElementById("tf-panel");
+    if (!btn || !panel) return;
+    const msg = document.getElementById("tf-msg");
+    const send = document.getElementById("tf-send");
+    const phone = send.getAttribute("data-phone") || "";
+    const ua = navigator.userAgent || "";
+    const isIOS = /iP(hone|ad|od)/.test(ua) || (/Mac/.test(ua) && "ontouchend" in document);
+    const build = () => {
+      send.href = "sms:" + phone + (isIOS ? "&" : "?") + "body=" + encodeURIComponent(msg.value);
+    };
+    btn.addEventListener("click", () => {
+      const willOpen = !panel.classList.contains("is-open");
+      panel.classList.toggle("is-open", willOpen);
+      btn.setAttribute("aria-expanded", String(willOpen));
+      if (willOpen) { build(); setTimeout(() => msg.focus(), 80); }
+    });
+    msg.addEventListener("input", build);
+    send.addEventListener("click", build);
+    build();
   })();
 </script>
 
@@ -681,6 +718,37 @@ const branches = [
   .hero__chips li::before {
     content: "\2713"; color: var(--mint); font-weight: 700;
   }
+
+  /* inline "text the founder" panel: expands under the button, no popup */
+  .tf-panel {
+    overflow: hidden; max-height: 0; opacity: 0;
+    transition: max-height 0.4s var(--ease-out-quart), opacity 0.3s ease, margin-top 0.4s var(--ease-out-quart);
+  }
+  .tf-panel.is-open { max-height: 26rem; opacity: 1; margin-top: var(--space-m); }
+  .tf-panel__to { font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted); }
+  .tf-panel__to span { color: var(--body); }
+  .tf-panel__msg {
+    width: 100%; max-width: 38rem; margin-top: 0.5rem; resize: vertical;
+    background: var(--mint-soft); color: var(--ink);
+    border: 1px solid color-mix(in srgb, var(--mint) 38%, transparent);
+    border-radius: 16px; padding: 0.75rem 0.95rem;
+    font-family: var(--font-sans); font-size: var(--step-0); line-height: 1.5;
+  }
+  .tf-panel__msg:focus-visible { outline: 2px solid var(--mint); outline-offset: 2px; }
+  .tf-panel__foot {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: var(--space-s); flex-wrap: wrap; max-width: 38rem; margin-top: 0.6rem;
+  }
+  .tf-panel__hint { font-size: 0.72rem; color: var(--muted); }
+  .tf-panel__send {
+    display: inline-flex; align-items: center; gap: 0.5em;
+    background: var(--mint); color: var(--bg);
+    font-family: var(--font-sans); font-weight: 600; font-size: var(--step--1);
+    padding: 0.6em 1.1em; border-radius: 999px; text-decoration: none; cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+  .tf-panel__send svg { width: 1.05em; height: 1.05em; }
+  .tf-panel__send:hover { transform: translateY(-1px); background: color-mix(in srgb, var(--mint) 86%, white); }
   /* mobile-only static waste readout (desktop uses the live HUD instead) */
   .hero__waste-m { display: none; }
 

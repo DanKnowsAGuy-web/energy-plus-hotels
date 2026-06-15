@@ -6,25 +6,25 @@ const rows = [
   {
     key: "solar", word: "Solar-thermal",
     desc: "The sun preheats the refrigerant. Thermal takes a fraction of the size and cost of solar panels.",
-    figs: [{ value: "30–40%", suf: "energy savings" }],
+    figs: [{ pre: "up to", value: "30–40%", suf: "energy savings" }],
   },
   {
     key: "retrofit", word: "Compressor retrofit",
     desc: "Instead of buying a whole new system, make your existing compressor run like an intelligent one.",
-    figs: [{ value: "15–30%", suf: "energy savings" }],
+    figs: [{ pre: "up to", value: "15–30%", suf: "energy savings" }],
   },
   {
     key: "roof", word: "Cool Roof Shield",
     desc: "Spray-on coatings or thermal membranes keep the heat off the building.",
     figs: [
       { value: "10–20°F", suf: "cooler roof" },
-      { value: "10–25%", suf: "energy savings" },
+      { pre: "up to", value: "10–25%", suf: "energy savings" },
     ],
   },
   {
     key: "seal", word: "Permaseal",
     desc: "A one-time treatment. The older the unit, the more efficiency it brings back.",
-    figs: [{ value: "10–36%", suf: "energy savings" }],
+    figs: [{ pre: "up to", value: "10–36%", suf: "energy savings" }],
   },
 ];
 ---
@@ -236,15 +236,17 @@ const rows = [
     text-align: center;
   }
   .hvl__fig {
+    display: grid;
+    justify-items: center;
+    gap: 0.05rem;
     font-family: var(--font-serif);
     color: var(--gold-text);
     line-height: 1.05;
-    white-space: nowrap;
   }
   .hvl__fig-pre {
     font-family: var(--font-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.06em;
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--muted);
   }
@@ -252,10 +254,11 @@ const rows = [
     font-size: clamp(1.7rem, 3vw, 2.3rem);
     letter-spacing: -0.02em;
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
   }
   .hvl__fig-suf {
     font-family: var(--font-mono);
-    font-size: 0.66rem;
+    font-size: 0.62rem;
     letter-spacing: 0.04em;
     color: var(--muted);
   }
