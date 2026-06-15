@@ -303,6 +303,9 @@ const branches = [
         </g>
         <rect x="556" y="58" width="11" height="46" fill="#15181b" stroke="rgba(220,228,230,0.2)" stroke-width="1" />
         <rect class="lit-win" x="558.5" y="61" width="6" height="40" rx="1" fill="#4fc4cf" opacity="0.85" filter="url(#lit)" />
+        <text class="hero__hotelmark" x="540" y="524" text-anchor="middle"
+          fill="#4fc4cf" filter="url(#lit)"
+          font-family="var(--font-mono)" font-size="15" letter-spacing="5" font-weight="500">HOTEL</text>
       </svg>
     </div>
 
@@ -348,6 +351,12 @@ const branches = [
         <li>No capital at risk</li>
         <li>No equipment torn out</li>
       </ul>
+
+      <p class="hero__waste-m reveal">
+        <span class="hero__waste-m-label">Estimated waste found</span>
+        <strong>&#8776; $4,280<span>/mo</span></strong>
+        <span class="hero__waste-m-note">illustrative, until we measure yours</span>
+      </p>
     </div>
   </div>
 </section>
@@ -529,7 +538,7 @@ const branches = [
   }
   .hero :is(a, button) { cursor: pointer; }
 
-  .hero__scene { position: absolute; inset: 0; z-index: -1; --mx: 72%; --my: 46%; }
+  .hero__scene { position: absolute; inset: 0; z-index: -1; --mx: 72%; --my: 46%; --lens-r: 170px; }
   .xray__layer { position: absolute; inset: 0; }
   .xray__layer svg { width: 100%; height: 100%; }
   /* the blueprint sits deeper and parallaxes against the skin for real depth */
@@ -540,12 +549,13 @@ const branches = [
   }
   .xray__skin {
     z-index: 2;
-    -webkit-mask-image: radial-gradient(170px circle at var(--mx) var(--my), transparent 0 50%, #000 100%);
-    mask-image: radial-gradient(170px circle at var(--mx) var(--my), transparent 0 50%, #000 100%);
+    -webkit-mask-image: radial-gradient(var(--lens-r) circle at var(--mx) var(--my), transparent 0 50%, #000 100%);
+    mask-image: radial-gradient(var(--lens-r) circle at var(--mx) var(--my), transparent 0 50%, #000 100%);
   }
   .xray__lens {
     position: absolute; z-index: 3; top: 0; left: 0;
-    width: 340px; height: 340px; margin: -170px 0 0 -170px;
+    width: calc(var(--lens-r) * 2); height: calc(var(--lens-r) * 2);
+    margin: calc(var(--lens-r) * -1) 0 0 calc(var(--lens-r) * -1);
     border-radius: 50%;
     transform: translate(var(--mx), var(--my));
     border: 1px solid color-mix(in srgb, var(--h-teal, #4fc4cf) 60%, transparent);
@@ -574,6 +584,7 @@ const branches = [
 
   .wires { stroke: var(--h-red, #ff5a3c); }
   .lit-win { fill: var(--h-teal, #4fc4cf); }
+  .hero__hotelmark { font-family: var(--font-mono); fill: var(--h-teal, #4fc4cf); }
   .wire { opacity: 0.34; }
   .wire--main { stroke-width: 2.3; opacity: 0.5; }
   .wire--run { stroke-width: 1.5; }
@@ -609,10 +620,17 @@ const branches = [
   }
   .hero__hud-now {
     display: grid; gap: 0.12rem; justify-items: end;
+    padding: 0.5rem 0.75rem; border-radius: var(--radius-s);
+    border: 1px solid transparent;
     opacity: 0; transform: translateY(-5px);
     transition: opacity 0.3s ease, transform 0.3s var(--ease-out-quart);
   }
-  .hero__hud-now.is-on { opacity: 1; transform: none; }
+  .hero__hud-now.is-on {
+    opacity: 1; transform: none;
+    border-color: var(--line-strong);
+    background: color-mix(in srgb, var(--bg) 90%, transparent);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  }
   .hero__hud-dev { font-size: var(--step--1); color: var(--ink); letter-spacing: 0.03em; }
   .hero__hud-cost {
     font-size: var(--step-1); color: var(--cost, #c87a64); font-weight: 500;
@@ -623,16 +641,18 @@ const branches = [
   }
   .hero__hud-total {
     display: grid; gap: 0.12rem; justify-items: end;
-    padding: 0.55rem 0.8rem; border: 1px solid var(--line-strong);
+    padding: 0.6rem 0.85rem; border: 1px solid var(--line-strong);
     border-radius: var(--radius-s);
-    background: color-mix(in srgb, var(--bg) 60%, transparent);
-    -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);
+    background: color-mix(in srgb, var(--bg) 90%, transparent);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    box-shadow: 0 18px 40px -28px rgba(0, 0, 0, 0.85);
   }
   .hero__hud-label {
     font-size: 0.58rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
   }
+  /* waste reads red, never teal: teal is reserved for verified savings */
   .hero__hud-val {
-    font-size: var(--step-2); color: var(--gold-text);
+    font-size: var(--step-2); color: var(--cost, #c87a64);
     font-variant-numeric: tabular-nums; letter-spacing: -0.01em; line-height: 1;
   }
   .hero__hud-mo { font-size: 0.42em; color: var(--muted); margin-left: 0.15em; }
@@ -719,6 +739,8 @@ const branches = [
   .hero__chips li::before {
     content: "\2713"; color: var(--mint); font-weight: 700;
   }
+  /* mobile-only static waste readout (desktop uses the live HUD instead) */
+  .hero__waste-m { display: none; }
 
   @media (max-width: 52rem) {
     .hero { align-items: flex-start; }
@@ -732,6 +754,8 @@ const branches = [
         linear-gradient(0deg, var(--bg) 0%, transparent 14%);
     }
     .hero__title { font-size: var(--step-4); }
+    /* smaller scanner so the auto-sweep reads as searching, not a wash */
+    .hero__scene { --lens-r: 92px; }
     /* back the chips so they never wash out against the windows */
     .hero__chips li {
       background: color-mix(in srgb, var(--bg) 72%, transparent);
@@ -741,9 +765,21 @@ const branches = [
       -webkit-backdrop-filter: blur(3px);
       backdrop-filter: blur(3px);
     }
-    /* move the HUD out of the copy's way and quiet it */
-    .hero__hud { top: auto; bottom: clamp(0.8rem, 3vh, 1.6rem); right: clamp(0.8rem, 4vw, 1.4rem); }
-    .hero__hud-now { display: none; }
-    .hero__hud-val { font-size: var(--step-1); }
+    /* the floating HUD overlapped the copy on narrow screens; replace it with a
+       static, in-flow readout under the chips so nothing is lost */
+    .hero__hud { display: none; }
+    .hero__waste-m {
+      display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 0.6rem;
+      margin-top: var(--space-m); font-family: var(--font-mono);
+      font-size: 0.6rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
+    }
+    .hero__waste-m-label { order: 1; flex-basis: 100%; }
+    .hero__waste-m strong {
+      order: 2; font-size: var(--step-2); color: var(--cost, #c87a64);
+      font-weight: 600; letter-spacing: -0.01em; text-transform: none;
+      font-variant-numeric: tabular-nums;
+    }
+    .hero__waste-m strong span { font-size: 0.42em; color: var(--muted); margin-left: 0.1em; }
+    .hero__waste-m-note { order: 3; text-transform: none; font-size: 0.6rem; }
   }
 </style>
