@@ -71,53 +71,17 @@ const tlClean = tlPath(false);
       href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;700&family=Geist+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
-
-    <script is:inline>
-      // Decide before first paint whether to show the calibration boot: only
-      // on the first visit of a session, and never under reduced motion. This
-      // avoids any flash of the overlay for returning visitors.
-      try {
-        if (
-          sessionStorage.getItem("ep-booted") ||
-          matchMedia("(prefers-reduced-motion: reduce)").matches
-        ) {
-          document.documentElement.classList.add("booted");
-        } else {
-          sessionStorage.setItem("ep-booted", "1");
-        }
-      } catch (e) {
-        document.documentElement.classList.add("booted");
-      }
-    </script>
   </head>
   <body>
-    <div class="boot" aria-hidden="true">
-      <div class="boot__rig">
-        <svg class="boot__svg" viewBox="0 0 240 120" fill="none" role="presentation">
-          <g class="boot__grid">
-            <path d="M0 30 H240 M0 60 H240 M0 90 H240" />
-            <path d="M40 0 V120 M80 0 V120 M120 0 V120 M160 0 V120 M200 0 V120" />
-          </g>
-          <path
-            class="boot__dist"
-            d="M0 60 L18 60 L24 30 L30 88 L36 44 L42 74 L48 56 L60 60 L78 60 L84 38 L90 80 L96 60 L120 60"
-          ></path>
-          <path class="boot__clean" d="M120 60 C140 60 144 36 160 36 C176 36 180 84 200 84 C214 84 220 60 240 60"></path>
-          <circle class="boot__lock" cx="120" cy="60" r="3.5"></circle>
-        </svg>
-        <div class="boot__label">
-          <span class="boot__mark">Energy Plus</span>
-          <span class="boot__status" data-boot-status>Calibrating</span>
-        </div>
-      </div>
-    </div>
-
     <a href="#main" class="skip-link">Skip to content</a>
     <div class="scroll-progress" aria-hidden="true"></div>
 
+    <!-- Harmonizer scrubber: a teal node rides the right edge at the scroll
+         position. Above it the signal is clean (already harmonized); below it
+         it is still distorted. As you scroll, the clean zone grows downward. -->
     <div class="through-line" aria-hidden="true">
-      <svg viewBox="0 0 30 1000" preserveAspectRatio="none" fill="none">
-        <g class="through-line__dist">
+      <div class="through-line__layer through-line__dist">
+        <svg viewBox="0 0 30 1000" preserveAspectRatio="none" fill="none">
           <path
             id="tl-dist-path"
             d={tlDist}
@@ -126,15 +90,18 @@ const tlClean = tlPath(false);
             vector-effect="non-scaling-stroke"></path>
           <circle class="through-line__spark" data-spark-dur="7" data-spark-off="0" r="2.4" fill="var(--cost, #ff8a4d)"></circle>
           <circle class="through-line__spark through-line__spark--b" data-spark-dur="11" data-spark-off="0.45" r="1.8" fill="var(--cost, #ffb070)"></circle>
-        </g>
-        <path
-          class="through-line__clean"
-          d={tlClean}
-          stroke="var(--gold-text)"
-          stroke-width="1.4"
-          vector-effect="non-scaling-stroke"></path>
-      </svg>
-      <div class="through-line__verified" aria-hidden="true"><span>VERIFIED</span></div>
+        </svg>
+      </div>
+      <div class="through-line__layer through-line__clean">
+        <svg viewBox="0 0 30 1000" preserveAspectRatio="none" fill="none">
+          <path
+            d={tlClean}
+            stroke="var(--gold-text)"
+            stroke-width="1.4"
+            vector-effect="non-scaling-stroke"></path>
+        </svg>
+      </div>
+      <div class="through-line__node"></div>
     </div>
 
     <div class="grain" aria-hidden="true"></div>
@@ -150,26 +117,6 @@ const tlClean = tlPath(false);
       });
 
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-      // Calibration boot: swap the status to "Signal locked" mid-sequence and
-      // let any interaction skip it. Only runs when the boot is actually shown
-      // (first visit, motion allowed — the inline head script gates the rest).
-      {
-        const boot = document.querySelector(".boot");
-        if (boot && !document.documentElement.classList.contains("booted")) {
-          const status = boot.querySelector("[data-boot-status]");
-          const skip = () => boot.classList.add("is-skip");
-          ["pointerdown", "keydown", "wheel", "touchstart"].forEach((ev) =>
-            addEventListener(ev, skip, { once: true, passive: true }),
-          );
-          setTimeout(() => {
-            if (status) status.textContent = "Signal locked";
-          }, 1000);
-          boot.addEventListener("animationend", (e) => {
-            if (e.animationName === "bootOut") boot.remove();
-          });
-        }
-      }
 
       // Word-by-word headline assembly: wrap each word of a [data-words]
       // element in a staggered span. Skipped under reduced motion. Only run on
@@ -217,24 +164,14 @@ const tlClean = tlPath(false);
       const thru = document.querySelector(".through-line");
       if ((rail || thru) && !reduce.matches) {
         let ticking = false;
-        const hz = document.querySelector(".hz");
         const update = () => {
           const h = document.documentElement;
           const max = h.scrollHeight - h.clientHeight;
           const p = max > 0 ? h.scrollTop / max : 0;
           if (rail) rail.style.transform = "scaleX(" + p.toFixed(4) + ")";
-          // through-line resolves fully by the time the harmonizer headline
-          // arrives: dirty at the top of the journey, clean from there down.
-          if (thru) {
-            let tl = Math.min(p * 1.15, 1);
-            if (hz) {
-              const denom = Math.max(1, hz.offsetTop - innerHeight * 0.6);
-              tl = Math.min(h.scrollTop / denom, 1);
-            }
-            thru.style.setProperty("--tl", tl.toFixed(4));
-            // payoff: once you reach the closing CTA, the resolved spine stamps
-            thru.classList.toggle("is-verified", p > 0.9);
-          }
+          // the scrubber node sits at the scroll position; everything above is
+          // clean (harmonized), everything below stays distorted.
+          if (thru) thru.style.setProperty("--scrub", (p * 100).toFixed(2) + "%");
           ticking = false;
         };
         addEventListener(
@@ -417,124 +354,6 @@ const tlClean = tlPath(false);
     </script>
 
     <style>
-      /* --- Calibration boot: a brief instrument power-on on first visit ----- */
-      .boot {
-        position: fixed;
-        inset: 0;
-        z-index: 9999;
-        display: grid;
-        place-items: center;
-        background: #0f1418;
-        animation: bootOut 0.6s ease 1.5s forwards;
-      }
-      html.booted .boot {
-        display: none;
-      }
-      .boot.is-skip {
-        animation: bootOut 0.35s ease forwards;
-      }
-      @keyframes bootOut {
-        to {
-          opacity: 0;
-          visibility: hidden;
-          pointer-events: none;
-        }
-      }
-      .boot__rig {
-        display: grid;
-        gap: 20px;
-        justify-items: center;
-        width: min(300px, 68vw);
-      }
-      .boot__svg {
-        width: 100%;
-        height: auto;
-        overflow: visible;
-      }
-      .boot__grid {
-        opacity: 0;
-        animation: bootShow 0.5s ease forwards;
-      }
-      .boot__grid path {
-        stroke: rgba(120, 200, 210, 0.14);
-        stroke-width: 1;
-      }
-      .boot__dist {
-        stroke: #c87a64;
-        stroke-width: 2;
-        stroke-linecap: round;
-        stroke-linejoin: round;
-        stroke-dasharray: 420;
-        stroke-dashoffset: 420;
-        animation: bootDraw 0.6s ease 0.3s forwards;
-        filter: drop-shadow(0 0 4px rgba(200, 122, 100, 0.5));
-      }
-      .boot__clean {
-        stroke: #46cfd6;
-        stroke-width: 2;
-        stroke-linecap: round;
-        stroke-dasharray: 320;
-        stroke-dashoffset: 320;
-        opacity: 0;
-        animation:
-          bootDraw 0.5s ease 0.9s forwards,
-          bootShow 0.1s ease 0.9s forwards;
-        filter: drop-shadow(0 0 6px rgba(70, 207, 214, 0.6));
-      }
-      .boot__lock {
-        fill: #46cfd6;
-        opacity: 0;
-        animation:
-          bootShow 0.2s ease 0.9s forwards,
-          bootPulse 1s ease-in-out 1.05s 1;
-      }
-      @keyframes bootDraw {
-        to {
-          stroke-dashoffset: 0;
-        }
-      }
-      @keyframes bootShow {
-        to {
-          opacity: 1;
-        }
-      }
-      @keyframes bootPulse {
-        0%,
-        100% {
-          r: 3.5;
-        }
-        50% {
-          r: 6.5;
-        }
-      }
-      .boot__label {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 5px;
-      }
-      .boot__mark {
-        font-family: "Geist Mono", ui-monospace, monospace;
-        letter-spacing: 0.3em;
-        text-transform: uppercase;
-        font-size: 12px;
-        color: #eef1ef;
-      }
-      .boot__status {
-        font-family: "Geist Mono", ui-monospace, monospace;
-        letter-spacing: 0.2em;
-        text-transform: uppercase;
-        font-size: 9px;
-        color: #46cfd6;
-        opacity: 0;
-        animation: bootShow 0.4s ease 0.5s forwards;
-      }
-      @media (prefers-reduced-motion: reduce) {
-        .boot {
-          display: none;
-        }
-      }
-
       .skip-link {
         position: absolute;
         left: 1rem;

@@ -415,8 +415,9 @@ main > .section::before {
   );
 }
 
-/* --- Scroll-through-line: a waveform down the edge that cleans up as you
-   scroll. Distorted at the top, resolved by the bottom. ------------------ */
+/* --- Harmonizer scrubber: a waveform down the right edge split by a node that
+   rides the scroll position. Above the node the signal is clean (harmonized);
+   below it, still distorted. --scrub (0%..100%) is the split, set on scroll. -- */
 .through-line {
   position: fixed;
   top: 0;
@@ -426,17 +427,55 @@ main > .section::before {
   /* above the opaque section backgrounds, below the header/grain */
   z-index: calc(var(--z-sticky) - 1);
   pointer-events: none;
+  --scrub: 0%;
 }
-.through-line svg {
+.through-line__layer {
+  position: absolute;
+  inset: 0;
+}
+.through-line__layer svg {
   width: 100%;
   height: 100%;
 }
+/* distorted layer shows only BELOW the node */
 .through-line__dist {
-  opacity: calc(1 - var(--tl, 0));
+  clip-path: inset(var(--scrub) 0 0 0);
+  opacity: 0.85;
   filter: drop-shadow(0 0 4px color-mix(in srgb, var(--cost, #e05a2b) 45%, transparent));
+}
+/* clean layer shows only ABOVE the node */
+.through-line__clean {
+  clip-path: inset(0 0 calc(100% - var(--scrub)) 0);
+  opacity: 0.9;
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--gold-text) 45%, transparent));
 }
 .through-line__spark {
   filter: drop-shadow(0 0 5px color-mix(in srgb, var(--cost, #ff8a4d) 90%, transparent));
+}
+/* the harmonizer node: a glowing teal disc + bracket riding the split */
+.through-line__node {
+  position: absolute;
+  left: 50%;
+  top: var(--scrub);
+  width: 14px;
+  height: 14px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--gold-text);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--gold-text) 22%, transparent),
+    0 0 16px 2px color-mix(in srgb, var(--gold-text) 70%, transparent);
+}
+/* a thin tick across the spine marking exactly where clean meets dirty */
+.through-line__node::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 26px;
+  height: 1px;
+  transform: translate(-50%, -50%);
+  background: color-mix(in srgb, var(--gold-text) 55%, transparent);
 }
 @media (prefers-reduced-motion: no-preference) {
   .through-line__spark {
@@ -447,59 +486,16 @@ main > .section::before {
     animation-delay: 0.6s;
   }
   @keyframes tlSpark {
-    0%, 100% {
-      opacity: 0.45;
-    }
-    50% {
-      opacity: 1;
-    }
+    0%, 100% { opacity: 0.45; }
+    50% { opacity: 1; }
   }
-}
-.through-line__clean {
-  opacity: var(--tl, 0);
-  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--gold-text) 40%, transparent));
-}
-/* fully resolved: the clean signal breathes once you reach the bottom */
-.through-line.is-verified .through-line__clean {
-  animation: tlBreathe 2.6s ease-in-out infinite;
-}
-@keyframes tlBreathe {
-  0%, 100% { filter: drop-shadow(0 0 4px color-mix(in srgb, var(--gold-text) 40%, transparent)); }
-  50% { filter: drop-shadow(0 0 9px color-mix(in srgb, var(--gold-text) 85%, transparent)); }
-}
-/* VERIFIED payoff stamp: snaps onto the spine near the closing CTA */
-.through-line__verified {
-  position: absolute;
-  bottom: 12vh;
-  left: 50%;
-  opacity: 0;
-  transform: translate(-50%, 14px);
-  transition:
-    opacity 0.5s ease,
-    transform 0.6s var(--ease-out-quart);
-}
-.through-line.is-verified .through-line__verified {
-  opacity: 1;
-  transform: translate(-50%, 0);
-}
-.through-line__verified span {
-  display: block;
-  writing-mode: vertical-rl;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: var(--gold-text);
-  padding: 10px 4px;
-  border: 1px solid color-mix(in srgb, var(--gold-text) 55%, transparent);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--gold-text) 8%, transparent);
-  box-shadow: 0 0 18px -6px color-mix(in srgb, var(--gold-text) 60%, transparent);
-}
-@media (prefers-reduced-motion: reduce) {
-  .through-line.is-verified .through-line__clean { animation: none; }
-  .through-line__verified { transition: none; }
+  .through-line__node {
+    animation: tlNode 2.6s ease-in-out infinite;
+  }
+  @keyframes tlNode {
+    0%, 100% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--gold-text) 18%, transparent), 0 0 14px 1px color-mix(in srgb, var(--gold-text) 55%, transparent); }
+    50% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--gold-text) 12%, transparent), 0 0 22px 3px color-mix(in srgb, var(--gold-text) 85%, transparent); }
+  }
 }
 @media (max-width: 1180px) {
   .through-line {
