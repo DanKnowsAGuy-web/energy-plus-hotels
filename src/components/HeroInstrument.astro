@@ -95,7 +95,8 @@ const branches = [
           {branches.map((w, i) => (<path class="wire wire--branch" style={`--d:${i * 0.1}s`} d={wire(w[0], w[1], w[2], w[3], w[4], w[5])} />))}
         </g>
 
-        <g class="dev" data-dev="ahu">
+        <g class="dev" data-dev="ahu" data-name="Rooftop AHUs" data-cost="920" data-metric="PF 0.81">
+
           <circle class="dev__glow" cx="540" cy="96" r="36" fill="url(#heat)" />
           <g class="dev__body">
             <rect x="506" y="80" width="68" height="26" rx="3" />
@@ -115,7 +116,8 @@ const branches = [
           </g>
         </g>
 
-        <g class="dev" data-dev="laundry">
+        <g class="dev" data-dev="laundry" data-name="Laundry exhaust" data-cost="360" data-metric="+14&#176;F loss">
+
           <circle class="dev__glow" cx="600" cy="330" r="32" fill="url(#heat)" />
           <g class="dev__plume">
             <path class="dev__wisp" d="M592 314 q-5 -10 0 -20" /><path class="dev__wisp" d="M600 314 q5 -12 0 -24" />
@@ -135,7 +137,8 @@ const branches = [
           </g>
         </g>
 
-        <g class="dev" data-dev="switch">
+        <g class="dev" data-dev="switch" data-name="Switchgear" data-cost="640" data-metric="PF 0.78">
+
           <circle class="dev__glow" cx="365" cy="452" r="34" fill="url(#heat)" />
           <g class="dev__body">
             <rect x="342" y="430" width="46" height="48" rx="3" />
@@ -151,7 +154,8 @@ const branches = [
           </g>
         </g>
 
-        <g class="dev" data-dev="boiler">
+        <g class="dev" data-dev="boiler" data-name="Boilers" data-cost="480" data-metric="9 cycles/hr">
+
           <circle class="dev__glow" cx="500" cy="520" r="32" fill="url(#heat)" />
           <g class="dev__cycle">
             <g class="dev__body">
@@ -166,7 +170,8 @@ const branches = [
           </g>
         </g>
 
-        <g class="dev" data-dev="chiller">
+        <g class="dev" data-dev="chiller" data-name="Chiller" data-cost="1180" data-metric="42% part-load">
+
           <circle class="dev__glow" cx="720" cy="512" r="36" fill="url(#heat)" />
           <g class="dev__body">
             <rect x="694" y="496" width="52" height="34" rx="9" />
@@ -184,7 +189,8 @@ const branches = [
           </g>
         </g>
 
-        <g class="dev" data-dev="pump">
+        <g class="dev" data-dev="pump" data-name="Hot-water pumps" data-cost="410" data-metric="runs 24/7">
+
           <circle class="dev__glow" cx="470" cy="372" r="30" fill="url(#heat)" />
           <g class="dev__body">
             <circle cx="470" cy="372" r="15" />
@@ -204,7 +210,8 @@ const branches = [
           </g>
         </g>
 
-        <g class="dev" data-dev="fridge">
+        <g class="dev" data-dev="fridge" data-name="Walk-in cooler" data-cost="290" data-metric="no defrost cycle">
+
           <circle class="dev__glow" cx="360" cy="324" r="30" fill="url(#heat)" />
           <g class="dev__body">
             <rect x="338" y="306" width="44" height="38" rx="3" />
@@ -287,11 +294,33 @@ const branches = [
         <ellipse cx="540" cy="556" rx="80" ry="60" fill="url(#lobby)" />
         <path d="M508 560 V512 a32 32 0 0 1 64 0 V560 Z" fill="#0e1114" stroke="rgba(79,196,207,0.5)" stroke-width="1.4" />
         <path d="M508 512 a32 32 0 0 1 64 0" fill="none" stroke="#4fc4cf" stroke-width="1.4" opacity="0.7" />
+
+        <!-- hotel tells: a porte-cochere over the entrance + a lit rooftop sign -->
+        <g fill="#1b1f23" stroke="rgba(220,228,230,0.22)" stroke-width="1.3">
+          <rect x="466" y="532" width="148" height="8" rx="2" />
+          <line x1="476" y1="540" x2="476" y2="560" />
+          <line x1="604" y1="540" x2="604" y2="560" />
+        </g>
+        <rect x="556" y="58" width="11" height="46" fill="#15181b" stroke="rgba(220,228,230,0.2)" stroke-width="1" />
+        <rect class="lit-win" x="558.5" y="61" width="6" height="40" rx="1" fill="#4fc4cf" opacity="0.85" filter="url(#lit)" />
       </svg>
     </div>
 
     <div class="xray__lens"></div>
     <div class="hero__scrim"></div>
+
+    <div class="hero__hud" aria-hidden="true">
+      <div class="hero__hud-now" data-hud-now>
+        <span class="hero__hud-dev" data-hud-name></span>
+        <span class="hero__hud-cost" data-hud-cost></span>
+        <span class="hero__hud-metric" data-hud-metric></span>
+      </div>
+      <div class="hero__hud-total">
+        <span class="hero__hud-label">Estimated waste found</span>
+        <span class="hero__hud-val"><span data-hud-total>$0</span><span class="hero__hud-mo">/mo</span></span>
+        <span class="hero__hud-note">illustrative, until we measure yours</span>
+      </div>
+    </div>
   </div>
 
   <div class="container hero__inner">
@@ -332,26 +361,94 @@ const branches = [
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const devs = Array.from(scene.querySelectorAll(".dev"));
     const NEAR = 135;
-    const setPos = (x, y) => { scene.style.setProperty("--mx", x + "px"); scene.style.setProperty("--my", y + "px"); };
+
+    // --- HUD: the scanner reads dollars ---------------------------------
+    const hudNow = scene.querySelector("[data-hud-now]");
+    const elName = scene.querySelector("[data-hud-name]");
+    const elCost = scene.querySelector("[data-hud-cost]");
+    const elMetric = scene.querySelector("[data-hud-metric]");
+    const elTotal = scene.querySelector("[data-hud-total]");
+    const found = new Set();
+    let total = 0, shownTotal = 0, totalRaf = 0;
+    const fmt = (n) => "$" + Math.round(n).toLocaleString("en-US");
+    const animateTotal = () => {
+      if (totalRaf) cancelAnimationFrame(totalRaf);
+      const start = performance.now(), from = shownTotal, to = total, dur = 700;
+      const tick = (now) => {
+        const t = Math.min((now - start) / dur, 1);
+        shownTotal = from + (to - from) * (1 - Math.pow(1 - t, 3));
+        if (elTotal) elTotal.textContent = fmt(shownTotal);
+        if (t < 1) totalRaf = requestAnimationFrame(tick); else totalRaf = 0;
+      };
+      totalRaf = requestAnimationFrame(tick);
+    };
+    const discover = (d) => {
+      const id = d.getAttribute("data-dev");
+      if (found.has(id)) return;
+      found.add(id);
+      total += Number(d.getAttribute("data-cost")) || 0;
+      if (reduce) { shownTotal = total; if (elTotal) elTotal.textContent = fmt(total); }
+      else animateTotal();
+    };
+    const showNow = (d) => {
+      if (!hudNow) return;
+      if (!d) { hudNow.classList.remove("is-on"); return; }
+      if (elName) elName.textContent = d.getAttribute("data-name") || "";
+      if (elCost) elCost.textContent = "+" + fmt(Number(d.getAttribute("data-cost")) || 0) + "/mo";
+      if (elMetric) elMetric.textContent = d.getAttribute("data-metric") || "";
+      hudNow.classList.add("is-on");
+    };
+
+    const setPos = (x, y) => {
+      scene.style.setProperty("--mx", x + "px");
+      scene.style.setProperty("--my", y + "px");
+      const b = scene.getBoundingClientRect();
+      if (b.width && b.height) {
+        scene.style.setProperty("--pcx", (x / b.width - 0.5).toFixed(3));
+        scene.style.setProperty("--pcy", (y / b.height - 0.5).toFixed(3));
+      }
+    };
     const markNear = (x, y) => {
       const box = scene.getBoundingClientRect();
+      let nearest = null, nd = 1e9;
       for (const d of devs) {
         const m = d.querySelector(".dev__glow") || d;
         const b = m.getBoundingClientRect();
         const hx = b.left + b.width / 2 - box.left;
         const hy = b.top + b.height / 2 - box.top;
-        d.classList.toggle("is-near", Math.hypot(hx - x, hy - y) < NEAR);
+        const dist = Math.hypot(hx - x, hy - y);
+        const near = dist < NEAR;
+        d.classList.toggle("is-near", near);
+        if (near) { discover(d); if (dist < nd) { nd = dist; nearest = d; } }
       }
+      showNow(nearest);
     };
+    const centerOf = (d) => {
+      const m = d.querySelector(".dev__glow") || d;
+      const b = m.getBoundingClientRect();
+      const box = scene.getBoundingClientRect();
+      return { x: b.left + b.width / 2 - box.left, y: b.top + b.height / 2 - box.top };
+    };
+    const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+
+    // reduced motion: reveal the annotated blueprint, all waste counted
+    if (reduce) {
+      hero.classList.add("is-revealed");
+      devs.forEach(discover);
+      return;
+    }
+
+    // fine pointer: smooth lens follow + a one-time self-demo on load
     if (fine) {
-      let tx = 0, ty = 0, lx = 0, ly = 0, raf = 0, primed = false;
+      let tx = 0, ty = 0, lx = 0, ly = 0, raf = 0, primed = false, demo = true;
       function render() {
-        lx += (tx - lx) * (reduce ? 1 : 0.16);
-        ly += (ty - ly) * (reduce ? 1 : 0.16);
+        lx += (tx - lx) * 0.16;
+        ly += (ty - ly) * 0.16;
         setPos(lx, ly); markNear(lx, ly);
-        if (Math.abs(tx - lx) > 0.5 || Math.abs(ty - ly) > 0.5) { raf = requestAnimationFrame(render); } else { raf = 0; }
+        if (Math.abs(tx - lx) > 0.5 || Math.abs(ty - ly) > 0.5) raf = requestAnimationFrame(render); else raf = 0;
       }
       hero.addEventListener("pointermove", (e) => {
+        demo = false;
         const box = scene.getBoundingClientRect();
         tx = e.clientX - box.left; ty = e.clientY - box.top;
         if (!primed) { lx = tx; ly = ty; primed = true; }
@@ -361,31 +458,53 @@ const branches = [
       hero.addEventListener("pointerleave", () => {
         hero.classList.remove("is-live");
         devs.forEach((d) => d.classList.remove("is-near"));
+        showNow(null);
       });
+
+      // self-demo: sweep across three trouble spots, then hand control over
+      const demoPts = ["ahu", "chiller", "switch"]
+        .map((n) => scene.querySelector('.dev[data-dev="' + n + '"]')).filter(Boolean);
+      if (demoPts.length) {
+        let seg = 0, segStart = 0, phase = "hold", dstart = 0;
+        const TRAVEL = 1150, HOLD = 750;
+        hero.classList.add("is-live");
+        const demoStep = (ts) => {
+          if (!demo) { hero.classList.remove("is-live"); devs.forEach((d) => d.classList.remove("is-near")); return; }
+          const pts = demoPts.map(centerOf);
+          if (!dstart) { dstart = ts; segStart = ts; setPos(pts[0].x, pts[0].y); markNear(pts[0].x, pts[0].y); }
+          if (phase === "travel") {
+            const cur = pts[seg], nxt = pts[Math.min(seg + 1, pts.length - 1)];
+            const t = Math.min(1, (ts - segStart) / TRAVEL), e = ease(t);
+            const x = cur.x + (nxt.x - cur.x) * e, y = cur.y + (nxt.y - cur.y) * e;
+            setPos(x, y); markNear(x, y);
+            if (t >= 1) { seg++; phase = "hold"; segStart = ts; }
+          } else {
+            setPos(pts[seg].x, pts[seg].y); markNear(pts[seg].x, pts[seg].y);
+            if (ts - segStart >= HOLD) {
+              if (seg >= pts.length - 1) { demo = false; hero.classList.remove("is-live"); devs.forEach((d) => d.classList.remove("is-near")); showNow(null); return; }
+              phase = "travel"; segStart = ts;
+            }
+          }
+          requestAnimationFrame(demoStep);
+        };
+        requestAnimationFrame(demoStep);
+      }
       return;
     }
-    if (reduce) return;
+
+    // touch / coarse: auto-tour every trouble spot on a loop
     const order = ["ahu", "fridge", "switch", "pump", "boiler", "chiller", "laundry"]
       .map((n) => scene.querySelector('.dev[data-dev="' + n + '"]')).filter(Boolean);
     if (!order.length) return;
-    const centerOf = (d) => {
-      const m = d.querySelector(".dev__glow") || d;
-      const b = m.getBoundingClientRect();
-      const box = scene.getBoundingClientRect();
-      return { x: b.left + b.width / 2 - box.left, y: b.top + b.height / 2 - box.top };
-    };
-    const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
     const TRAVEL = 1700, HOLD = 1300;
     let oi = 0, phase = "hold", tstart = 0, from = null, to = null, started = false;
     hero.classList.add("is-auto", "is-live");
     function tour(ts) {
-      if (!started) { to = centerOf(order[0]); from = { x: to.x, y: to.y }; setPos(to.x, to.y); tstart = ts; started = true; }
+      if (!started) { to = centerOf(order[0]); from = { x: to.x, y: to.y }; setPos(to.x, to.y); markNear(to.x, to.y); tstart = ts; started = true; }
       if (phase === "travel") {
-        const t = Math.min(1, (ts - tstart) / TRAVEL);
-        const e = ease(t);
-        const x = from.x + (to.x - from.x) * e;
-        const y = from.y + (to.y - from.y) * e;
-        setPos(x, y); markNear(x, y);
+        const t = Math.min(1, (ts - tstart) / TRAVEL), e = ease(t);
+        setPos(from.x + (to.x - from.x) * e, from.y + (to.y - from.y) * e);
+        markNear(from.x + (to.x - from.x) * e, from.y + (to.y - from.y) * e);
         if (t >= 1) { phase = "hold"; tstart = ts; }
       } else {
         setPos(to.x, to.y); markNear(to.x, to.y);
@@ -413,7 +532,12 @@ const branches = [
   .hero__scene { position: absolute; inset: 0; z-index: -1; --mx: 72%; --my: 46%; }
   .xray__layer { position: absolute; inset: 0; }
   .xray__layer svg { width: 100%; height: 100%; }
-  .xray__inner { z-index: 1; }
+  /* the blueprint sits deeper and parallaxes against the skin for real depth */
+  .xray__inner {
+    z-index: 1;
+    transform: translate(calc(var(--pcx, 0) * -18px), calc(var(--pcy, 0) * -12px));
+    transition: transform 0.35s var(--ease-out-quart);
+  }
   .xray__skin {
     z-index: 2;
     -webkit-mask-image: radial-gradient(170px circle at var(--mx) var(--my), transparent 0 50%, #000 100%);
@@ -424,10 +548,20 @@ const branches = [
     width: 340px; height: 340px; margin: -170px 0 0 -170px;
     border-radius: 50%;
     transform: translate(var(--mx), var(--my));
-    border: 1px solid var(--h-teal, rgba(200,235,240,0.5));
-    box-shadow: inset 0 0 40px rgba(120,200,210,0.12), 0 0 30px rgba(120,200,210,0.1);
+    border: 1px solid color-mix(in srgb, var(--h-teal, #4fc4cf) 60%, transparent);
+    box-shadow:
+      inset 0 0 60px color-mix(in srgb, var(--h-teal, #4fc4cf) 18%, transparent),
+      inset 0 0 0 6px color-mix(in srgb, var(--h-red, #c87a64) 10%, transparent),
+      0 0 44px color-mix(in srgb, var(--h-teal, #4fc4cf) 20%, transparent);
+    -webkit-backdrop-filter: saturate(1.18) contrast(1.05);
+    backdrop-filter: saturate(1.18) contrast(1.05);
     pointer-events: none; opacity: 0;
     transition: opacity 0.45s var(--ease-out-quart);
+  }
+  /* a soft volumetric halo bleeds past the lens edge, like a torch cone */
+  .xray__lens::before {
+    content: ""; position: absolute; inset: -38%; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(circle, color-mix(in srgb, var(--h-teal, #4fc4cf) 15%, transparent), transparent 62%);
   }
   .hero.is-live .xray__lens { opacity: 1; }
 
@@ -463,8 +597,46 @@ const branches = [
     fill: var(--gold-text); paint-order: stroke; stroke: #0a0c0e; stroke-width: 4px; stroke-linejoin: round;
   }
   .dev.is-near .dev__tag { opacity: 1; }
-  .dev.is-near .dev__glow { opacity: 1; }
+  .dev.is-near .dev__glow { opacity: 1; filter: drop-shadow(0 0 14px color-mix(in srgb, #ff8a4d 55%, transparent)); }
   .dev.is-near .dev__body { stroke: #4fc4cf; }
+
+  /* HUD: the scanner's live readout — current device + running waste total */
+  .hero__hud {
+    position: absolute; z-index: 4;
+    top: clamp(1rem, 4vh, 2.2rem); right: clamp(1rem, 3vw, 2.4rem);
+    display: grid; gap: 0.55rem; justify-items: end; text-align: right;
+    pointer-events: none; font-family: var(--font-mono);
+  }
+  .hero__hud-now {
+    display: grid; gap: 0.12rem; justify-items: end;
+    opacity: 0; transform: translateY(-5px);
+    transition: opacity 0.3s ease, transform 0.3s var(--ease-out-quart);
+  }
+  .hero__hud-now.is-on { opacity: 1; transform: none; }
+  .hero__hud-dev { font-size: var(--step--1); color: var(--ink); letter-spacing: 0.03em; }
+  .hero__hud-cost {
+    font-size: var(--step-1); color: var(--cost, #c87a64); font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+  .hero__hud-metric {
+    font-size: 0.62rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .hero__hud-total {
+    display: grid; gap: 0.12rem; justify-items: end;
+    padding: 0.55rem 0.8rem; border: 1px solid var(--line-strong);
+    border-radius: var(--radius-s);
+    background: color-mix(in srgb, var(--bg) 60%, transparent);
+    -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);
+  }
+  .hero__hud-label {
+    font-size: 0.58rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted);
+  }
+  .hero__hud-val {
+    font-size: var(--step-2); color: var(--gold-text);
+    font-variant-numeric: tabular-nums; letter-spacing: -0.01em; line-height: 1;
+  }
+  .hero__hud-mo { font-size: 0.42em; color: var(--muted); margin-left: 0.15em; }
+  .hero__hud-note { font-size: 0.56rem; color: var(--muted); letter-spacing: 0.03em; }
 
   @media (prefers-reduced-motion: no-preference) {
     .wire { stroke-dasharray: 22 7; animation: flow 1.5s linear infinite; animation-delay: var(--d, 0s); }
@@ -507,6 +679,14 @@ const branches = [
     .hero__actions.reveal { transition-delay: 0.18s; }
   }
 
+  /* reduced-motion poster: a static annotated blueprint, waste already counted */
+  .hero.is-revealed .xray__skin { -webkit-mask-image: none; mask-image: none; opacity: 0.16; }
+  .hero.is-revealed .xray__inner { transform: none; }
+  .hero.is-revealed .xray__lens { display: none; }
+  .hero.is-revealed .dev__tag { opacity: 1; }
+  .hero.is-revealed .dev__glow { opacity: 0.85; }
+  .hero.is-revealed .hero__hud-now { display: none; }
+
   @media (hover: none), (pointer: coarse) {
     .hero { cursor: default; }
     .hero__scene::after { display: none; }
@@ -544,11 +724,26 @@ const branches = [
     .hero { align-items: flex-start; }
     .hero__inner { padding-top: clamp(0.5rem, 3vh, 2.5rem); }
     .hero__scene { --mx: 58%; --my: 44%; }
+    /* keep the ground solid further down so the copy + chips stay legible
+       over the bright scanned scene on narrow screens */
     .hero__scrim {
       background:
-        linear-gradient(180deg, var(--bg) 0%, var(--bg) 26%, color-mix(in srgb, var(--bg) 52%, transparent) 50%, transparent 78%),
-        linear-gradient(0deg, var(--bg) 0%, transparent 12%);
+        linear-gradient(180deg, var(--bg) 0%, var(--bg) 40%, color-mix(in srgb, var(--bg) 60%, transparent) 62%, transparent 86%),
+        linear-gradient(0deg, var(--bg) 0%, transparent 14%);
     }
     .hero__title { font-size: var(--step-4); }
+    /* back the chips so they never wash out against the windows */
+    .hero__chips li {
+      background: color-mix(in srgb, var(--bg) 72%, transparent);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0.32em 0.7em;
+      -webkit-backdrop-filter: blur(3px);
+      backdrop-filter: blur(3px);
+    }
+    /* move the HUD out of the copy's way and quiet it */
+    .hero__hud { top: auto; bottom: clamp(0.8rem, 3vh, 1.6rem); right: clamp(0.8rem, 4vw, 1.4rem); }
+    .hero__hud-now { display: none; }
+    .hero__hud-val { font-size: var(--step-1); }
   }
 </style>
