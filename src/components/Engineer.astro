@@ -59,10 +59,15 @@ const cards = [
   <div class="eng__wrap">
     <div class="eng__trust">
       <p class="eng__trust-label">Trusted by</p>
-      <div class="eng__rotator" id="eng-rotator" aria-label="Organizations Cliff has served">
-        {trusted.map((name, i) => (
-          <span class={`eng__r-item${i === 0 ? " is-active" : ""}`}>{name}</span>
-        ))}
+      <div class="eng__marquee" id="eng-marquee">
+        <div class="eng__track">
+          {[...trusted, ...trusted].map((name) => (
+            <>
+              <span class="eng__m-item">{name}</span>
+              <span class="eng__m-sep" aria-hidden="true">·</span>
+            </>
+          ))}
+        </div>
       </div>
     </div>
 
@@ -194,16 +199,13 @@ const cards = [
 
 <script is:inline>
   (() => {
-    const rot = document.getElementById("eng-rotator");
-    if (!rot) return;
-    const items = Array.from(rot.querySelectorAll(".eng__r-item"));
-    if (items.length < 2) return;
-    let i = 0;
-    setInterval(() => {
-      items[i].classList.remove("is-active");
-      i = (i + 1) % items.length;
-      items[i].classList.add("is-active");
-    }, 2800);
+    const m = document.getElementById("eng-marquee");
+    if (!m) return;
+    if (!("IntersectionObserver" in window)) { m.classList.add("is-in"); return; }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => { if (e.isIntersecting) { m.classList.add("is-in"); io.disconnect(); } });
+    }, { threshold: 0.25 });
+    io.observe(m);
   })();
 </script>
 
@@ -345,26 +347,30 @@ const cards = [
     color: var(--eng-gold-dim);
     margin-bottom: 12px;
   }
-  /* one name at a time, advancing on a beat (was a continuous scroll) */
-  .eng__rotator {
-    position: relative;
-    display: grid;
-    place-items: center;
-    text-align: center;
-    min-height: 1.6em;
+  /* scrolling marquee, paused until it enters the viewport so it always
+     starts at Sandia rather than mid-scroll */
+  .eng__marquee { position: relative; overflow: hidden; }
+  .eng__marquee::before,
+  .eng__marquee::after {
+    content: ""; position: absolute; top: 0; bottom: 0; width: 80px; z-index: 2; pointer-events: none;
   }
-  .eng__r-item {
-    grid-area: 1 / 1;
-    font-size: var(--step-0);
-    letter-spacing: 0.01em;
-    color: var(--eng-white);
-    max-width: 100%;
-    opacity: 0;
-    transition: opacity 0.5s ease;
+  .eng__marquee::before { left: 0; background: linear-gradient(90deg, var(--eng-bg), transparent); }
+  .eng__marquee::after { right: 0; background: linear-gradient(270deg, var(--eng-bg), transparent); }
+  .eng__track {
+    display: flex; align-items: center; width: max-content;
+    animation: engMarquee 52s linear infinite;
+    animation-play-state: paused;
   }
-  .eng__r-item.is-active { opacity: 1; }
+  .eng__marquee.is-in .eng__track { animation-play-state: running; }
+  .eng__marquee:hover .eng__track { animation-play-state: paused; }
+  @keyframes engMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .eng__m-item {
+    font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--eng-muted); padding: 0 28px; white-space: nowrap;
+  }
+  .eng__m-sep { color: var(--eng-gold); opacity: 0.4; }
   @media (prefers-reduced-motion: reduce) {
-    .eng__r-item { transition: none; }
+    .eng__track { animation: none; }
   }
 
   /* seam: a labeled break between the credential tiles and the case cards */
