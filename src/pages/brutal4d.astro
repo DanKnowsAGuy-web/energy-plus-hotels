@@ -23,6 +23,7 @@ import Footer from "../components/Footer.astro";
 
 <Base>
   <div class="theme-dark">
+    <div class="bp-ambient" data-parallax aria-hidden="true"></div>
     <Header />
     <main id="main">
       <Hero />
@@ -53,10 +54,61 @@ import Footer from "../components/Footer.astro";
     --h-red: #c87a64; --h-teal: #46cfd6;
     --line: rgba(220, 230, 230, 0.12); --line-strong: rgba(220, 230, 230, 0.2);
     --gold-soft: rgba(31, 131, 144, 0.12); --mint-soft: rgba(70, 207, 214, 0.13);
+    /* dual-layer depth: inset top highlight (catches light) + soft drop */
+    --shadow-lift: 0 1px 0 rgba(255, 255, 255, 0.05) inset, 0 16px 44px -26px rgba(0, 0, 0, 0.72);
     --font-serif: "Hanken Grotesk", system-ui, sans-serif;
     --font-sans: "Hanken Grotesk", system-ui, sans-serif;
     --font-mono: "Geist Mono", ui-monospace, monospace;
     background: #141a1e; color: #eef1ef;
+  }
+
+  /* (1) cards lift off the slate */
+  .theme-dark :is(.offerl__box, .probl__panel, .step, .win__col, .eng__card,
+    .eng__tile, .eng__photo, .est__measured, .hz__card, .case) {
+    box-shadow: var(--shadow-lift);
+  }
+
+  /* (2)+(3) ambient teal/red light, parallaxed by the pointer. Screen-blended
+     over the slate so it reads as atmosphere; faint enough to keep text crisp.
+     Different blobs sit under different sections as you scroll. */
+  .bp-ambient {
+    position: fixed; inset: -8%; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(38% 30% at 16% 20%, color-mix(in srgb, var(--mint) 24%, transparent), transparent 70%),
+      radial-gradient(44% 38% at 88% 58%, color-mix(in srgb, var(--gold) 20%, transparent), transparent 72%),
+      radial-gradient(40% 32% at 50% 96%, color-mix(in srgb, var(--cost) 14%, transparent), transparent 70%);
+    mix-blend-mode: screen;
+    opacity: 0.5;
+    transform: translate3d(var(--px, 0), var(--py, 0), 0);
+    transition: transform 0.7s var(--ease-out-quart);
+    will-change: transform;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .bp-ambient { transition: none; transform: none; }
+  }
+  /* keep the screen-blend off the light paper inserts (it would blow them out):
+     lift them into their own layer above the fixed ambient */
+  .theme-dark .paper { position: relative; z-index: 1; }
+
+  /* (4) magnetic CTA: the button drifts toward the cursor and lights a soft
+     teal sheen where the pointer sits */
+  .theme-dark .btn {
+    position: relative; overflow: hidden;
+    transform: translate(var(--bx, 0px), var(--by, 0px));
+    transition: transform 0.3s var(--ease-out-quart), background-color 0.3s ease;
+  }
+  .theme-dark .btn:hover { transform: translate(var(--bx, 0px), calc(var(--by, 0px) - 2px)); }
+  .theme-dark .btn::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(90px circle at var(--mx, 50%) var(--my, 50%),
+      color-mix(in srgb, var(--gold) 55%, transparent), transparent 60%);
+    mix-blend-mode: soft-light;
+    opacity: 0; transition: opacity 0.35s ease;
+  }
+  .theme-dark .btn:hover::after { opacity: 1; }
+  @media (prefers-reduced-motion: reduce) {
+    .theme-dark .btn { transform: none; }
+    .theme-dark .btn:hover { transform: translateY(-2px); }
   }
   /* button = ink fill, bg text (resolves correctly on dark and on paper) */
   .theme-dark .btn { background: var(--ink); color: var(--bg); }
@@ -71,6 +123,7 @@ import Footer from "../components/Footer.astro";
     --h-red: #8f4030; --h-teal: #0d6f79;
     --line: rgba(20, 25, 20, 0.14); --line-strong: rgba(20, 25, 20, 0.22);
     --gold-soft: rgba(13, 111, 121, 0.09); --mint-soft: rgba(13, 111, 121, 0.12);
+    --shadow-lift: 0 1px 0 rgba(255, 255, 255, 0.6) inset, 0 16px 40px -28px rgba(0, 0, 0, 0.22);
     background: #d4d8d2; color: #1a1d1a;
   }
   .theme-dark .paper .btn:hover { background: #2f352e; }
