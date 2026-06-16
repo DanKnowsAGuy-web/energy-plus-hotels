@@ -324,8 +324,8 @@ const branches = [
       </h1>
 
       <p class="hero__lede lede reveal">
-        We find exactly how much and prove it at your own meter, so you can cut
-        the bill without taking a vendor's word.
+        We find exactly how much and prove it at your own meter, so you act on
+        what the meter shows, not what a vendor claims.
       </p>
 
       <div class="hero__actions reveal">
@@ -682,30 +682,14 @@ const branches = [
   .hero__waste-m { display: none; }
 
   @media (max-width: 52rem) {
-    /* stack the hero: copy first, then a contained scene panel that actually
-       shows the scanner sweeping the hotel. Previously the scene was a
-       full-bleed background pinned below the fold, so the whole concept was
-       invisible on phones. */
-    .hero {
-      flex-direction: column; align-items: stretch;
-      min-height: auto;
-    }
-    .hero__inner { order: 1; padding-top: clamp(0.5rem, 3vh, 1.5rem); }
+    /* keep the scanner as a full-bleed background behind the copy, same as
+       desktop. There's no cursor on touch, so the auto-tour loop (see the
+       script's coarse-pointer branch) sweeps the lens from one piece of
+       equipment to the next; the lens is shrunk to suit the smaller screen. */
     .hero__title { font-size: var(--step-3); }
     .hero__lede { margin-top: var(--space-m); }
-
-    .hero__scene {
-      position: relative; inset: auto; z-index: 0; order: 2;
-      height: clamp(260px, 42vh, 340px);
-      margin-top: var(--space-l);
-      border: 1px solid var(--line-strong);
-      border-radius: var(--radius);
-      overflow: hidden;
-      --mx: 50%; --my: 60%; --lens-r: 86px;
-    }
-    /* scene is its own panel now, so the over-text scrim isn't needed */
-    .hero__scrim { display: none; }
-    /* back the chips so they never wash out */
+    .hero__scene { --mx: 52%; --my: 54%; --lens-r: 84px; }
+    /* back the chips so they never wash out over the scene */
     .hero__chips li {
       background: color-mix(in srgb, var(--bg) 72%, transparent);
       border: 1px solid var(--line);
@@ -714,21 +698,5 @@ const branches = [
       -webkit-backdrop-filter: blur(3px);
       backdrop-filter: blur(3px);
     }
-    /* the floating HUD overlapped the copy on narrow screens; replace it with a
-       static, in-flow readout under the chips so nothing is lost */
-    .hero__hud { display: none; }
-    .hero__waste-m {
-      display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.3rem 0.6rem;
-      margin-top: var(--space-m); font-family: var(--font-mono);
-      font-size: 0.6rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
-    }
-    .hero__waste-m-label { order: 1; flex-basis: 100%; }
-    .hero__waste-m strong {
-      order: 2; font-size: var(--step-2); color: var(--cost, #c87a64);
-      font-weight: 600; letter-spacing: -0.01em; text-transform: none;
-      font-variant-numeric: tabular-nums;
-    }
-    .hero__waste-m strong span { font-size: 0.42em; color: var(--muted); margin-left: 0.1em; }
-    .hero__waste-m-note { order: 3; text-transform: none; font-size: 0.6rem; }
   }
 </style>

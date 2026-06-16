@@ -6,7 +6,7 @@
 // (data-cal-link on the buttons) is bound by the time it's clicked.
 const { size = "" } = Astro.props;
 const lg = size === "lg" ? " btn--lg" : "";
-const PHONE_DISPLAY = "(864) 657-9110";
+const PHONE_DISPLAY = "(864) 777-0688";
 const MSG =
   "Hi Dan, I run a hotel and I'd like to see what real energy savings could look like at my property, without the sales song and dance. What does it take to qualify?";
 const CAL_LINK = "dan-knows-a-gut/15min";
@@ -31,10 +31,10 @@ const CAL_LINK = "dan-knows-a-gut/15min";
 
   <div class="tf-panel" role="group" aria-label="Text the founder">
     <p class="tf-panel__to">To <span>Dan &middot; {PHONE_DISPLAY}</span></p>
-    <textarea class="tf-panel__msg js-tf-msg" rows="3" spellcheck="false">{MSG}</textarea>
+    <textarea class="tf-panel__msg js-tf-msg" rows="4" spellcheck="false">{MSG}</textarea>
     <div class="tf-panel__foot">
       <span class="tf-panel__hint">Opens in your messages, ready to send.</span>
-      <a class="tf-panel__send js-tf-send" href="#" data-phone="+18646579110">
+      <a class="tf-panel__send js-tf-send" href="#" data-phone="+18647770688">
         Send message
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12 h13 M12 5 l7 7 -7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
       </a>
@@ -73,6 +73,14 @@ const CAL_LINK = "dan-knows-a-gut/15min";
       if (!msg || !send) return;
       send.href = "sms:" + (send.getAttribute("data-phone") || "") + (isIOS ? "&" : "?") + "body=" + encodeURIComponent(msg.value);
     };
+    // grow the textarea to fit its full text so there's no inner scroll.
+    // Skip if it isn't laid out yet (e.g. an off-screen panel with 0 width);
+    // it re-runs on open, when the panel is visible and full width.
+    const autosize = (el) => {
+      if (!el || el.offsetWidth < 60) return;
+      el.style.height = "auto";
+      el.style.height = el.scrollHeight + "px";
+    };
     const closeTf = (cta) => {
       cta.querySelector(".tf-panel").classList.remove("is-open");
       const t = cta.querySelector(".js-tf-toggle");
@@ -93,14 +101,14 @@ const CAL_LINK = "dan-knows-a-gut/15min";
           tfT.setAttribute("aria-expanded", "true");
           buildSms(cta);
           const m = cta.querySelector(".js-tf-msg");
-          if (m) setTimeout(() => m.focus(), 80);
+          if (m) { autosize(m); setTimeout(() => { autosize(m); m.focus(); }, 80); }
         } else { closeTf(cta); }
         return;
       }
     });
     document.addEventListener("input", (e) => {
       const t = e.target;
-      if (t && t.classList && t.classList.contains("js-tf-msg")) buildSms(t.closest(".tf-cta"));
+      if (t && t.classList && t.classList.contains("js-tf-msg")) { buildSms(t.closest(".tf-cta")); autosize(t); }
     });
   })();
 </script>
@@ -114,11 +122,12 @@ const CAL_LINK = "dan-knows-a-gut/15min";
     overflow: hidden; max-height: 0; opacity: 0;
     transition: max-height 0.5s var(--ease-out-quart), opacity 0.35s ease, margin-top 0.5s var(--ease-out-quart);
   }
-  .tf-panel.is-open { max-height: 28rem; opacity: 1; margin-top: var(--space-m); }
+  .tf-panel.is-open { max-height: 34rem; opacity: 1; margin-top: var(--space-m); }
   .tf-panel__to { font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted); }
   .tf-panel__to span { color: var(--body); }
   .tf-panel__msg {
     width: 100%; max-width: 38rem; margin-top: 0.5rem; resize: vertical;
+    overflow-y: hidden;
     background: var(--mint-soft); color: var(--ink);
     border: 1px solid color-mix(in srgb, var(--mint) 38%, transparent);
     border-radius: 16px; padding: 0.75rem 0.95rem;
