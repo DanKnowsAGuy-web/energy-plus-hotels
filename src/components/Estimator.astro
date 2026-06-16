@@ -54,11 +54,20 @@ const counts = [
   { lo: 10, hi: 19, label: "10 to 19", short: "10 to 19 properties" },
   { lo: 20, hi: 20, label: "20+", short: "20+ properties" },
 ];
-const heats = [
-  { v: "notsure", label: "Not sure" },
-  { v: "gas", label: "Natural gas" },
-  { v: "heatpump", label: "Heat pump" },
-  { v: "resistance", label: "Electric resistance" },
+// Monthly electricity spend, per hotel. Pick a broad band, then dial it in;
+// each narrow option carries a representative monthly midpoint that drives the
+// model (annualized x12). Floor "Under $12k/mo", ceiling "Over $170k/mo".
+const spendBands = [
+  { key: "u12", label: "Under $12k", narrows: [
+    { label: "Under $4k", mid: 3000 }, { label: "$4k–8k", mid: 6000 }, { label: "$8k–12k", mid: 10000 } ] },
+  { key: "12-40", label: "$12k–40k", narrows: [
+    { label: "$12k–20k", mid: 16000 }, { label: "$20k–30k", mid: 25000 }, { label: "$30k–40k", mid: 35000 } ] },
+  { key: "40-80", label: "$40k–80k", narrows: [
+    { label: "$40k–55k", mid: 47000 }, { label: "$55k–70k", mid: 62000 }, { label: "$70k–80k", mid: 75000 } ] },
+  { key: "80-170", label: "$80k–170k", narrows: [
+    { label: "$80k–110k", mid: 95000 }, { label: "$110k–140k", mid: 125000 }, { label: "$140k–170k", mid: 155000 } ] },
+  { key: "o170", label: "Over $170k", narrows: [
+    { label: "$170k–300k", mid: 210000 }, { label: "$300k–500k", mid: 380000 }, { label: "$500k+", mid: 600000 } ] },
 ];
 ---
 
@@ -73,20 +82,61 @@ const heats = [
       </p>
     </div>
 
-    <form class="est__form reveal" id="est-form" style="--i: 1">
-      <div class="est__control est__control--spend">
-        <div class="est__row">
-          <label for="est-spend">Annual electricity spend, per property</label>
-          <output id="est-spend-out" for="est-spend">$400,000</output>
+    <div class="est__flow reveal" id="est-flow" style="--i: 1">
+      <!-- Step 1: monthly spend, broad band -->
+      <fieldset class="est__step" id="est-step-spend">
+        <legend class="est__legend"><span class="est__step-n">1</span>Your monthly electricity spend, per hotel</legend>
+        <div class="est__chips" role="radiogroup">
+          {
+            spendBands.map((b) => (
+              <label class="est__chip est__chip--band">
+                <input type="radio" name="est-band" value={b.key} />
+                <span>{b.label}/mo</span>
+              </label>
+            ))
+          }
         </div>
-        <input type="range" id="est-spend" min="60000" max="5000000" step="5000" value="400000" />
-        <div class="est__scale" aria-hidden="true"><span>$60k</span><span>$5M</span></div>
-      </div>
+      </fieldset>
 
-      <div class="est__control">
-        <label for="est-state">Primary state</label>
+      <!-- Step 2: dial it in (the chosen band's narrow chips show) -->
+      <fieldset class="est__step" id="est-step-narrow" hidden aria-hidden="true">
+        <legend class="est__legend"><span class="est__step-n">2</span>Dial it in</legend>
+        {
+          spendBands.map((b) => (
+            <div class="est__narrow-group" data-band={b.key} hidden>
+              <div class="est__chips" role="radiogroup">
+                {b.narrows.map((n) => (
+                  <label class="est__chip">
+                    <input type="radio" name="est-narrow" value={n.mid} data-label={n.label} />
+                    <span>{n.label}/mo</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          ))
+        }
+      </fieldset>
+
+      <!-- Step 3: portfolio -->
+      <fieldset class="est__step" id="est-step-count" hidden aria-hidden="true">
+        <legend class="est__legend"><span class="est__step-n">3</span>How many hotels like this do you operate?</legend>
+        <div class="est__chips" role="radiogroup">
+          {
+            counts.map((c) => (
+              <label class="est__chip">
+                <input type="radio" name="est-count" value={`${c.lo}-${c.hi}`} data-short={c.short} />
+                <span>{c.label}</span>
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <!-- Step 4: primary state -->
+      <fieldset class="est__step" id="est-step-state" hidden aria-hidden="true">
+        <legend class="est__legend"><span class="est__step-n">4</span>Primary state you operate in</legend>
         <div class="est__sel">
-          <select id="est-state" required>
+          <select id="est-state">
             <option value="" disabled selected>Choose your state</option>
             {
               states.map((s) => (
@@ -97,41 +147,8 @@ const heats = [
             }
           </select>
         </div>
-      </div>
-
-      <div class="est__control">
-        <span class="est__legend" id="est-count-legend">Hotels operated</span>
-        <div class="est__chips" role="radiogroup" aria-labelledby="est-count-legend">
-          {
-            counts.map((c, i) => (
-              <label class="est__chip">
-                <input type="radio" name="est-count" value={`${c.lo}-${c.hi}`} data-short={c.short} checked={i === 0} />
-                <span>{c.label}</span>
-              </label>
-            ))
-          }
-        </div>
-      </div>
-
-      <div class="est__control">
-        <span class="est__legend" id="est-heat-legend">How do you heat today?</span>
-        <div class="est__chips" role="radiogroup" aria-labelledby="est-heat-legend">
-          {
-            heats.map((h, i) => (
-              <label class="est__chip">
-                <input type="radio" name="est-heat" value={h.v} checked={i === 0} />
-                <span>{h.label}</span>
-              </label>
-            ))
-          }
-        </div>
-      </div>
-
-      <button type="submit" class="btn est__go" id="est-go" disabled>
-        Calculate my savings
-        <span class="btn__arrow" aria-hidden="true">&rarr;</span>
-      </button>
-    </form>
+      </fieldset>
+    </div>
 
     <div class="est__results" id="est-results" hidden aria-live="polite">
       <div class="est__report-head">
@@ -157,7 +174,7 @@ const heats = [
           </div>
           <table class="est__table" id="est-inputs-table">
             <tbody>
-              <tr><th scope="row">Annual electricity spend</th><td><span class="est__tv" id="est-t-spend"></span></td></tr>
+              <tr><th scope="row">Electricity spend</th><td><span class="est__tv" id="est-t-spend"></span><span class="est__tn" id="est-t-spend-yr"></span></td></tr>
               <tr><th scope="row">Cooling share of HVAC</th><td><span class="est__tv" id="est-t-cool"></span><span class="est__tn" id="est-t-state"></span></td></tr>
               <tr><th scope="row">Heating baseline</th><td><span class="est__tv" id="est-t-heat"></span></td></tr>
               <tr><th scope="row">Portfolio</th><td><span class="est__tv" id="est-t-count"></span></td></tr>
@@ -205,12 +222,13 @@ const heats = [
 
       <div class="est__facts">
         <div class="est__fact">
-          <h3 class="est__fact-title">Your equipment, meanwhile</h3>
+          <h3 class="est__fact-title">Two more loads we haven't shown</h3>
           <p class="est__fact-body">
-            Every month at the current power quality, the distortion keeps
-            working on the loads above: the PTAC fleet, the elevator motors,
-            the pumps. The bill is the floor; <a href="#what-we-find">the
-            equipment is the other half of the story</a>.
+            Beyond the elevator motors, per-room PTACs, and the pool and
+            laundry drives from the scene above, the same distortion is
+            working on your <strong>kitchen refrigeration</strong> and
+            <strong>common-area lighting</strong>. The bill is the floor;
+            <a href="#proof">the equipment is the other half of the story</a>.
           </p>
         </div>
       </div>
@@ -232,40 +250,61 @@ const heats = [
 
 <script is:inline>
   (() => {
-    const form = document.getElementById("est-form");
-    if (!form) return;
+    const flow = document.getElementById("est-flow");
+    if (!flow) return;
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const $ = (id) => document.getElementById(id);
     const fmt = (n) => "$" + Math.round(n).toLocaleString("en-US");
     const fr = (a, b) => fmt(a) + " – " + fmt(b);
 
-    const spendEl = $("est-spend");
     const stateEl = $("est-state");
-    const go = $("est-go");
     const results = $("est-results");
 
-    const syncSpend = () => { $("est-spend-out").textContent = fmt(Number(spendEl.value)); };
-    const ready = () => {
-      const ok = !!stateEl.value;
-      go.disabled = !ok;
-      go.style.opacity = ok ? "1" : "0.45";
+    // reveal a locked step once the prior one is answered
+    const reveal = (el) => {
+      if (!el || !el.hidden) return;
+      el.hidden = false;
+      el.setAttribute("aria-hidden", "false");
+      requestAnimationFrame(() => el.classList.add("is-in"));
     };
-    spendEl.addEventListener("input", syncSpend);
-    stateEl.addEventListener("change", ready);
-    syncSpend(); ready();
 
-    form.addEventListener("submit", (ev) => {
-      ev.preventDefault();
-      const S = Number(spendEl.value);
+    // Step 1 -> 2: a broad band reveals its dial-in chips
+    flow.querySelectorAll('input[name="est-band"]').forEach((r) => {
+      r.addEventListener("change", () => {
+        flow.querySelectorAll('input[name="est-narrow"]').forEach((n) => (n.checked = false));
+        flow.querySelectorAll(".est__narrow-group").forEach((g) => {
+          g.hidden = g.getAttribute("data-band") !== r.value;
+        });
+        reveal($("est-step-narrow"));
+        results.hidden = true; // any earlier result is now stale
+      });
+    });
+    // Step 2 -> 3
+    flow.querySelectorAll('input[name="est-narrow"]').forEach((n) => {
+      n.addEventListener("change", () => reveal($("est-step-count")));
+    });
+    // Step 3 -> 4
+    flow.querySelectorAll('input[name="est-count"]').forEach((c) => {
+      c.addEventListener("change", () => reveal($("est-step-state")));
+    });
+    // Step 4 -> compute
+    stateEl.addEventListener("change", () => { if (stateEl.value) compute(); });
+
+    function compute() {
+      const narrow = flow.querySelector('input[name="est-narrow"]:checked');
+      const cIn = flow.querySelector('input[name="est-count"]:checked');
+      if (!narrow || !cIn || !stateEl.value) return;
+
+      const monthly = Number(narrow.value);
+      const S = monthly * 12; // the model works on annual spend
       const opt = stateEl.options[stateEl.selectedIndex];
       const cool = Number(opt.getAttribute("data-cool")) / 100;
       const rate = Number(opt.getAttribute("data-rate"));
       const range = opt.getAttribute("data-range");
       const dereg = opt.getAttribute("data-dereg") === "1";
-      const cIn = form.querySelector('input[name="est-count"]:checked');
       const [lo, hi] = cIn.value.split("-").map(Number);
       const short = cIn.getAttribute("data-short");
-      const heat = form.querySelector('input[name="est-heat"]:checked').value;
+      const heat = "notsure"; // bracketed electric default (no upfront question)
 
       // spec pools and streams
       const harmo = 0.09 * S;
@@ -291,7 +330,8 @@ const heats = [
         " operator in " + opt.value + " · " + today;
 
       // inputs panel
-      $("est-t-spend").textContent = fmt(S);
+      $("est-t-spend").textContent = fmt(monthly) + " / mo";
+      $("est-t-spend-yr").textContent = "≈ " + fmt(S) + " / yr";
       $("est-t-cool").textContent = Math.round(cool * 100) + "%";
       $("est-t-state").textContent = opt.value;
       $("est-t-heat").textContent = heatLabel;
@@ -381,7 +421,7 @@ const heats = [
         }
       }, reduce ? 0 : 550);
       results.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
-    });
+    }
   })();
 </script>
 
@@ -396,37 +436,33 @@ const heats = [
   .est__title { font-size: var(--step-3); max-width: 18ch; }
   .est__lede { margin-top: var(--space-m); }
 
-  /* compact instrument form */
-  .est__form {
+  /* progressive stepped flow: each step reveals once the prior is answered */
+  .est__flow {
     margin-top: var(--space-l);
+    max-width: 52rem;
     display: grid;
-    grid-template-columns: 1.4fr 1fr;
-    gap: var(--space-m) clamp(1.5rem, 4vw, 3rem);
-    align-items: start;
-    max-width: 56rem;
+    gap: var(--space-l);
   }
-  .est__control { display: grid; gap: 0.55rem; }
-  .est__control--spend { grid-row: span 1; }
-  .est__row { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-s); }
-  .est__control label, .est__legend { font-size: var(--step--1); color: var(--ink); font-weight: 500; }
-  .est__row output {
-    font-family: var(--font-mono); font-size: var(--step-1);
-    color: var(--gold-text); font-variant-numeric: tabular-nums; white-space: nowrap;
+  .est__step { border: 0; margin: 0; padding: 0; min-inline-size: 0; }
+  .est__step[hidden] { display: none; }
+  .est__legend {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0; margin-bottom: 0.9rem;
+    font-size: var(--step-0); color: var(--ink); font-weight: 500;
   }
-  .est__scale { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.68rem; color: var(--muted); }
-
-  input[type="range"]#est-spend {
-    -webkit-appearance: none; appearance: none; width: 100%; height: 4px;
-    border-radius: 999px; background: color-mix(in srgb, var(--ink) 16%, transparent); outline-offset: 6px;
+  .est__step-n {
+    flex: none; display: inline-grid; place-items: center;
+    width: 1.55rem; height: 1.55rem; border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    font-family: var(--font-mono); font-size: 0.74rem; color: var(--gold-text);
   }
-  #est-spend::-webkit-slider-thumb {
-    -webkit-appearance: none; appearance: none; width: 20px; height: 20px; border-radius: 50%;
-    background: var(--gold); border: 3px solid var(--surface);
-    box-shadow: 0 0 0 1px var(--gold), 0 4px 12px -2px color-mix(in srgb, var(--gold) 45%, transparent); cursor: pointer;
-  }
-  #est-spend::-moz-range-thumb {
-    width: 20px; height: 20px; border-radius: 50%; background: var(--gold);
-    border: 3px solid var(--surface); box-shadow: 0 0 0 1px var(--gold); cursor: pointer;
+  .est__chip--band span { min-width: 6.5rem; text-align: center; }
+  @media (prefers-reduced-motion: no-preference) {
+    .est__step {
+      opacity: 0; transform: translateY(12px);
+      transition: opacity 0.5s var(--ease-out-quart), transform 0.5s var(--ease-out-quart);
+    }
+    #est-step-spend, .est__step.is-in { opacity: 1; transform: none; }
   }
 
   .est__chips { display: flex; flex-wrap: wrap; gap: 6px; }
