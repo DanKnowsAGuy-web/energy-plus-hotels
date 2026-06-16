@@ -289,24 +289,28 @@ const cases = [
   }
 
   /* link to the full field record above the cards */
+  /* a centered, button-like card: stat / meta / a pill CTA, stacked */
   .proof__record {
-    margin-top: var(--space-l);
+    margin: var(--space-l) auto 0;
+    max-width: 30rem;
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     align-items: center;
-    gap: 0.5rem 1.2rem;
-    padding: 1rem 1.25rem;
-    border: 1px solid color-mix(in srgb, var(--gold-text) 38%, transparent);
+    text-align: center;
+    gap: 0.3rem;
+    padding: 1.4rem 1.75rem 1.5rem;
+    border: 1px solid color-mix(in srgb, var(--gold-text) 30%, transparent);
     border-radius: var(--radius);
-    background: color-mix(in srgb, var(--gold-text) 6%, transparent);
+    background: color-mix(in srgb, var(--gold-text) 5%, transparent);
     text-decoration: none;
     color: var(--ink);
     transition: border-color 0.25s ease, background 0.25s ease,
-      transform 0.25s var(--ease-out-quart);
+      box-shadow 0.25s ease, transform 0.25s var(--ease-out-quart);
   }
   .proof__record:hover {
     border-color: var(--gold-text);
-    background: color-mix(in srgb, var(--gold-text) 11%, transparent);
+    background: color-mix(in srgb, var(--gold-text) 9%, transparent);
+    box-shadow: 0 16px 40px -26px color-mix(in srgb, var(--gold-text) 60%, transparent);
     transform: translateY(-2px);
   }
   .proof__record:focus-visible {
@@ -315,39 +319,44 @@ const cases = [
   }
   .proof__record-stat {
     font-family: var(--font-serif);
-    font-size: var(--step-1);
+    font-size: var(--step-2);
     font-weight: 600;
     color: var(--gold-text);
     letter-spacing: -0.01em;
+    line-height: 1.1;
   }
   .proof__record-meta {
     font-size: var(--step--1);
     color: var(--body);
   }
+  /* line 3 reads as a real button */
   .proof__record-go {
-    margin-left: auto;
+    margin-top: 0.85rem;
     display: inline-flex;
     align-items: center;
-    gap: 0.4em;
+    gap: 0.5em;
     font-family: var(--font-mono);
     font-size: 0.72rem;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--gold-text);
     white-space: nowrap;
+    padding: 0.6em 1.2em;
+    border: 1px solid color-mix(in srgb, var(--gold-text) 50%, transparent);
+    border-radius: 999px;
+    transition: background 0.25s ease, border-color 0.25s ease;
+  }
+  .proof__record:hover .proof__record-go {
+    background: color-mix(in srgb, var(--gold-text) 14%, transparent);
+    border-color: var(--gold-text);
   }
   .proof__record-go svg {
-    width: 1.1em;
-    height: 1.1em;
+    width: 1.05em;
+    height: 1.05em;
     transition: transform 0.25s var(--ease-out-quart);
   }
   .proof__record:hover .proof__record-go svg {
     transform: translateX(3px);
-  }
-  @media (max-width: 640px) {
-    .proof__record-go {
-      margin-left: 0;
-    }
   }
 
   .proof__carousel {

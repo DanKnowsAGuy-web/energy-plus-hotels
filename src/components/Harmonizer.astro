@@ -318,7 +318,7 @@ const ptacs = [244, 204, 164];
       total.classList.toggle("is-good", climb > 0.6);
       sec.classList.toggle("is-deferred", p > 0.66);
       sec.classList.toggle("is-settled", p > 0.75);
-      sec.classList.toggle("is-offbill", p > 0.4);
+      sec.classList.toggle("is-offbill", p > 0.9);
       if (prog) prog.style.transform = "scaleX(" + p.toFixed(3) + ")";
 
       const phase = p < 0.22 ? 0 : p < 0.38 ? 1 : p < 0.68 ? 2 : 3;

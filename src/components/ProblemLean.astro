@@ -26,12 +26,23 @@
       <div class="probl__body reveal">
         <div class="probl__panels">
           <div class="probl__panel probl__panel--bad">
-            <span class="probl__mark" aria-hidden="true">&times;</span>
+            <span class="probl__mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M10.5 20.5 20.5 10.5a4.95 4.95 0 0 0-7-7L3.5 13.5a4.95 4.95 0 0 0 7 7Z" />
+                <path d="m8.5 8.5 7 7" />
+              </svg>
+            </span>
             <h3>Prescription without an exam</h3>
             <p>The vendor arrives with the one box they sell, the medicine that worked on someone else's building.</p>
           </div>
           <div class="probl__panel probl__panel--good">
-            <span class="probl__mark probl__mark--ok" aria-hidden="true">&#10003;</span>
+            <span class="probl__mark probl__mark--ok" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6 6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3" />
+                <path d="M8 15v1a6 6 0 0 0 6 6 6 6 0 0 0 6-6v-4" />
+                <circle cx="20" cy="10" r="2" />
+              </svg>
+            </span>
             <h3>Exam, then prescription</h3>
             <p>We measure your building first, then fit and modify equipment to what it actually needs.</p>
           </div>
@@ -118,13 +129,13 @@
   .probl__mark {
     display: inline-grid;
     place-items: center;
-    width: 28px; height: 28px;
+    width: 32px; height: 32px;
     border-radius: 50%;
-    font-size: 1.1rem;
     color: var(--cost, #e0894a);
     background: color-mix(in srgb, var(--cost, #e0894a) 12%, transparent);
     border: 1px solid color-mix(in srgb, var(--cost, #e0894a) 40%, transparent);
   }
+  .probl__mark svg { width: 17px; height: 17px; }
   .probl__mark--ok {
     color: var(--mint);
     background: var(--mint-soft);
