@@ -150,6 +150,21 @@ const spendBands = [
           </select>
         </div>
       </fieldset>
+
+      <!-- Step 5: square footage + 179D deduction (stays here, not in results) -->
+      <fieldset class="est__step" id="est-step-sqft" hidden aria-hidden="true">
+        <legend class="est__legend"><span class="est__step-n">5</span>Building square footage <span class="est__legend-note">(prefilled estimate; drag to your real number)</span></legend>
+        <div class="est__sqft">
+          <span class="est__sqft-cur" id="est-sqft-cur">&nbsp;</span>
+          <input type="range" class="est__rng" id="est-sqft-slider" min="0" max="100" step="1" value="50" aria-label="Building square footage" />
+          <div class="est__sqft-ends" aria-hidden="true"><span id="est-sqft-min"></span><span id="est-sqft-max"></span></div>
+          <div class="est__ded">
+            <span class="est__ded-label">Section 179D deduction, one-time</span>
+            <span class="est__ded-val" id="est-ded">&nbsp;</span>
+            <span class="est__ded-note" id="est-ded-tax"></span>
+          </div>
+        </div>
+      </fieldset>
     </div>
 
     <div class="est__results" id="est-results" hidden aria-live="polite">
@@ -177,6 +192,7 @@ const spendBands = [
           <table class="est__table" id="est-inputs-table">
             <tbody>
               <tr><th scope="row">Electricity spend</th><td><span class="est__tv" id="est-t-spend"></span><span class="est__tn" id="est-t-spend-yr"></span></td></tr>
+              <tr><th scope="row">HVAC share of bill</th><td><span class="est__tv" id="est-t-hvac"></span></td></tr>
               <tr><th scope="row">Cooling share of HVAC</th><td><span class="est__tv" id="est-t-cool"></span><span class="est__tn" id="est-t-state"></span></td></tr>
               <tr><th scope="row">Heating baseline</th><td><span class="est__tv" id="est-t-heat"></span></td></tr>
               <tr><th scope="row">Portfolio</th><td><span class="est__tv" id="est-t-count"></span></td></tr>
@@ -194,14 +210,9 @@ const spendBands = [
             <li><span class="op">Demand reduction</span><span class="num" id="est-dem"></span></li>
             <li><span class="op">Outdoor lighting</span><span class="num" id="est-lit"></span></li>
             <li id="est-nego-row"><span class="op">Rate negotiation, deregulated market</span><span class="num" id="est-nego"></span></li>
-            <li class="result"><span class="op">Conservative annual floor</span><span class="num" id="est-floor"></span></li>
-            <li class="ded"><span class="op">Section 179D deduction, one-time</span><span class="num" id="est-ded"></span></li>
+            <li class="result"><span class="op">Annual savings, per property</span><span class="num" id="est-floor"></span></li>
           </ol>
           <p class="est__rangeline" id="est-range"></p>
-          <div class="est__sqft">
-            <label for="est-sqft">Square footage <span class="est__sqft-note">(prefilled estimate; adjust to your real number)</span></label>
-            <input type="number" id="est-sqft" min="1000" max="2000000" step="500" />
-          </div>
         </div>
       </div>
 
@@ -270,6 +281,44 @@ const spendBands = [
       requestAnimationFrame(() => el.classList.add("is-in"));
     };
 
+    // compact dollars for the big range boxes (portfolio + projections)
+    const fmtC = (n) => n >= 1e6 ? "$" + (n / 1e6).toFixed(2).replace(/\.?0+$/, "") + "M"
+      : n >= 1e3 ? "$" + Math.round(n / 1e3) + "K" : "$" + Math.round(n);
+    const frC = (a, b) => fmtC(a) + " – " + fmtC(b);
+
+    // Section 179D square-footage slider; range tiers match the original calculator
+    const fmtSqft = (n) => n.toLocaleString("en-US") + " sq ft";
+    let sqftRng = { min: 0, max: 0 };
+    function sqftRange(est) {
+      if (est < 10000) return { min: Math.round(est * 0.5), max: Math.round(est * 2.0) };
+      if (est < 50000) return { min: Math.round(est * 0.6), max: Math.round(est * 1.6) };
+      if (est < 200000) return { min: Math.round(est * 0.7), max: Math.round(est * 1.4) };
+      return { min: Math.round(est * 0.8), max: Math.round(est * 1.25) };
+    }
+    function sqftFromSlider(v, min, max) {
+      const raw = min + (v / 100) * (max - min);
+      const snap = raw < 10000 ? 500 : 1000;
+      return Math.round(raw / snap) * snap;
+    }
+    function updateDed() {
+      const sl = $("est-sqft-slider");
+      const v = sqftFromSlider(Number(sl.value), sqftRng.min, sqftRng.max);
+      $("est-sqft-cur").textContent = fmtSqft(v);
+      $("est-sqft-min").textContent = fmtSqft(sqftRng.min);
+      $("est-sqft-max").textContent = fmtSqft(sqftRng.max);
+      sl.style.setProperty("--pct", sl.value + "%");
+      const d = Math.round(v * 5.94), t = Math.round(d * 0.21);
+      $("est-ded").textContent = "up to " + fmt(d);
+      $("est-ded-tax").textContent = "≈ " + fmt(t) + " in tax at the 21% federal rate";
+    }
+    function initSqft(est) {
+      sqftRng = sqftRange(est);
+      const sl = $("est-sqft-slider");
+      sl.value = 50;
+      sl.oninput = updateDed;
+      updateDed();
+    }
+
     // Step 1 -> 2: a broad band reveals its dial-in chips
     flow.querySelectorAll('input[name="est-band"]').forEach((r) => {
       r.addEventListener("change", () => {
@@ -329,6 +378,7 @@ const spendBands = [
       // inputs panel
       $("est-t-spend").textContent = fmt(monthly) + " / mo";
       $("est-t-spend-yr").textContent = "≈ " + fmt(S) + " / yr";
+      $("est-t-hvac").textContent = "45%";
       $("est-t-cool").textContent = Math.round(cool * 100) + "%";
       $("est-t-state").textContent = opt.value;
       $("est-t-heat").textContent = "not modeled";
@@ -344,11 +394,11 @@ const spendBands = [
       const negoRow = $("est-nego-row");
       negoRow.style.display = dereg ? "" : "none";
       if (dereg) $("est-nego").textContent = fr(negoF, negoC);
-      $("est-floor").textContent = fmt(floor);
+      $("est-floor").textContent = fr(floor, ceil);
       $("est-range").textContent =
-        "Likely range " + fr(floor, ceil) + " a year, " +
-        Math.round((floor / S) * 100) + "% to " + Math.round((ceil / S) * 100) +
-        "% of your bill, before incentives.";
+        "That's " + Math.round((floor / S) * 100) + "% to " +
+        Math.round((ceil / S) * 100) +
+        "% of your annual bill, per property, before incentives.";
 
       // portfolio: low x floor to high x ceiling per spec, shown large
       const port = $("est-portfolio");
@@ -356,29 +406,25 @@ const spendBands = [
         port.hidden = false;
         $("est-portfolio-label").textContent =
           "Across " + short + " at similar spend, per year";
-        $("est-portfolio-val").textContent = fr(floor * lo, ceil * hi);
+        $("est-portfolio-val").textContent = frC(floor * lo, ceil * hi);
       } else port.hidden = true;
 
-      // escalation applied to savings: annuity factor on the hero figure
-      const hero = hi > 1 ? floor * lo : floor;
+      // escalation applied to savings: annuity factor on the hero range
+      const heroFloor = hi > 1 ? floor * lo : floor;
+      const heroCeil = hi > 1 ? ceil * hi : ceil;
       const ef = (y) => (Math.pow(1 + rate, y) - 1) / rate;
-      $("est-proj5").textContent = fmt(hero * ef(5));
-      $("est-proj10").textContent = fmt(hero * ef(10));
+      $("est-proj5").textContent = frC(heroFloor * ef(5), heroCeil * ef(5));
+      $("est-proj10").textContent = frC(heroFloor * ef(10), heroCeil * ef(10));
       $("est-proj-note").textContent =
         "Commercial rates in " + opt.value + " have been rising " +
         (range === "volatile" ? "on a volatile trajectory (we project a conservative 2.5% floor)" : range + " a year") +
         "; these are the savings that compound away while you wait.";
 
-      // Section 179D: prefilled estimate, editable
+      // Section 179D: estimate square footage, reveal the slider step under state
       const raw = S / 3.5;
-      const sqft = raw >= 10000 ? Math.round(raw / 1000) * 1000 : raw >= 2000 ? Math.round(raw / 500) * 500 : Math.round(raw / 100) * 100;
-      const sqftEl = $("est-sqft");
-      sqftEl.value = sqft;
-      const ded = () => {
-        $("est-ded").textContent = "up to " + fmt(Math.max(0, Number(sqftEl.value) || 0) * 5.94);
-      };
-      sqftEl.oninput = ded;
-      ded();
+      const estSqft = raw >= 10000 ? Math.round(raw / 1000) * 1000 : raw >= 2000 ? Math.round(raw / 500) * 500 : Math.round(raw / 100) * 100;
+      initSqft(estSqft);
+      reveal($("est-step-sqft"));
 
       // the meter: needle falls from the full bill to the bill after the floor
       const needle = $("est-needle");
@@ -455,6 +501,47 @@ const spendBands = [
     }
     #est-step-spend, .est__step.is-in { opacity: 1; transform: none; }
   }
+
+  /* square-footage slider + 179D deduction (step 5) */
+  .est__sqft { display: grid; gap: 0.5rem; max-width: 30rem; }
+  .est__sqft-cur {
+    font-family: var(--font-mono); font-size: var(--step-1);
+    color: var(--gold-text); font-variant-numeric: tabular-nums;
+  }
+  input[type="range"].est__rng {
+    -webkit-appearance: none; appearance: none; width: 100%; height: 5px;
+    border-radius: 999px; outline-offset: 6px;
+    background: linear-gradient(90deg, var(--gold) var(--pct, 50%),
+      color-mix(in srgb, var(--ink) 16%, transparent) var(--pct, 50%));
+  }
+  input[type="range"].est__rng::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; width: 20px; height: 20px;
+    border-radius: 50%; background: var(--gold); border: 3px solid var(--surface);
+    box-shadow: 0 0 0 1px var(--gold); cursor: pointer;
+  }
+  input[type="range"].est__rng::-moz-range-thumb {
+    width: 20px; height: 20px; border-radius: 50%; background: var(--gold);
+    border: 3px solid var(--surface); cursor: pointer;
+  }
+  input[type="range"].est__rng:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+  .est__sqft-ends {
+    display: flex; justify-content: space-between;
+    font-family: var(--font-mono); font-size: 0.68rem; color: var(--muted);
+  }
+  .est__ded {
+    margin-top: var(--space-s); padding-top: var(--space-s);
+    border-top: 1px solid var(--line); display: grid; gap: 0.2rem;
+  }
+  .est__ded-label {
+    font-family: var(--font-mono); font-size: 0.72rem;
+    letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
+  }
+  .est__ded-val {
+    font-family: var(--font-serif); font-size: var(--step-1); color: var(--mint);
+    font-variant-numeric: tabular-nums;
+  }
+  .est__ded-note { font-size: 0.72rem; color: var(--muted); }
+  .est__steps li.result .num { white-space: normal; text-align: right; }
 
   .est__chips { display: flex; flex-wrap: wrap; gap: 6px; }
   .est__chip { position: relative; }
