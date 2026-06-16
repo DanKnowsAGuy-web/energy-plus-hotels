@@ -78,9 +78,9 @@ const spendBands = [
     <div class="est__head reveal">
       <h2 class="est__title reveal" id="est-title" data-words>Now run your own number.</h2>
       <p class="est__lede lede">
-        Your spend, your state, your portfolio. The output reads like the
-        meter work above, because it will become exactly that during the
-        pilot, on our dime.
+        Your spend, your state, your portfolio. This is a conservative model,
+        not a quote. During the pilot we measure the real figure at your own
+        meter, and the diagnosis is on us.
       </p>
     </div>
 
@@ -203,6 +203,13 @@ const spendBands = [
           <p class="est__proj-note" id="est-proj-note"></p>
         </div>
       </div>
+
+      <p class="est__basis">
+        These numbers are modeled from what's typical for your region and
+        facility type: average cooling load, local weather, and peak-demand
+        charges. The pilot measures what an average can't, your equipment's age
+        and type, and how heavily your property is used.
+      </p>
 
       <div class="est__detail">
         <div class="est__math">
@@ -741,6 +748,10 @@ const spendBands = [
   }
   .est__proj { display: grid; gap: 0.15rem; }
   .est__proj-note { font-size: var(--step--1); color: var(--muted); max-width: 60ch; }
+  .est__basis {
+    margin-top: var(--space-l); max-width: 72ch;
+    font-size: var(--step--1); line-height: 1.6; color: var(--muted);
+  }
   /* full-width breakdown below the headline grid */
   .est__detail {
     margin-top: var(--space-xl); padding-top: var(--space-l);
