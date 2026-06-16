@@ -177,10 +177,9 @@ const spendBands = [
           <div class="est__dial">
             <svg viewBox="0 0 200 124" role="img" aria-label="Savings gauge for your estimated annual savings range, per property.">
               <path class="est__dial-track" d="M18 104 A82 82 0 0 1 182 104"></path>
-              <path class="est__dial-zone" d="M18 104 A82 82 0 0 1 59 33"></path>
-              <g class="est__dial-needle" id="est-needle">
-                <line x1="100" y1="104" x2="100" y2="40"></line>
-              </g>
+              <path class="est__dial-band" id="est-band" d="M18 104 A82 82 0 0 1 18 104"></path>
+              <g class="est__dial-tick" id="est-tick-lo"><line x1="100" y1="104" x2="100" y2="34"></line></g>
+              <g class="est__dial-tick" id="est-tick-hi"><line x1="100" y1="104" x2="100" y2="34"></line></g>
               <circle class="est__dial-hub" cx="100" cy="104" r="6"></circle>
             </svg>
             <div class="est__dial-cap">
@@ -431,27 +430,51 @@ const spendBands = [
       if (S !== lastS) { lastS = S; initSqft(estSqft); }
       reveal($("est-step-sqft"));
 
-      // savings gauge: the range sits under the needle
-      const needle = $("est-needle");
+      // savings gauge: a mint band spans the floor->ceiling range, with a tick
+      // at each end; full scale = 50% of the bill
       $("est-newbill").textContent = fr(floor, ceil);
-      const rot = (frac) => (frac - 0.5) * 180;
-      const targetDeg = rot((S - floor) / S);
+      const MAXPCT = 0.5;
+      const fF = Math.max(0, Math.min(1, (floor / S) / MAXPCT));
+      const fC = Math.max(0, Math.min(1, (ceil / S) / MAXPCT));
+      const rotDeg = (f) => (f - 0.5) * 180;
+      const arcPt = (f) => { const th = Math.PI * (1 - f); return [100 + 82 * Math.cos(th), 104 - 82 * Math.sin(th)]; };
+      const tickLo = $("est-tick-lo"), tickHi = $("est-tick-hi"), band = $("est-band");
+      const [bx1, by1] = arcPt(fF), [bx2, by2] = arcPt(fC);
+      band.setAttribute("d", "M" + bx1.toFixed(1) + " " + by1.toFixed(1) + " A82 82 0 0 1 " + bx2.toFixed(1) + " " + by2.toFixed(1));
       results.hidden = false;
+      const placeTicks = () => {
+        tickLo.style.transform = "rotate(" + rotDeg(fF) + "deg)";
+        tickHi.style.transform = "rotate(" + rotDeg(fC) + "deg)";
+      };
+      const drawBand = (dur) => {
+        const len = band.getTotalLength ? band.getTotalLength() : 0;
+        if (!len) return;
+        band.style.strokeDasharray = len;
+        if (dur) {
+          band.style.transition = "none";
+          band.style.strokeDashoffset = len;
+          requestAnimationFrame(() => {
+            band.style.transition = "stroke-dashoffset " + dur + "ms cubic-bezier(0.25,1,0.5,1)";
+            band.style.strokeDashoffset = 0;
+          });
+        } else {
+          band.style.transition = "none";
+          band.style.strokeDashoffset = 0;
+        }
+      };
       if (!hasComputed && !reduce) {
-        // first run: the tremble-then-settle flourish
-        needle.style.transition = "none";
-        needle.style.transform = "rotate(" + rot(1) + "deg)";
-        needle.classList.add("is-tremble");
-        setTimeout(() => {
-          needle.classList.remove("is-tremble");
-          needle.style.transition = "transform 1.3s cubic-bezier(0.25, 1, 0.5, 1)";
-          needle.style.transform = "rotate(" + targetDeg + "deg)";
-        }, 550);
+        // first run: ticks sweep in from the left, band draws across the range
+        tickLo.style.transition = tickHi.style.transition = "none";
+        tickLo.style.transform = tickHi.style.transform = "rotate(-90deg)";
+        requestAnimationFrame(() => {
+          tickLo.style.transition = tickHi.style.transition = "transform 1.1s cubic-bezier(0.25,1,0.5,1)";
+          placeTicks();
+        });
+        drawBand(1100);
       } else {
-        // later edits: move the needle directly, no ritual
-        needle.classList.remove("is-tremble");
-        needle.style.transition = reduce ? "none" : "transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)";
-        needle.style.transform = "rotate(" + targetDeg + "deg)";
+        tickLo.style.transition = tickHi.style.transition = reduce ? "none" : "transform 0.5s cubic-bezier(0.25,1,0.5,1)";
+        placeTicks();
+        drawBand(0);
       }
       // only scroll to the results the first time they appear
       if (!hasComputed) results.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
@@ -661,20 +684,12 @@ const spendBands = [
   }
   .est__dial svg { width: min(200px, 70%); height: auto; overflow: visible; }
   .est__dial-track { fill: none; stroke: var(--line-strong); stroke-width: 6; stroke-linecap: round; }
-  .est__dial-zone {
-    fill: none; stroke: var(--mint); stroke-width: 6; stroke-linecap: round;
-    opacity: 0.85; filter: drop-shadow(0 0 5px color-mix(in srgb, var(--mint) 35%, transparent));
+  .est__dial-band {
+    fill: none; stroke: var(--mint); stroke-width: 7; stroke-linecap: round;
+    opacity: 0.95; filter: drop-shadow(0 0 6px color-mix(in srgb, var(--mint) 40%, transparent));
   }
-  .est__dial-needle { transform-origin: 100px 104px; transform: rotate(90deg); }
-  @media (prefers-reduced-motion: no-preference) {
-    .est__dial-needle.is-tremble { animation: estTremble 0.14s ease-in-out infinite; }
-    @keyframes estTremble {
-      0%, 100% { transform: rotate(90deg); }
-      30% { transform: rotate(88.4deg); }
-      70% { transform: rotate(91.4deg); }
-    }
-  }
-  .est__dial-needle line { stroke: var(--gold-text); stroke-width: 3; stroke-linecap: round; }
+  .est__dial-tick { transform-origin: 100px 104px; transform: rotate(0deg); }
+  .est__dial-tick line { stroke: var(--gold-text); stroke-width: 2.5; stroke-linecap: round; }
   .est__dial-hub { fill: var(--ink); stroke: var(--gold); stroke-width: 1.5; }
   .est__dial-cap { display: grid; justify-items: center; gap: 0.1rem; }
   .est__dial-label {
