@@ -1,17 +1,16 @@
 ---
-// Reusable CTA pair. "Apply Now" expands the Google
-// inline scheduler in place, directly beneath the buttons (no scroll, no
-// popup). "Just text the founder" expands the SMS panel the same way. Only one
-// panel is open per pair at a time. The scheduler iframe is lazy: its src is
-// set on first open, so the page never loads Google until someone books.
-// One delegated script handles every instance (guarded to init once).
+// Reusable CTA pair. "Apply Now" expands a Cal.com inline scheduler in place,
+// directly beneath the buttons. "Just text the founder" expands the SMS panel
+// the same way. Only one panel is open per pair at a time. Cal's script loads
+// once; each instance's calendar lazy-initializes the first time it's opened
+// (unique container id, so the multiple CTAs on the page don't collide).
 const { size = "" } = Astro.props;
 const lg = size === "lg" ? " btn--lg" : "";
 const PHONE_DISPLAY = "(864) 657-9110";
 const MSG =
   "Hi Dan, I run a hotel and I'd like to see what real energy savings could look like at my property, without the sales song and dance. What would a Verified Savings Pilot find for a building like mine?";
-const SCHEDULE_URL =
-  "https://calendar.google.com/calendar/appointments/schedules/AcZssZ3vvVPAZ3Hxk10D2T5Q2PW9kkX-yumqn_iupMIUULQKsv2RmSt-cLMi6KAHqkPW5H2khzD1ukM9?gv=true";
+const CAL_LINK = "dan-knows-a-gut/15min";
+const calId = "cal-" + Math.random().toString(36).slice(2, 9);
 ---
 
 <div class="tf-cta">
@@ -32,9 +31,7 @@ const SCHEDULE_URL =
         <span aria-hidden="true">&times;</span>
       </button>
     </div>
-    <div class="bookcal__frame">
-      <iframe class="bookcal__iframe" title="Energy Plus appointment booking" loading="lazy" data-src={SCHEDULE_URL}></iframe>
-    </div>
+    <div class="bookcal__cal" id={calId} data-callink={CAL_LINK}></div>
   </div>
 
   <div class="tf-panel" role="group" aria-label="Text the founder">
@@ -57,6 +54,26 @@ const SCHEDULE_URL =
     const ua = navigator.userAgent || "";
     const isIOS = /iP(hone|ad|od)/.test(ua) || (/Mac/.test(ua) && "ontouchend" in document);
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Load Cal.com once, then lazy-init each booking panel's calendar on first open
+    const ensureCal = () => {
+      if (window.__calReady) return;
+      window.__calReady = true;
+      (function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if (typeof namespace === "string") { cal.ns[namespace] = cal.ns[namespace] || api; p(cal.ns[namespace], ar); p(cal, ["initNamespace", namespace]); } else p(cal, ar); return; } p(cal, ar); }; })(window, "https://app.cal.com/embed/embed.js", "init");
+      window.Cal("init", "15min", { origin: "https://app.cal.com" });
+      window.Cal.config = window.Cal.config || {};
+      window.Cal.config.forwardQueryParams = true;
+      window.Cal.ns["15min"]("ui", { hideEventTypeDetails: false, layout: "month_view", theme: "dark", cssVarsPerTheme: { dark: { "cal-brand": "#46cfd6" } } });
+    };
+    const initCal = (el) => {
+      if (!el || el.dataset.calInited) return;
+      el.dataset.calInited = "1";
+      ensureCal();
+      window.Cal.ns["15min"]("inline", {
+        elementOrSelector: "#" + el.id,
+        config: { layout: "month_view", useSlotsViewOnSmallScreen: "true" },
+        calLink: el.dataset.callink || "dan-knows-a-gut/15min",
+      });
+    };
     const buildSms = (cta) => {
       const msg = cta.querySelector(".js-tf-msg");
       const send = cta.querySelector(".js-tf-send");
@@ -83,8 +100,7 @@ const SCHEDULE_URL =
         const willOpen = !book.classList.contains("is-open");
         closeTf(cta);
         if (willOpen) {
-          const f = book.querySelector(".bookcal__iframe");
-          if (f && !f.getAttribute("src") && f.dataset.src) f.src = f.dataset.src;
+          initCal(book.querySelector(".bookcal__cal"));
           book.classList.add("is-open");
           book.setAttribute("aria-hidden", "false");
           bookT.setAttribute("aria-expanded", "true");
@@ -155,29 +171,29 @@ const SCHEDULE_URL =
   .tf-panel__send svg { width: 1.05em; height: 1.05em; }
   .tf-panel__send:hover { transform: translateY(-1px); background: color-mix(in srgb, var(--mint) 86%, white); }
 
-  /* booking calendar: dark frame, off-white inner so Google's picker blends */
+  /* booking calendar: a self-contained dark frame holding the Cal.com embed.
+     Colors are fixed (not theme tokens) so the widget reads the same whether
+     it sits in a dark section or a light "paper" one. */
   .bookcal { border: 1px solid transparent; border-radius: var(--radius); max-width: 42rem; }
   .bookcal.is-open {
-    max-height: 940px; opacity: 1; margin-top: var(--space-m);
-    border-color: var(--line-strong); background: var(--surface);
-    box-shadow: var(--shadow-lift, 0 22px 50px -24px rgba(0, 0, 0, 0.85));
+    max-height: 1600px; opacity: 1; margin-top: var(--space-m);
+    border-color: rgba(220, 230, 230, 0.2); background: #14181c;
+    box-shadow: 0 22px 50px -24px rgba(0, 0, 0, 0.85);
   }
   .bookcal__bar { display: flex; align-items: center; justify-content: space-between; gap: var(--space-s); padding: 0.8rem 1rem; }
-  .bookcal__label { font-family: var(--font-mono); font-size: var(--step--1); letter-spacing: 0.03em; color: var(--gold-text); }
+  .bookcal__label { font-family: var(--font-mono); font-size: var(--step--1); letter-spacing: 0.03em; color: #46cfd6; }
   .bookcal__close {
     flex: none; width: 32px; height: 32px; display: grid; place-items: center;
-    border-radius: 50%; border: 1px solid var(--line-strong); background: transparent;
-    color: var(--body); font-size: 1.25rem; line-height: 1; cursor: pointer;
+    border-radius: 50%; border: 1px solid rgba(220, 230, 230, 0.2); background: transparent;
+    color: #bac2c1; font-size: 1.25rem; line-height: 1; cursor: pointer;
     transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
   }
-  .bookcal__close:hover { color: var(--ink); border-color: var(--gold-text); background: var(--gold-soft); }
-  .bookcal__close:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-  .bookcal__frame { margin: 0 0.7rem 0.7rem; padding: 0.55rem; background: #f4f6fa; border-radius: var(--radius-s); }
-  .bookcal__iframe { display: block; width: 100%; height: 620px; border: 0; border-radius: 8px; background: #fff; }
+  .bookcal__close:hover { color: #fff; border-color: #46cfd6; background: rgba(70, 207, 214, 0.12); }
+  .bookcal__close:focus-visible { outline: 2px solid #46cfd6; outline-offset: 2px; }
+  .bookcal__cal { width: 100%; min-height: 480px; padding: 0 0.6rem 0.7rem; }
 
   @media (max-width: 52rem) {
-    .bookcal.is-open { max-height: 1000px; }
-    .bookcal__iframe { height: 700px; }
+    .bookcal.is-open { max-height: 1700px; }
   }
   @media (prefers-reduced-motion: reduce) {
     .tf-panel, .bookcal { transition: opacity 0.3s ease; }
