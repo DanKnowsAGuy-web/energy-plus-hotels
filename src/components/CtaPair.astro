@@ -1,26 +1,42 @@
 ---
-// Reusable CTA pair: the primary "Book your Verified Savings Pilot" plus a
-// secondary "Just text the founder" that expands an inline message panel
-// directly beneath (no popup). Drop it anywhere a Book CTA belongs.
-// Pass size="lg" to match the large final CTA. One delegated script handles
-// every instance (guarded so it only initializes once).
+// Reusable CTA pair. "Book your Verified Savings Pilot" expands the Google
+// inline scheduler in place, directly beneath the buttons (no scroll, no
+// popup). "Just text the founder" expands the SMS panel the same way. Only one
+// panel is open per pair at a time. The scheduler iframe is lazy: its src is
+// set on first open, so the page never loads Google until someone books.
+// One delegated script handles every instance (guarded to init once).
 const { size = "" } = Astro.props;
 const lg = size === "lg" ? " btn--lg" : "";
 const PHONE_DISPLAY = "(864) 777-0688";
 const MSG =
   "Hi Dan, I run a hotel and I'd like to see what real energy savings could look like at my property, without the sales song and dance. What would a Verified Savings Pilot find for a building like mine?";
+const SCHEDULE_URL =
+  "https://calendar.google.com/calendar/appointments/schedules/AcZssZ3vvVPAZ3Hxk10D2T5Q2PW9kkX-yumqn_iupMIUULQKsv2RmSt-cLMi6KAHqkPW5H2khzD1ukM9?gv=true";
 ---
 
 <div class="tf-cta">
   <div class="tf-cta__row">
-    <a href="#book" class={`btn${lg}`}>
+    <button type="button" class={`btn js-book-toggle${lg}`} aria-expanded="false">
       Book your Verified Savings Pilot
       <span class="btn__arrow" aria-hidden="true">&rarr;</span>
-    </a>
+    </button>
     <button type="button" class={`btn btn--ghost js-tf-toggle${lg}`} aria-expanded="false">
       Just text the founder
     </button>
   </div>
+
+  <div class="bookcal" aria-hidden="true">
+    <div class="bookcal__bar">
+      <span class="bookcal__label">Pick a time, it books straight onto our calendar</span>
+      <button type="button" class="bookcal__close js-book-close" aria-label="Close the scheduler">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="bookcal__frame">
+      <iframe class="bookcal__iframe" title="Energy Plus appointment booking" loading="lazy" data-src={SCHEDULE_URL}></iframe>
+    </div>
+  </div>
+
   <div class="tf-panel" role="group" aria-label="Text the founder">
     <p class="tf-panel__to">To <span>Dan &middot; {PHONE_DISPLAY}</span></p>
     <textarea class="tf-panel__msg js-tf-msg" rows="3" spellcheck="false">{MSG}</textarea>
@@ -40,43 +56,79 @@ const MSG =
     window.__tfInit = true;
     const ua = navigator.userAgent || "";
     const isIOS = /iP(hone|ad|od)/.test(ua) || (/Mac/.test(ua) && "ontouchend" in document);
-    const buildFor = (cta) => {
-      if (!cta) return;
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const buildSms = (cta) => {
       const msg = cta.querySelector(".js-tf-msg");
       const send = cta.querySelector(".js-tf-send");
       if (!msg || !send) return;
-      const phone = send.getAttribute("data-phone") || "";
-      send.href = "sms:" + phone + (isIOS ? "&" : "?") + "body=" + encodeURIComponent(msg.value);
+      send.href = "sms:" + (send.getAttribute("data-phone") || "") + (isIOS ? "&" : "?") + "body=" + encodeURIComponent(msg.value);
     };
-    const init = () => {
-      document.addEventListener("click", (e) => {
-        const toggle = e.target.closest(".js-tf-toggle");
-        if (!toggle) return;
-        const cta = toggle.closest(".tf-cta");
-        const panel = cta && cta.querySelector(".tf-panel");
-        if (!panel) return;
-        const open = !panel.classList.contains("is-open");
-        panel.classList.toggle("is-open", open);
-        toggle.setAttribute("aria-expanded", String(open));
-        if (open) { buildFor(cta); const m = cta.querySelector(".js-tf-msg"); if (m) setTimeout(() => m.focus(), 80); }
-      });
-      document.addEventListener("input", (e) => {
-        const t = e.target;
-        if (t && t.classList && t.classList.contains("js-tf-msg")) buildFor(t.closest(".tf-cta"));
-      });
-      document.querySelectorAll(".tf-cta").forEach(buildFor);
+    const closeBook = (cta) => {
+      const book = cta.querySelector(".bookcal");
+      book.classList.remove("is-open");
+      book.setAttribute("aria-hidden", "true");
+      const b = cta.querySelector(".js-book-toggle");
+      if (b) b.setAttribute("aria-expanded", "false");
     };
-    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
-    else init();
+    const closeTf = (cta) => {
+      cta.querySelector(".tf-panel").classList.remove("is-open");
+      const t = cta.querySelector(".js-tf-toggle");
+      if (t) t.setAttribute("aria-expanded", "false");
+    };
+    document.addEventListener("click", (e) => {
+      const bookT = e.target.closest(".js-book-toggle");
+      if (bookT) {
+        const cta = bookT.closest(".tf-cta");
+        const book = cta.querySelector(".bookcal");
+        const willOpen = !book.classList.contains("is-open");
+        closeTf(cta);
+        if (willOpen) {
+          const f = book.querySelector(".bookcal__iframe");
+          if (f && !f.getAttribute("src") && f.dataset.src) f.src = f.dataset.src;
+          book.classList.add("is-open");
+          book.setAttribute("aria-hidden", "false");
+          bookT.setAttribute("aria-expanded", "true");
+          setTimeout(() => book.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" }), reduce ? 0 : 400);
+        } else { closeBook(cta); }
+        return;
+      }
+      const tfT = e.target.closest(".js-tf-toggle");
+      if (tfT) {
+        const cta = tfT.closest(".tf-cta");
+        const tf = cta.querySelector(".tf-panel");
+        const willOpen = !tf.classList.contains("is-open");
+        closeBook(cta);
+        if (willOpen) {
+          tf.classList.add("is-open");
+          tfT.setAttribute("aria-expanded", "true");
+          buildSms(cta);
+          const m = cta.querySelector(".js-tf-msg");
+          if (m) setTimeout(() => m.focus(), 80);
+        } else { closeTf(cta); }
+        return;
+      }
+      if (e.target.closest(".js-book-close")) {
+        const cta = e.target.closest(".tf-cta");
+        if (cta) closeBook(cta);
+      }
+    });
+    document.addEventListener("input", (e) => {
+      const t = e.target;
+      if (t && t.classList && t.classList.contains("js-tf-msg")) buildSms(t.closest(".tf-cta"));
+    });
   })();
 </script>
 
 <style>
+  .tf-cta { width: 100%; }
   .tf-cta__row { display: flex; flex-wrap: wrap; gap: var(--space-s); align-items: center; }
-  .tf-panel {
+
+  /* shared collapse behavior */
+  .tf-panel, .bookcal {
     overflow: hidden; max-height: 0; opacity: 0;
-    transition: max-height 0.4s var(--ease-out-quart), opacity 0.3s ease, margin-top 0.4s var(--ease-out-quart);
+    transition: max-height 0.5s var(--ease-out-quart), opacity 0.35s ease, margin-top 0.5s var(--ease-out-quart);
   }
+
   .tf-panel.is-open { max-height: 28rem; opacity: 1; margin-top: var(--space-m); }
   .tf-panel__to { font-family: var(--font-mono); font-size: 0.72rem; color: var(--muted); }
   .tf-panel__to span { color: var(--body); }
@@ -102,4 +154,32 @@ const MSG =
   }
   .tf-panel__send svg { width: 1.05em; height: 1.05em; }
   .tf-panel__send:hover { transform: translateY(-1px); background: color-mix(in srgb, var(--mint) 86%, white); }
+
+  /* booking calendar: dark frame, off-white inner so Google's picker blends */
+  .bookcal { border: 1px solid transparent; border-radius: var(--radius); max-width: 42rem; }
+  .bookcal.is-open {
+    max-height: 940px; opacity: 1; margin-top: var(--space-m);
+    border-color: var(--line-strong); background: var(--surface);
+    box-shadow: var(--shadow-lift, 0 22px 50px -24px rgba(0, 0, 0, 0.85));
+  }
+  .bookcal__bar { display: flex; align-items: center; justify-content: space-between; gap: var(--space-s); padding: 0.8rem 1rem; }
+  .bookcal__label { font-family: var(--font-mono); font-size: var(--step--1); letter-spacing: 0.03em; color: var(--gold-text); }
+  .bookcal__close {
+    flex: none; width: 32px; height: 32px; display: grid; place-items: center;
+    border-radius: 50%; border: 1px solid var(--line-strong); background: transparent;
+    color: var(--body); font-size: 1.25rem; line-height: 1; cursor: pointer;
+    transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+  }
+  .bookcal__close:hover { color: var(--ink); border-color: var(--gold-text); background: var(--gold-soft); }
+  .bookcal__close:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .bookcal__frame { margin: 0 0.7rem 0.7rem; padding: 0.55rem; background: #f4f6fa; border-radius: var(--radius-s); }
+  .bookcal__iframe { display: block; width: 100%; height: 620px; border: 0; border-radius: 8px; background: #fff; }
+
+  @media (max-width: 52rem) {
+    .bookcal.is-open { max-height: 1000px; }
+    .bookcal__iframe { height: 700px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tf-panel, .bookcal { transition: opacity 0.3s ease; }
+  }
 </style>
