@@ -1,17 +1,19 @@
 ---
-// Native savings estimator, spec-conformant per the EnergyPlus Calculator
-// Specification: harmoRate 0.09, hvacShare 0.40, cooling 15-55% of the
-// cooling pool, heating COP bracket (default "not sure": He x0.50-0.80),
-// demand 0.05 x 0.40, outdoor lighting (hotel 4-9%, off-grid mult 1.0),
-// rate negotiation 2.5-6% in deregulated states, portfolio low x floor to
-// high x ceiling, escalation applied to savings via the annuity factor.
+// Native savings estimator, matched to the original _saveenergy calculator's
+// HOTEL profile: harmoRate 0.08, hvacShare 0.45, cooling 15-55% of the cooling
+// pool (pool = hvacShare x state cooling split), demand 0.05 x 0.40 (demand
+// reduction x demand share), outdoor lighting hotel 4-9% (off-grid mult 1.0),
+// rate negotiation 2.5-6% in deregulated states. Heating is left UNMODELED by
+// default (an upside, never in the conservative floor), exactly as the
+// original. Portfolio low x floor to high x ceiling; escalation via the annuity
+// factor (ESC tiers/rates and the state cooling table identical to the original).
 import CtaPair from "./CtaPair.astro";
 const STATE_COOL: Record<string, number> = {
   Alabama: 65, Alaska: 22, Arizona: 80, Arkansas: 65, California: 50,
   Colorado: 35, Connecticut: 35, Delaware: 50, "District of Columbia": 50,
   Florida: 80, Georgia: 65, Hawaii: 80, Idaho: 22, Illinois: 35, Indiana: 35,
   Iowa: 35, Kansas: 50, Kentucky: 50, Louisiana: 80, Maine: 22, Maryland: 50,
-  Massachusetts: 35, Michigan: 35, Minnesota: 22, Mississippi: 65,
+  Massachusetts: 35, Michigan: 22, Minnesota: 22, Mississippi: 65,
   Missouri: 50, Montana: 22, Nebraska: 35, Nevada: 65, "New Hampshire": 22,
   "New Jersey": 35, "New Mexico": 65, "New York": 35, "North Carolina": 65,
   "North Dakota": 22, Ohio: 35, Oklahoma: 65, Oregon: 50, Pennsylvania: 35,
@@ -186,7 +188,7 @@ const spendBands = [
         <div class="est__math">
           <h3 class="est__math-title">Applied to your property</h3>
           <ol class="est__steps" id="est-steps">
-            <li><span class="op">Harmonization, 9% of spend</span><span class="num" id="est-harmo"></span></li>
+            <li><span class="op">Harmonization, 8% of spend</span><span class="num" id="est-harmo"></span></li>
             <li><span class="op">Cooling optimization, 15–55% of the cooling pool</span><span class="num" id="est-cool"></span></li>
             <li id="est-heat-row"><span class="op" id="est-heat-op">Heating bracket</span><span class="num" id="est-heat"></span></li>
             <li><span class="op">Demand reduction</span><span class="num" id="est-dem"></span></li>
@@ -304,24 +306,19 @@ const spendBands = [
       const dereg = opt.getAttribute("data-dereg") === "1";
       const [lo, hi] = cIn.value.split("-").map(Number);
       const short = cIn.getAttribute("data-short");
-      const heat = "notsure"; // bracketed electric default (no upfront question)
 
-      // spec pools and streams
-      const harmo = 0.09 * S;
-      const H = 0.40 * S;
-      const coolEff = heat === "gas" ? 1.0 : cool;
-      const C = H * coolEff;
-      const He = H * (1 - coolEff);
+      // streams, matched to the original calculator's hotel profile
+      const harmo = 0.08 * S;             // harmonization floor, hotel 8%
+      const H = 0.45 * S;                 // HVAC share of bill, hotel 45%
+      const C = H * cool;                 // cooling pool = HVAC x state cooling split
       const coolF = 0.15 * C, coolC = 0.55 * C;
-      let heatF = 0, heatC = 0, heatLabel = "n/a (gas)";
-      if (heat === "notsure") { heatF = He * 0.5; heatC = He * 0.8; heatLabel = "electric, bracketed"; }
-      else if (heat === "heatpump") { heatC = He * 0.5; heatLabel = "heat pump"; }
-      else if (heat === "resistance") { heatC = He * 0.8; heatLabel = "electric resistance"; }
-      const dem = 0.05 * 0.40 * S;
-      const litF = 0.04 * S, litC = 0.09 * S; // off-grid mult 1.0 per spec
+      const dem = 0.05 * 0.40 * S;        // demand reduction 5% x demand share 40%
+      const litF = 0.04 * S, litC = 0.09 * S; // outdoor lighting, hotel 4-9%, off-grid x1.0
       const negoF = dereg ? 0.025 * S : 0, negoC = dereg ? 0.06 * S : 0;
-      const floor = harmo + coolF + heatF + dem + litF + negoF;
-      const ceil = harmo + coolC + heatC + dem + litC + negoC;
+      // Heating (heat-pump replacement) is left unmodeled by default, exactly
+      // as the original: it is an upside, never part of the conservative floor.
+      const floor = harmo + coolF + dem + litF + negoF;
+      const ceil = harmo + coolC + dem + litC + negoC;
 
       // report header
       const today = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
@@ -334,20 +331,14 @@ const spendBands = [
       $("est-t-spend-yr").textContent = "≈ " + fmt(S) + " / yr";
       $("est-t-cool").textContent = Math.round(cool * 100) + "%";
       $("est-t-state").textContent = opt.value;
-      $("est-t-heat").textContent = heatLabel;
+      $("est-t-heat").textContent = "not modeled";
       $("est-t-count").textContent = short;
       $("est-t-rate").textContent = range === "volatile" ? "volatile (2.5% floor)" : range + " / yr";
 
       // math steps
       $("est-harmo").textContent = fmt(harmo);
       $("est-cool").textContent = fr(coolF, coolC);
-      const heatRow = $("est-heat-row");
-      if (heat === "gas") heatRow.style.display = "none";
-      else {
-        heatRow.style.display = "";
-        $("est-heat-op").textContent = "Heating, " + heatLabel;
-        $("est-heat").textContent = heatF > 0 ? fr(heatF, heatC) : "up to " + fmt(heatC);
-      }
+      $("est-heat-row").style.display = "none"; // heating left unmodeled (upside only)
       $("est-dem").textContent = fmt(dem);
       $("est-lit").textContent = fr(litF, litC);
       const negoRow = $("est-nego-row");
