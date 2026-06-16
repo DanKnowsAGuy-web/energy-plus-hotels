@@ -315,7 +315,18 @@ const spendBands = [
       updateDed();
     }
 
-    // Step 1 -> 2: a broad band reveals its dial-in chips
+    let hasComputed = false;
+    let lastS = null;
+    // recompute whenever all required inputs are present (any of the 5 changing)
+    function recompute() {
+      const narrow = flow.querySelector('input[name="est-narrow"]:checked');
+      const cIn = flow.querySelector('input[name="est-count"]:checked');
+      if (narrow && cIn && stateEl.value) compute();
+    }
+
+    // Step 1: a broad band swaps in its dial-in chips. On the first pass it just
+    // reveals the dial-in; once results exist it keeps them live by defaulting to
+    // the band's middle dial-in and recomputing (so results never vanish).
     flow.querySelectorAll('input[name="est-band"]').forEach((r) => {
       r.addEventListener("change", () => {
         flow.querySelectorAll('input[name="est-narrow"]').forEach((n) => (n.checked = false));
@@ -323,19 +334,21 @@ const spendBands = [
           g.hidden = g.getAttribute("data-band") !== r.value;
         });
         reveal($("est-step-narrow"));
-        results.hidden = true; // any earlier result is now stale
+        if (hasComputed) {
+          const shown = flow.querySelector(".est__narrow-group:not([hidden])");
+          const opts = shown ? [...shown.querySelectorAll('input[name="est-narrow"]')] : [];
+          if (opts.length) { opts[Math.floor(opts.length / 2)].checked = true; recompute(); }
+        }
       });
     });
-    // Step 2 -> 3
+    // later steps: reveal the next step AND recompute live on any change
     flow.querySelectorAll('input[name="est-narrow"]').forEach((n) => {
-      n.addEventListener("change", () => reveal($("est-step-count")));
+      n.addEventListener("change", () => { reveal($("est-step-count")); recompute(); });
     });
-    // Step 3 -> 4
     flow.querySelectorAll('input[name="est-count"]').forEach((c) => {
-      c.addEventListener("change", () => reveal($("est-step-state")));
+      c.addEventListener("change", () => { reveal($("est-step-state")); recompute(); });
     });
-    // Step 4 -> compute
-    stateEl.addEventListener("change", () => { if (stateEl.value) compute(); });
+    stateEl.addEventListener("change", () => { recompute(); });
 
     function compute() {
       const narrow = flow.querySelector('input[name="est-narrow"]:checked');
@@ -411,28 +424,38 @@ const spendBands = [
         (range === "volatile" ? "on a volatile trajectory (we project a conservative 2.5% floor)" : range + " a year") +
         "; these are the savings that compound away while you wait.";
 
-      // Section 179D: estimate square footage, reveal the slider step under state
+      // Section 179D: re-estimate sqft only when spend changes, so a manual
+      // slider drag survives a state or portfolio edit
       const raw = S / 3.5;
       const estSqft = raw >= 10000 ? Math.round(raw / 1000) * 1000 : raw >= 2000 ? Math.round(raw / 500) * 500 : Math.round(raw / 100) * 100;
-      initSqft(estSqft);
+      if (S !== lastS) { lastS = S; initSqft(estSqft); }
       reveal($("est-step-sqft"));
 
-      // savings gauge: the range sits under the needle; one-time needle flourish
+      // savings gauge: the range sits under the needle
       const needle = $("est-needle");
       $("est-newbill").textContent = fr(floor, ceil);
       const rot = (frac) => (frac - 0.5) * 180;
-      needle.style.transition = "none";
-      needle.style.transform = "rotate(" + rot(1) + "deg)";
+      const targetDeg = rot((S - floor) / S);
       results.hidden = false;
-      needle.classList.remove("is-tremble");
-      if (!reduce) needle.classList.add("is-tremble");
-      setTimeout(() => {
+      if (!hasComputed && !reduce) {
+        // first run: the tremble-then-settle flourish
+        needle.style.transition = "none";
+        needle.style.transform = "rotate(" + rot(1) + "deg)";
+        needle.classList.add("is-tremble");
+        setTimeout(() => {
+          needle.classList.remove("is-tremble");
+          needle.style.transition = "transform 1.3s cubic-bezier(0.25, 1, 0.5, 1)";
+          needle.style.transform = "rotate(" + targetDeg + "deg)";
+        }, 550);
+      } else {
+        // later edits: move the needle directly, no ritual
         needle.classList.remove("is-tremble");
-        needle.style.transition = reduce ? "none" : "transform 1.3s cubic-bezier(0.25, 1, 0.5, 1)";
-        // sweep toward the conservative (floor) end of the savings band
-        needle.style.transform = "rotate(" + rot((S - floor) / S) + "deg)";
-      }, reduce ? 0 : 550);
-      results.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+        needle.style.transition = reduce ? "none" : "transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)";
+        needle.style.transform = "rotate(" + targetDeg + "deg)";
+      }
+      // only scroll to the results the first time they appear
+      if (!hasComputed) results.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+      hasComputed = true;
     }
   })();
 </script>
