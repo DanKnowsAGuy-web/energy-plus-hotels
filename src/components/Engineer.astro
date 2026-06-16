@@ -127,9 +127,7 @@ const cards = [
     </div>
 
     <div class="eng__cta">
-      <p class="eng__tagline">That's the whole idea.</p>
       <CtaPair />
-      <a href="#what-we-find" class="eng__more">or keep reading to see what the exam finds</a>
     </div>
   </div>
 </section>
@@ -478,12 +476,6 @@ const cards = [
     align-items: flex-start;
     gap: 16px;
   }
-  .eng__tagline {
-    font-family: var(--eng-serif);
-    font-style: italic;
-    font-size: 18px;
-    color: var(--eng-gold);
-  }
   .eng__btn {
     background: var(--eng-gold);
     color: var(--eng-bg);
@@ -496,14 +488,6 @@ const cards = [
     transition: background 0.25s ease;
   }
   .eng__btn:hover { background: #dbb97e; }
-  .eng__more {
-    font-size: 12px;
-    font-style: italic;
-    color: var(--eng-muted);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    cursor: pointer;
-  }
 
   @media (max-width: 720px) {
     .eng__grid { grid-template-columns: 1fr; gap: 32px; }

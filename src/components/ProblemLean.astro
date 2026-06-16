@@ -40,7 +40,7 @@
           They didn't lie to you. They just never diagnosed whether their box
           was the right medicine for your building.
         </p>
-        <p class="probl__quote">We don't work for the vendors. We work for you.</p>
+        <p class="probl__quote"><span>We don't work for the vendors.</span> <span>We work for you.</span></p>
       </div>
     </div>
   </div>
@@ -145,6 +145,10 @@
     font-style: italic;
     font-size: var(--step-1);
     color: var(--ink);
-    max-width: 24ch;
+    max-width: 46ch;
+    text-wrap: balance;
   }
+  /* each sentence stays whole: one line when it fits, a clean break between
+     the two sentences when it doesn't */
+  .probl__quote span { white-space: nowrap; }
 </style>
