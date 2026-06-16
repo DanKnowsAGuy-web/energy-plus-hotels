@@ -174,9 +174,8 @@ const spendBands = [
       </div>
       <div class="est__grid">
         <figure class="est__measured">
-          <figcaption>From your inputs</figcaption>
           <div class="est__dial">
-            <svg viewBox="0 0 200 124" role="img" aria-label="Meter needle falling from your current bill to the bill after the savings floor.">
+            <svg viewBox="0 0 200 124" role="img" aria-label="Savings gauge for your estimated annual savings range, per property.">
               <path class="est__dial-track" d="M18 104 A82 82 0 0 1 182 104"></path>
               <path class="est__dial-zone" d="M18 104 A82 82 0 0 1 59 33"></path>
               <g class="est__dial-needle" id="est-needle">
@@ -185,22 +184,28 @@ const spendBands = [
               <circle class="est__dial-hub" cx="100" cy="104" r="6"></circle>
             </svg>
             <div class="est__dial-cap">
+              <span class="est__dial-label">Annual savings, per property</span>
               <span class="est__dial-val" id="est-newbill">&nbsp;</span>
-              <span class="est__dial-label">annual bill, after the floor</span>
+              <span class="est__dial-sub" id="est-range"></span>
             </div>
           </div>
-          <table class="est__table" id="est-inputs-table">
-            <tbody>
-              <tr><th scope="row">Electricity spend</th><td><span class="est__tv" id="est-t-spend"></span><span class="est__tn" id="est-t-spend-yr"></span></td></tr>
-              <tr><th scope="row">HVAC share of bill</th><td><span class="est__tv" id="est-t-hvac"></span></td></tr>
-              <tr><th scope="row">Cooling share of HVAC</th><td><span class="est__tv" id="est-t-cool"></span><span class="est__tn" id="est-t-state"></span></td></tr>
-              <tr><th scope="row">Heating baseline</th><td><span class="est__tv" id="est-t-heat"></span></td></tr>
-              <tr><th scope="row">Portfolio</th><td><span class="est__tv" id="est-t-count"></span></td></tr>
-              <tr><th scope="row">Rate trajectory</th><td><span class="est__tv" id="est-t-rate"></span><span class="est__tn">documented escalation</span></td></tr>
-            </tbody>
-          </table>
         </figure>
 
+        <div class="est__accum">
+          <span class="est__accum-head" id="est-portfolio-label"></span>
+          <div class="est__proj">
+            <span class="est__big-label">Unclaimed over five years</span>
+            <span class="est__big-val" id="est-proj5"></span>
+          </div>
+          <div class="est__proj">
+            <span class="est__big-label">Over ten years</span>
+            <span class="est__big-val" id="est-proj10"></span>
+          </div>
+          <p class="est__proj-note" id="est-proj-note"></p>
+        </div>
+      </div>
+
+      <div class="est__detail">
         <div class="est__math">
           <h3 class="est__math-title">Applied to your property</h3>
           <ol class="est__steps" id="est-steps">
@@ -210,27 +215,18 @@ const spendBands = [
             <li><span class="op">Demand reduction</span><span class="num" id="est-dem"></span></li>
             <li><span class="op">Outdoor lighting</span><span class="num" id="est-lit"></span></li>
             <li id="est-nego-row"><span class="op">Rate negotiation, deregulated market</span><span class="num" id="est-nego"></span></li>
-            <li class="result"><span class="op">Annual savings, per property</span><span class="num" id="est-floor"></span></li>
           </ol>
-          <p class="est__rangeline" id="est-range"></p>
         </div>
-      </div>
-
-      <div class="est__portfolio" id="est-portfolio" hidden>
-        <span class="est__big-label" id="est-portfolio-label"></span>
-        <span class="est__big-val" id="est-portfolio-val"></span>
-      </div>
-
-      <div class="est__projgrid">
-        <div class="est__proj">
-          <span class="est__big-label">Unclaimed over five years</span>
-          <span class="est__big-val" id="est-proj5"></span>
-        </div>
-        <div class="est__proj">
-          <span class="est__big-label">Over ten years</span>
-          <span class="est__big-val" id="est-proj10"></span>
-        </div>
-        <p class="est__proj-note" id="est-proj-note"></p>
+        <table class="est__table" id="est-inputs-table">
+          <tbody>
+            <tr><th scope="row">Electricity spend</th><td><span class="est__tv" id="est-t-spend"></span><span class="est__tn" id="est-t-spend-yr"></span></td></tr>
+            <tr><th scope="row">HVAC share of bill</th><td><span class="est__tv" id="est-t-hvac"></span></td></tr>
+            <tr><th scope="row">Cooling share of HVAC</th><td><span class="est__tv" id="est-t-cool"></span><span class="est__tn" id="est-t-state"></span></td></tr>
+            <tr><th scope="row">Heating baseline</th><td><span class="est__tv" id="est-t-heat"></span></td></tr>
+            <tr><th scope="row">Portfolio</th><td><span class="est__tv" id="est-t-count"></span></td></tr>
+            <tr><th scope="row">Rate trajectory</th><td><span class="est__tv" id="est-t-rate"></span><span class="est__tn">documented escalation</span></td></tr>
+          </tbody>
+        </table>
       </div>
 
       <div class="est__facts">
@@ -394,20 +390,15 @@ const spendBands = [
       const negoRow = $("est-nego-row");
       negoRow.style.display = dereg ? "" : "none";
       if (dereg) $("est-nego").textContent = fr(negoF, negoC);
-      $("est-floor").textContent = fr(floor, ceil);
       $("est-range").textContent =
         "That's " + Math.round((floor / S) * 100) + "% to " +
         Math.round((ceil / S) * 100) +
         "% of your annual bill, per property, before incentives.";
 
-      // portfolio: low x floor to high x ceiling per spec, shown large
-      const port = $("est-portfolio");
-      if (hi > 1) {
-        port.hidden = false;
-        $("est-portfolio-label").textContent =
-          "Across " + short + " at similar spend, per year";
-        $("est-portfolio-val").textContent = frC(floor * lo, ceil * hi);
-      } else port.hidden = true;
+      // portfolio header above the accumulation; the per-year figure is
+      // omitted on purpose, the 5- and 10-year boxes carry the portfolio range
+      $("est-portfolio-label").textContent =
+        hi > 1 ? "Across " + short + " at similar spend" : "Per property, at this spend";
 
       // escalation applied to savings: annuity factor on the hero range
       const heroFloor = hi > 1 ? floor * lo : floor;
@@ -426,36 +417,20 @@ const spendBands = [
       initSqft(estSqft);
       reveal($("est-step-sqft"));
 
-      // the meter: needle falls from the full bill to the bill after the floor
+      // savings gauge: the range sits under the needle; one-time needle flourish
       const needle = $("est-needle");
-      const newBill = $("est-newbill");
-      const rot = (frac) => (frac - 0.5) * 180; // 0..1 -> -90..+90 deg
-      const target = (S - floor) / S;
+      $("est-newbill").textContent = fr(floor, ceil);
+      const rot = (frac) => (frac - 0.5) * 180;
       needle.style.transition = "none";
       needle.style.transform = "rotate(" + rot(1) + "deg)";
-      newBill.textContent = fmt(S);
       results.hidden = false;
-      // the ritual: hold at the full bill and tremble, then let it fall
       needle.classList.remove("is-tremble");
       if (!reduce) needle.classList.add("is-tremble");
       setTimeout(() => {
         needle.classList.remove("is-tremble");
         needle.style.transition = reduce ? "none" : "transform 1.3s cubic-bezier(0.25, 1, 0.5, 1)";
-        needle.style.transform = "rotate(" + rot(target) + "deg)";
-        if (reduce) {
-          newBill.textContent = fmt(S - floor);
-        } else {
-          const t0 = performance.now();
-          const dur = 1300;
-          newBill.textContent = fmt(S - floor);
-          const tick = (now) => {
-            const p = Math.min((now - t0) / dur, 1);
-            const e = 1 - Math.pow(1 - p, 4);
-            newBill.textContent = fmt(S - floor * e);
-            if (p < 1) requestAnimationFrame(tick);
-          };
-          requestAnimationFrame(tick);
-        }
+        // sweep toward the conservative (floor) end of the savings band
+        needle.style.transform = "rotate(" + rot((S - floor) / S) + "deg)";
       }, reduce ? 0 : 550);
       results.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
     }
@@ -679,14 +654,19 @@ const spendBands = [
   .est__dial-needle line { stroke: var(--gold-text); stroke-width: 3; stroke-linecap: round; }
   .est__dial-hub { fill: var(--ink); stroke: var(--gold); stroke-width: 1.5; }
   .est__dial-cap { display: grid; justify-items: center; gap: 0.1rem; }
-  .est__dial-val {
-    font-family: var(--font-serif); font-size: var(--step-2); line-height: 1;
-    color: var(--mint); font-variant-numeric: tabular-nums; letter-spacing: -0.02em;
-    min-height: 1em;
-  }
   .est__dial-label {
-    font-family: var(--font-mono); font-size: 0.68rem;
-    letter-spacing: 0.05em; color: var(--muted);
+    font-family: var(--font-mono); font-size: 0.7rem;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+  }
+  .est__dial-val {
+    font-family: var(--font-serif);
+    font-size: clamp(1.5rem, 3.8vw, 2.2rem); line-height: 1.1;
+    color: var(--mint); font-variant-numeric: tabular-nums; letter-spacing: -0.01em;
+    text-align: center; margin-top: 0.15em;
+  }
+  .est__dial-sub {
+    font-size: var(--step--1); color: var(--muted);
+    text-align: center; max-width: 32ch; margin-top: 0.35em;
   }
 
   .est__steps li.ded { border-bottom: 0; }
@@ -710,23 +690,25 @@ const spendBands = [
   }
   .est__big-val {
     display: block; font-family: var(--font-serif);
-    font-size: clamp(2rem, 4.5vw, 3.2rem); line-height: 1.05;
-    color: var(--gold-text); letter-spacing: -0.02em;
-    font-variant-numeric: tabular-nums; margin-top: 0.2em;
+    font-size: clamp(1.6rem, 3.5vw, 2.4rem); line-height: 1.1;
+    color: var(--gold-text); letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums; margin-top: 0.15em;
   }
-  .est__portfolio {
+  /* right column: portfolio header + 5/10-year accumulation ranges */
+  .est__accum { display: grid; gap: var(--space-l); align-content: start; }
+  .est__accum-head {
+    font-family: var(--font-mono); font-size: var(--step--1);
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold-text);
+    padding-bottom: var(--space-s); border-bottom: 1px solid var(--line-strong);
+  }
+  .est__proj { display: grid; gap: 0.15rem; }
+  .est__proj-note { font-size: var(--step--1); color: var(--muted); max-width: 60ch; }
+  /* full-width breakdown below the headline grid */
+  .est__detail {
     margin-top: var(--space-xl); padding-top: var(--space-l);
     border-top: 1px solid var(--line);
-  }
-  .est__projgrid {
-    margin-top: var(--space-xl); padding-top: var(--space-l);
-    border-top: 1px solid var(--line);
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: clamp(1.5rem, 4vw, 3rem);
-  }
-  .est__proj-note {
-    grid-column: 1 / -1; font-size: var(--step--1);
-    color: var(--muted); max-width: 60ch;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: clamp(1.5rem, 4vw, 3rem); align-items: start;
   }
   .est__facts {
     margin-top: var(--space-xl);
