@@ -87,16 +87,17 @@ const steps = [
     content: "";
     display: block;
     width: 2px;
-    height: 0;
+    height: 1.6rem;
     margin: 0.5em auto 0;
     background: linear-gradient(var(--gold-text), transparent);
-    transition: height 0.7s var(--ease-out-expo) 0.2s;
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 0.7s var(--ease-out-expo) 0.2s;
   }
-  .step.is-in .step__n::after { height: 1.6rem; }
+  .step.is-in .step__n::after { transform: scaleY(1); }
   .step:last-child .step__n::after { display: none; }
   @media (prefers-reduced-motion: reduce) {
-    .step__n::after { transition: none; }
-    .step.is-in .step__n::after { height: 1.6rem; }
+    .step__n::after { transition: none; transform: scaleY(1); }
   }
   .step__title {
     font-size: var(--step-2);

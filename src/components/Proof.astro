@@ -1,21 +1,68 @@
 ---
-// Verified Tune case studies (from the published one-pagers). One canonical
-// card format; 3 visible on desktop, 1 on mobile; infinite carousel.
-// Figures shown floor-first, units always labeled (kWh vs kW matters).
-// MOCK categories for layout testing only. Today every case below is a
-// dirty-power (Tune) install; the cat labels/colors are placeholders to see how
-// a three-category proof set (harmonization / HVAC / whole-building) would look.
+// Verified case studies, drawn from the published field record and source
+// one-pagers. One canonical card format; 3 visible on desktop, 1 on mobile;
+// infinite carousel. Figures shown floor-first, units always labeled (kWh
+// energy vs kW demand matters). Three savings TYPES, never blended into one
+// headline; the set is ordered to alternate them as you scroll:
+//   harm  = Energy harmonization alone   (power quality / harmonic distortion)
+//   hvac  = HVAC efficiency alone         (refrigerant-side coil restoration)
+//   whole = Whole-building program        (multiple measures stacked together)
+// The five harmonization cases are the originals; HVAC and whole-building
+// cases are interleaved between them.
 const cats = {
   harm: { label: "Energy harmonization alone" },
   hvac: { label: "HVAC efficiency alone" },
   whole: { label: "Whole-building program" },
 };
+// Order: the four whole-building programs lead, then the single-measure cases
+// alternate harmonization <-> HVAC efficiency. Every figure counts up (ranges
+// animate both ends; the bottling figure carries a "+" prefix).
 const cases = [
+  {
+    cat: "whole",
+    type: "Auto Dealership",
+    place: "Arizona",
+    name: ["AZ Ford", "Dealership"],
+    fval: "49.2", num: 49.2, dec: 1, funit: "%",
+    unit: "annual energy cut, full-stack program",
+    scope: "power quality + HVAC + lighting · 1.06M kWh/yr · 25-mo payback",
+    verifier: "Documented project total",
+  },
+  {
+    cat: "whole",
+    type: "Hospital",
+    place: "Naperville, IL",
+    name: ["Edward", "Hospital"],
+    fval: "24", num: 24, dec: 0, funit: "%",
+    unit: "kWh reduction over 9 months, whole facility",
+    scope: "power factor + voltage conditioning + line reactors · $84,270 saved",
+    verifier: "Metered; both phases beat projection",
+  },
+  {
+    cat: "whole",
+    type: "Manufacturing",
+    place: "Upper Midwest",
+    name: ["Commercial", "Bottling Plant"],
+    fval: "+50", num: 50, dec: 0, pre: "+", funit: "%",
+    unit: "more output, with energy cost up only 2%",
+    scope: "8-hour to 12-hour production day · Sta'bl-POWER total-systems · weighted for hours and weather",
+    verifier: "Growth-adjusted net cost study",
+  },
+  {
+    cat: "whole",
+    type: "Municipal",
+    place: "Rainsville, AL",
+    name: ["City of", "Rainsville"],
+    fval: "27", num: 27, dec: 0, funit: "%",
+    unit: "average reduction across city facilities, year one",
+    scope: "power conditioning + LED retrofit · facilities-wide",
+    verifier: "First-year monitored",
+  },
   {
     cat: "harm",
     type: "Hospitality",
     place: "Marietta, GA",
-    name: "Hilton Garden Inn, Atlanta",
+    name: ["Hilton Garden Inn,", "Atlanta"],
     fval: "13.51", num: 13.51, dec: 2, funit: "%",
     unit: "kWh reduction at the meter, 12 months",
     scope: "123 rooms · 11 devices across 28 panels",
@@ -23,29 +70,39 @@ const cases = [
   },
   {
     cat: "hvac",
+    type: "Hospitality",
+    place: "Chantilly, VA",
+    name: ["Westfields Marriott,", "Washington Dulles"],
+    fval: "13.26", num: 13.26, dec: 2, funit: "%",
+    unit: "facility kWh reduction, refrigerant-side coil treatment",
+    scope: "5 RTUs + 190-ton chiller · 18-month pilot",
+    verifier: "Verified by Dominion Energy + TRC",
+  },
+  {
+    cat: "harm",
     type: "Hotel & Resort",
     place: "Orange Beach, AL",
-    name: "Caribe Resort",
+    name: ["Caribe", "Resort"],
     fval: "14", num: 14, dec: 0, funit: "%", mod: "+",
     unit: "kWh reduction, monthly average over 12 months",
     scope: "3 buildings · paid for itself in the first year",
     verifier: "Verified by CHI Energy",
   },
   {
-    cat: "whole",
-    type: "Hospitality",
-    place: "Las Vegas, NV",
-    name: "Southpoint Hotel & Casino",
-    fval: "8.59", num: 8.59, dec: 2, funit: "%",
-    unit: "kW demand reduction, metered panels",
-    scope: "arena lighting + receptacle panels, 45-day baseline",
-    verifier: "Third-party meter data",
+    cat: "hvac",
+    type: "Retail",
+    place: "Elizabeth, NJ",
+    name: ["Simon Property Gr.", "Jersey Gardens"],
+    fval: "21.1", num: 21.1, dec: 1, funit: "%",
+    unit: "kWh reduction, refrigerant-side efficiency",
+    scope: "mall HVAC · $41,473/yr · 12-month payback",
+    verifier: "IPMVP third-party M&V",
   },
   {
     cat: "harm",
     type: "Office + Warehouse",
     place: "Atlanta, GA",
-    name: "Corey Center",
+    name: ["Corey", "Center"],
     fval: "14.8", num: 14.8, dec: 1, funit: "%",
     unit: "kWh reduction, four-year average",
     scope: "35,000 sq ft · 8 devices, one per panel",
@@ -53,10 +110,40 @@ const cases = [
   },
   {
     cat: "hvac",
-    type: "Office",
+    type: "Distribution",
+    place: "Gulfport, MS",
+    name: ["Anheuser-Busch,", "Mitchell Distributing"],
+    fval: "19.2", num: 19.2, dec: 1, funit: "%",
+    unit: "RTU energy reduction, refrigerant-side treatment",
+    scope: "HVAC + refrigeration · 20-month payback",
+    verifier: "Verified on the meter and bill",
+  },
+  {
+    cat: "harm",
+    type: "Hospitality",
+    place: "Las Vegas, NV",
+    name: ["Southpoint", "Hotel & Casino"],
+    fval: "8.59", num: 8.59, dec: 2, funit: "%",
+    unit: "kW demand reduction, metered panels",
+    scope: "arena lighting + receptacle panels, 45-day baseline",
+    verifier: "Third-party meter data",
+  },
+  {
+    cat: "hvac",
+    type: "Logistics",
+    place: "United States",
+    name: ["DHL", "Refrigeration Plant"],
+    fval: "15", num: 15, dec: 0, funit: "%",
+    unit: "compressor efficiency gain, ammonia system",
+    scope: "ammonia refrigeration · 13.8-month payback",
+    verifier: "Compressor efficiency study",
+  },
+  {
+    cat: "harm",
+    type: "Office (historic)",
     place: "Birmingham, AL",
-    name: "The Massey Building",
-    fval: "9–19", funit: "%",
+    name: ["The Massey", "Building"],
+    range: [9, 19], funit: "%",
     unit: "kWh reduction, metered floor by floor",
     scope: "10 floors · 10 devices, one per floor",
     verifier: "Metered impact evaluation",
@@ -86,16 +173,24 @@ const cases = [
                 <p class="case__banner">{cats[c.cat].label}</p>
                 <p class="case__type">{c.type}</p>
                 <p class="case__place">{c.place}</p>
-                <h3 class="case__name">{c.name}</h3>
+                <h3 class="case__name">{c.name[0]}<br />{c.name[1]}</h3>
                 <p class="case__figure fig">
-                  <span class="fig__val" data-countup={c.num} data-decimals={c.dec} data-suffix="">{c.fval}</span>
+                  {c.range ? (
+                    <Fragment>
+                      <span class="fig__val" data-countup={c.range[0]} data-decimals="0" data-suffix="">{c.range[0]}</span>
+                      <span class="fig__dash">–</span>
+                      <span class="fig__val" data-countup={c.range[1]} data-decimals="0" data-suffix="">{c.range[1]}</span>
+                    </Fragment>
+                  ) : (
+                    <span class="fig__val" data-countup={c.num} data-decimals={c.dec} data-prefix={c.pre || ""} data-suffix="">{c.fval}</span>
+                  )}
                   {c.funit && <span class="fig__unit">{c.funit}</span>}
                   {c.mod && <span class="fig__mod">{c.mod}</span>}
                 </p>
                 <p class="case__unit">{c.unit}</p>
                 <p class="case__scope">{c.scope}</p>
                 <p class="case__verifier">{c.verifier}</p>
-                <p class="case__chip">Tune&reg; · one technology in our stack</p>
+                <p class="case__chip">Full documentation available upon request</p>
               </article>
             ))
           }
@@ -196,12 +291,11 @@ const cases = [
   }
   .case {
     --case-pad: clamp(1.25rem, 3vw, 1.75rem);
-    --cat-rgb: 216, 190, 134;
     --cat-color: var(--gold-text);
     flex: 0 0 calc((100% - 2 * clamp(1rem, 2.5vw, 1.5rem)) / 3);
     padding: var(--case-pad);
     background: var(--surface);
-    border: 1px solid rgba(var(--cat-rgb), 0.32);
+    border: 1px solid color-mix(in srgb, var(--cat-color) 32%, transparent);
     border-radius: var(--radius);
     display: flex;
     flex-direction: column;
@@ -210,28 +304,32 @@ const cases = [
   }
   .case:hover {
     transform: translateY(-4px);
-    border-color: rgba(var(--cat-rgb), 0.6);
+    border-color: color-mix(in srgb, var(--cat-color) 60%, transparent);
     box-shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.6);
   }
   @media (prefers-reduced-motion: reduce) {
     .case { transition: none; }
     .case:hover { transform: none; }
   }
-  /* MOCK category palettes (layout test) */
-  .case--harm { --cat-rgb: 216, 190, 134; --cat-color: var(--gold-text); }
-  .case--hvac { --cat-rgb: 91, 157, 194; --cat-color: #8fc2dd; }
-  .case--whole { --cat-rgb: 91, 194, 162; --cat-color: var(--mint); }
+  /* Three savings types, one accent each: teal = harmonization, copper = HVAC
+     efficiency, ink = the combined whole-building program. Token-driven so
+     they stay legible on the light "paper" insert this section sits in. */
+  .case--harm { --cat-color: var(--gold-text); }
+  .case--hvac { --cat-color: var(--cost); }
+  .case--whole { --cat-color: var(--ink); }
 
   .case__banner {
     margin: calc(-1 * var(--case-pad)) calc(-1 * var(--case-pad)) var(--space-m);
-    padding: 0.55rem var(--case-pad);
-    background: rgba(var(--cat-rgb), 0.14);
-    border-bottom: 1px solid rgba(var(--cat-rgb), 0.32);
+    padding: 0.72rem var(--case-pad);
+    background: color-mix(in srgb, var(--cat-color) 16%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--cat-color) 40%, transparent);
     color: var(--cat-color);
     font-family: var(--font-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.09em;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
+    text-align: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -273,7 +371,10 @@ const cases = [
     color: var(--ink);
     letter-spacing: -0.01em;
     line-height: 1.2;
-    min-height: 2.4em; /* reserve two lines so figures line up */
+    /* every name is authored as exactly two lines (see the name arrays), so
+       the figure / unit / scope rows line up across all cards */
+    height: 2.4em;
+    white-space: nowrap;
   }
   .case__figure {
     margin-top: var(--space-m);
@@ -335,7 +436,7 @@ const cases = [
   }
   .proof__arrow:hover {
     border-color: var(--gold);
-    background: rgba(194, 163, 104, 0.1);
+    background: color-mix(in srgb, var(--gold) 10%, transparent);
     transform: translateY(-1px);
   }
   .proof__arrow:focus-visible {

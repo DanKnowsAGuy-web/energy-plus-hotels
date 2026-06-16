@@ -61,7 +61,10 @@ import Footer from "../components/Footer.astro";
     /* tilt-state shadow: deeper drop + a teal edge ring */
     --shadow-tilt: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 36px 70px -28px rgba(0, 0, 0, 0.92),
       0 0 0 1px color-mix(in srgb, var(--gold) 32%, transparent);
-    --font-serif: "Hanken Grotesk", system-ui, sans-serif;
+    /* Display serif for headings + large savings figures (loaded via
+       @fontsource); Hanken Grotesk carries body/UI; Geist Mono the readouts.
+       Restores the serif-vs-sans contrast axis DESIGN.md specifies. */
+    --font-serif: "Newsreader Variable", "Newsreader", Georgia, "Times New Roman", serif;
     --font-sans: "Hanken Grotesk", system-ui, sans-serif;
     --font-mono: "Geist Mono", ui-monospace, monospace;
     background: #141a1e; color: #eef1ef;
@@ -137,10 +140,11 @@ import Footer from "../components/Footer.astro";
   .theme-dark .paper {
     --bg: #d4d8d2; --surface: #dde0da; --surface-2: #cbcfc9;
     --ink: #1a1d1a; --body: #3c413b; --muted: #5d625b;
-    --gold: #0d6f79; --gold-text: #0d6f79; --mint: #0d6f79; --cost: #8f4030;
-    --h-red: #8f4030; --h-teal: #0d6f79;
+    /* deep teal (bumped toward ink so small labels clear WCAG AA on paper) */
+    --gold: #0a5a63; --gold-text: #0a5a63; --mint: #0a5a63; --cost: #8f4030;
+    --h-red: #8f4030; --h-teal: #0a5a63;
     --line: rgba(20, 25, 20, 0.14); --line-strong: rgba(20, 25, 20, 0.22);
-    --gold-soft: rgba(13, 111, 121, 0.09); --mint-soft: rgba(13, 111, 121, 0.12);
+    --gold-soft: rgba(10, 90, 99, 0.09); --mint-soft: rgba(10, 90, 99, 0.12);
     --shadow-lift: 0 1px 0 rgba(255, 255, 255, 0.6) inset, 0 16px 40px -28px rgba(0, 0, 0, 0.22);
     background: #d4d8d2; color: #1a1d1a;
   }

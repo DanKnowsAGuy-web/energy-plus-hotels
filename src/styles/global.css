@@ -4,31 +4,36 @@
    ========================================================================== */
 
 :root {
-  /* --- Brand palette: Grand Hotel (forest, brass & ivory) --------------- */
-  --bg-header: #081710;
-  --hero-from: #16322a;
-  --hero-to: #0e241b;
-  --bg: #0c211b;
-  --surface: #16322a;
-  --surface-2: #1e3d31;
-  --ink: #f2ede0;
-  --body: #c3ccc1;
-  --muted: #92a89a;
-  --gold: #c2a368;
-  --gold-text: #d8be86;
-  --mint: #5bc2a2;
+  /* --- Brand palette: graphite slate (the shipped "Mix" theme) ----------
+     index.astro's .theme-dark re-declares these for in-page content; the
+     values here are the source of truth for the out-of-theme chrome
+     (skip link, scroll-progress rail, through-line) and must match it so
+     nothing renders in the retired forest/brass palette. */
+  --bg-header: #0f1418;
+  --hero-from: #1c2329;
+  --hero-to: #141a1e;
+  --bg: #141a1e;
+  --surface: #1d242b;
+  --surface-2: #252e36;
+  --ink: #eef1ef;
+  --body: #bac2c1;
+  --muted: #8b9592;
+  --gold: #1f8390;
+  --gold-text: #46cfd6;
+  --mint: #46cfd6;
+  --cost: #c87a64;
 
-  /* Derived, warm hairlines + metal/verdigris glows */
-  --line: rgba(226, 216, 196, 0.13);
-  --line-strong: rgba(226, 216, 196, 0.22);
-  --gold-glow: rgba(194, 163, 104, 0.3);
-  --mint-soft: rgba(91, 194, 162, 0.13);
-  --gold-soft: rgba(194, 163, 104, 0.1);
+  /* Derived hairlines + accent glows */
+  --line: rgba(220, 230, 230, 0.12);
+  --line-strong: rgba(220, 230, 230, 0.2);
+  --gold-glow: rgba(70, 207, 214, 0.3);
+  --mint-soft: rgba(70, 207, 214, 0.13);
+  --gold-soft: rgba(31, 131, 144, 0.12);
 
-  /* --- Type --------------------------------------------------------------- */
+  /* --- Type: serif display + grotesque body + mono readouts -------------- */
   --font-serif: "Newsreader Variable", "Newsreader", Georgia, "Times New Roman", serif;
-  --font-sans: "Inter Variable", "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-mono: "IBM Plex Mono", "SFMono-Regular", ui-monospace, "Cascadia Mono", monospace;
+  --font-sans: "Hanken Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "Geist Mono", "IBM Plex Mono", "SFMono-Regular", ui-monospace, monospace;
 
   /* Fluid type scale (ratio ~1.25–1.3) */
   --step--1: clamp(0.84rem, 0.81rem + 0.14vw, 0.92rem);
