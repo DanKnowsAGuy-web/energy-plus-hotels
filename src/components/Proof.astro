@@ -163,6 +163,20 @@ const cases = [
       </p>
     </div>
 
+    <a
+      class="proof__record reveal"
+      href="https://bit.ly/verified-results"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="View the full record of 200-plus measured results, opens in a new tab"
+    >
+      <span class="proof__record-stat">200+ measured results</span>
+      <span class="proof__record-meta">11 countries · 6 continents · multiple utility companies</span>
+      <span class="proof__record-go">View the record
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12h13M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </span>
+    </a>
+
     <div class="proof__carousel reveal" style="--i: 1">
       <button class="proof__arrow" id="proof-prev" type="button" aria-label="Previous case study">&larr;</button>
       <div class="proof__viewport" id="proof-viewport">
@@ -272,6 +286,68 @@ const cases = [
   }
   .proof__lede {
     margin-top: var(--space-m);
+  }
+
+  /* link to the full field record above the cards */
+  .proof__record {
+    margin-top: var(--space-l);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1.2rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid color-mix(in srgb, var(--gold-text) 38%, transparent);
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--gold-text) 6%, transparent);
+    text-decoration: none;
+    color: var(--ink);
+    transition: border-color 0.25s ease, background 0.25s ease,
+      transform 0.25s var(--ease-out-quart);
+  }
+  .proof__record:hover {
+    border-color: var(--gold-text);
+    background: color-mix(in srgb, var(--gold-text) 11%, transparent);
+    transform: translateY(-2px);
+  }
+  .proof__record:focus-visible {
+    outline: 2px solid var(--gold-text);
+    outline-offset: 3px;
+  }
+  .proof__record-stat {
+    font-family: var(--font-serif);
+    font-size: var(--step-1);
+    font-weight: 600;
+    color: var(--gold-text);
+    letter-spacing: -0.01em;
+  }
+  .proof__record-meta {
+    font-size: var(--step--1);
+    color: var(--body);
+  }
+  .proof__record-go {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--gold-text);
+    white-space: nowrap;
+  }
+  .proof__record-go svg {
+    width: 1.1em;
+    height: 1.1em;
+    transition: transform 0.25s var(--ease-out-quart);
+  }
+  .proof__record:hover .proof__record-go svg {
+    transform: translateX(3px);
+  }
+  @media (max-width: 640px) {
+    .proof__record-go {
+      margin-left: 0;
+    }
   }
 
   .proof__carousel {
