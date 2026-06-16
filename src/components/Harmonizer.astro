@@ -170,29 +170,33 @@ const ptacs = [244, 204, 164];
             <text class="hz__bill-amt" x="210" y="30" text-anchor="end">$1,000</text>
 
             <g class="hz__cost" id="hz-c1">
-              <text class="hz__bill-name" x="0" y="56">Lost as heat</text>
-              <text class="hz__bill-amt hz__cost-amt" x="210" y="56" text-anchor="end">+$90</text>
+              <text class="hz__bill-name" x="0" y="58">Lost as heat</text>
+              <text class="hz__bill-amt hz__cost-amt" x="210" y="58" text-anchor="end">+$90</text>
             </g>
             <g class="hz__cost" id="hz-c2">
-              <text class="hz__bill-name" x="0" y="82">Power-factor penalty</text>
-              <text class="hz__bill-amt hz__cost-amt" x="210" y="82" text-anchor="end">+$35</text>
-            </g>
-            <g class="hz__cost" id="hz-c3">
-              <text class="hz__bill-name" x="0" y="108">Equipment wear (est.)</text>
-              <text class="hz__bill-amt hz__cost-amt" x="210" y="108" text-anchor="end">+$15</text>
+              <text class="hz__bill-name" x="0" y="86">Power-factor penalty</text>
+              <text class="hz__bill-amt hz__cost-amt" x="210" y="86" text-anchor="end">+$35</text>
             </g>
 
             <g id="hz-credit" class="hz__credit">
-              <text class="hz__bill-name hz__bill--mint" x="0" y="134">Harmonizer</text>
-              <text class="hz__bill-amt hz__bill--mint" x="210" y="134" text-anchor="end">&#8722;$140</text>
+              <text class="hz__bill-name hz__bill--mint" x="0" y="114">Harmonizer</text>
+              <text class="hz__bill-amt hz__bill--mint" x="210" y="114" text-anchor="end">&#8722;$125</text>
             </g>
 
-            <line class="hz__bill-rule" x1="0" y1="150" x2="210" y2="150"></line>
-            <text class="hz__bill-tlabel" x="0" y="176">What you pay</text>
-            <text class="hz__bill-total" id="hz-total" x="210" y="178" text-anchor="end">$1,140</text>
-            <text class="hz__bill-note" x="0" y="196">Illustrative split, set by your own utility data.</text>
+            <line class="hz__bill-rule" x1="0" y1="132" x2="210" y2="132"></line>
+            <text class="hz__bill-tlabel" x="0" y="158">What you pay</text>
+            <text class="hz__bill-total" id="hz-total" x="210" y="160" text-anchor="end">$1,125</text>
+            <text class="hz__bill-note" x="0" y="178">Illustrative split, set by your own utility data.</text>
           </g>
         </svg>
+        <aside class="hz__offbill">
+          <span class="hz__offbill-eyebrow">Off the bill, too</span>
+          <p class="hz__offbill-text">
+            Dirty power also takes <strong>5+ years</strong> off a large HVAC
+            unit, the kind that costs <strong>tens of thousands</strong> to
+            replace. That bill never reaches your meter.
+          </p>
+        </aside>
       </figure>
 
       <div class="hz__progress" aria-hidden="true">
@@ -304,17 +308,17 @@ const ptacs = [244, 204, 164];
       // the bill, left side: the foam credit lands and the total falls back
       // toward the useful-energy line as the harmonizer seats
       // cost lines appear one by one as the scroll advances
-      [["hz-c1", 0.07], ["hz-c2", 0.14], ["hz-c3", 0.21]].forEach(
+      [["hz-c1", 0.07], ["hz-c2", 0.16]].forEach(
         ([id, th]) => { const el = $(id); if (el) el.style.opacity = p > th ? "1" : "0"; },
       );
       const credit = $("hz-credit");
       const total = $("hz-total");
       credit.style.opacity = climb.toFixed(2);
-      total.textContent = "$" + fmtK(1140 - 140 * climb);
+      total.textContent = "$" + fmtK(1125 - 125 * climb);
       total.classList.toggle("is-good", climb > 0.6);
       sec.classList.toggle("is-deferred", p > 0.66);
-      sec.classList.toggle("is-stamped", p > 0.72);
       sec.classList.toggle("is-settled", p > 0.75);
+      sec.classList.toggle("is-offbill", p > 0.4);
       if (prog) prog.style.transform = "scaleX(" + p.toFixed(3) + ")";
 
       const phase = p < 0.22 ? 0 : p < 0.38 ? 1 : p < 0.68 ? 2 : 3;
@@ -325,7 +329,7 @@ const ptacs = [244, 204, 164];
     };
 
     if (reduce) {
-      sec.classList.add("is-static", "is-stamped", "is-settled");
+      sec.classList.add("is-static", "is-settled", "is-offbill");
       box.setAttribute("transform", "translate(0,0)");
       box.style.opacity = "1";
       [riserRed, dropRed, riserMint, dropMint].forEach((el) => (el.style.strokeDashoffset = 0));
@@ -333,7 +337,7 @@ const ptacs = [244, 204, 164];
       loads.forEach((l) => l.el.classList.add("is-cool"));
       winRows.forEach((w) => w.el.classList.add("is-warm"));
       if (kwh) { kwh.textContent = fmtK(KWH_LO); kwh.classList.add("is-good"); }
-      ["hz-c1", "hz-c2", "hz-c3"].forEach((id) => { const el = $(id); if (el) el.style.opacity = "1"; });
+      ["hz-c1", "hz-c2"].forEach((id) => { const el = $(id); if (el) el.style.opacity = "1"; });
       $("hz-credit").style.opacity = "1";
       const totalS = $("hz-total");
       totalS.textContent = "$" + fmtK(1000);
@@ -449,8 +453,49 @@ const ptacs = [244, 204, 164];
     .hz__card { transition: none; }
   }
 
-  .hz__figure { margin: 0; }
+  .hz__figure { margin: 0; position: relative; }
   .hz__svg { width: 100%; height: auto; max-height: 56vh; }
+
+  /* off-bill equipment cost: a callout that slides in over the scene. The
+     wear cost is capital, not energy, so it lives outside the bill total. */
+  .hz__offbill {
+    position: absolute;
+    top: 2%;
+    right: 0;
+    max-width: 15rem;
+    padding: 0.85rem 1rem;
+    background: var(--surface);
+    border: 1px solid color-mix(in srgb, var(--cost) 45%, transparent);
+    border-radius: var(--radius-s);
+    box-shadow: 0 14px 34px -20px rgba(0, 0, 0, 0.75);
+    opacity: 0;
+    transform: translateX(18px);
+    transition: opacity 0.5s var(--ease-out-quart),
+      transform 0.5s var(--ease-out-quart);
+    pointer-events: none;
+  }
+  .hz.is-offbill .hz__offbill { opacity: 1; transform: none; }
+  .hz__offbill-eyebrow {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cost);
+    margin-bottom: 0.4rem;
+  }
+  .hz__offbill-text {
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: var(--body);
+  }
+  .hz__offbill-text strong { color: var(--ink); font-weight: 600; }
+  @media (prefers-reduced-motion: reduce) {
+    .hz__offbill { transition: none; }
+  }
+  @media (max-width: 640px) {
+    .hz__offbill { position: static; max-width: none; margin-top: var(--space-s); transform: none; }
+  }
 
   .hz__ground { stroke: var(--line-strong); stroke-width: 1.5; stroke-dasharray: 5 6; }
   .hz__axis { stroke: var(--line); stroke-width: 1; stroke-dasharray: 3 6; }
